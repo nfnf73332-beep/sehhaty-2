@@ -416,18 +416,24 @@
   let fpsFrames=0,fpsTimer=performance.now();
 
   // ---- Setup video ----
-  // Camera is handled by the plain script above. Wait for ready signal.
-  window.addEventListener("sehhaty:cameraReady",async ()=>{
-    if(!FaceLandmarker)return; // AI not available, camera only
+  // Camera is handled by the plain script above. Init AI whenever camera is ready.
+  async function _initAI(){
+    if(!FaceLandmarker){
+      aiText.textContent="⚠ الذكاء الاصطناعي غير متاح — الكاميرا تعمل فقط";
+      return;
+    }
     const ok=await loadModel();
     if(ok){running=true;renderLoop();}
-  });
+    else{aiText.textContent="⚠ تعذّر تحميل النموذج — الكاميرا فقط";}
+  }
+  window.addEventListener("sehhaty:cameraReady",_initAI);
+  if(window._sehhatyCamReady)_initAI();
 
   // ---- Setup FaceLandmarker ----
   async function loadModel(){
     try{
       aiText.textContent="جارٍ تحميل نموذج FaceLandmarker…";
-      const filesetResolver=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm");
+      const filesetResolver=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
       faceLandmarker=await FaceLandmarker.createFromOptions(filesetResolver,{
         baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},
         outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true,

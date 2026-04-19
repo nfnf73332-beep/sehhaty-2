@@ -373,18 +373,25 @@
 
   function setStatus(a,b){status.querySelector(".s1").textContent=a;status.querySelector(".s2").textContent=b;}
 
-  // Camera is handled by the plain script above. We just wait for the ready signal.
-  window.addEventListener("sehhaty:cameraReady",async ()=>{
-    samp.width=video.videoWidth;samp.height=video.videoHeight;
-    if(!FaceLandmarker)return; // AI not available, camera only
+  // Camera is handled by the plain script above. Init AI whenever camera is ready.
+  async function _initAI(){
+    if(!video.videoWidth){await new Promise(r=>setTimeout(r,100));}
+    samp.width=video.videoWidth||640;samp.height=video.videoHeight||480;
+    if(!FaceLandmarker){
+      aiText.textContent="⚠ الذكاء الاصطناعي غير متاح — الكاميرا تعمل فقط";
+      return;
+    }
     const ok=await loadModel();
     if(ok){running=true;loop();}
-  });
+    else{aiText.textContent="⚠ تعذّر تحميل النموذج — الكاميرا فقط";}
+  }
+  window.addEventListener("sehhaty:cameraReady",_initAI);
+  if(window._sehhatyCamReady)_initAI();
 
   async function loadModel(){
     try{
       aiText.textContent="تحميل FaceLandmarker…";
-      const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm");
+      const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
       faceLandmarker=await FaceLandmarker.createFromOptions(fs,{
         baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},
         runningMode:"VIDEO",numFaces:1

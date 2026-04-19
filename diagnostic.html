@@ -69,6 +69,10 @@
     <div class="icon">⏳</div>
     <div class="t"><b>الأجهزة المتوفرة</b><div class="d" id="d-devices">جارٍ الفحص…</div></div>
   </div>
+  <div class="check" id="c-mp">
+    <div class="icon">⏳</div>
+    <div class="t"><b>تحميل نموذج MediaPipe (AI)</b><div class="d" id="d-mp">جارٍ الفحص…</div></div>
+  </div>
 </div>
 
 <div class="camera-test">
@@ -221,6 +225,28 @@
     if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;}
     testBtn.style.display="block";stopBtn.style.display="none";testBtn.disabled=false;testBtn.textContent="📷 شغّل الكاميرا الآن";
   });
+</script>
+
+<!-- MediaPipe test (as ES module - tests the actual path the demos use) -->
+<script type="module">
+  try{
+    setCheck("c-mp","warn","جارٍ تحميل مكتبة MediaPipe…");
+    const mod=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");
+    if(!mod.FaceLandmarker||!mod.FilesetResolver){
+      setCheck("c-mp","bad","المكتبة حُمّلت لكن الدوال مفقودة — غير متوقع.");
+    }else{
+      setCheck("c-mp","warn","المكتبة حُمّلت — جارٍ تحميل النموذج نفسه…");
+      const fs=await mod.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+      await mod.FaceLandmarker.createFromOptions(fs,{
+        baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},
+        runningMode:"IMAGE",numFaces:1
+      });
+      setCheck("c-mp","ok","✓ نموذج AI يعمل بالكامل — الديمو جاهز للعرض.");
+    }
+  }catch(e){
+    console.error(e);
+    setCheck("c-mp","bad",`تعذّر التحميل: <code>${e.message||e.name||"Unknown"}</code>.<br>السبب غالبًا: حجب CDN من الشبكة، مشكلة إنترنت، أو متصفح قديم.`);
+  }
 </script>
 
 </body>
