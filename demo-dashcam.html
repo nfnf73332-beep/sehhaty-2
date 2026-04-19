@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ديمو داش كام السيارة — صحتي 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#3B8BBE;--sky-dark:#1B4F7A;--sky-light:#EBF4FB;--sky-accent:#7DC3E8;
+    --ink:#0E1E2E;--muted:#5C6F82;--bg:#F5F9FC;
+    --danger:#D16B5C;--warn:#E9B44C;--ok:#4AA3B8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+  body{background:var(--bg);color:var(--ink);min-height:100vh;}
+  .topbar{background:linear-gradient(135deg,var(--sky-dark),var(--sky));color:#fff;padding:14px 0;}
+  .container{max-width:1280px;margin:0 auto;padding:0 24px;}
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+  .brand-mark{width:40px;height:40px;background:#fff;border-radius:12px;display:grid;place-items:center;color:var(--sky-dark);font-weight:800;}
+  .back{color:#fff;text-decoration:none;font-size:14px;opacity:.9;}
+  .page-head{padding:28px 0 12px;}
+  .eyebrow{display:inline-block;background:#FFE9E5;color:#B54A2F;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:10px;}
+  h1{font-size:28px;font-weight:700;}
+  .sub{color:var(--muted);font-size:15px;margin-top:6px;}
+  .ai-tag{display:inline-flex;align-items:center;gap:6px;background:var(--sky-light);color:var(--sky-dark);padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;margin-inline-start:8px;}
+
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:22px;margin:20px 0 60px;align-items:start;}
+
+  /* DASH CAM */
+  .cam-frame{background:#0A0F0D;border-radius:18px;padding:14px;border:4px solid #111;
+    box-shadow:0 40px 80px -30px rgba(0,0,0,.5);}
+  .cam-wrap{background:#000;border-radius:10px;aspect-ratio:16/9;position:relative;overflow:hidden;}
+
+  .road{position:absolute;inset:0;background:linear-gradient(180deg,#1a2a40 0%,#0a1420 40%,#1a1a1a 40%,#000 100%);overflow:hidden;}
+  .road::before{content:"";position:absolute;top:40%;left:50%;width:200%;height:60%;
+    background:linear-gradient(180deg,#1a1a1a,#000);transform:translateX(-50%) perspective(400px) rotateX(55deg);transform-origin:top;}
+  .lane{position:absolute;top:40%;bottom:0;width:4px;background:repeating-linear-gradient(180deg,#FFB800 0,#FFB800 20px,transparent 20px,transparent 50px);opacity:.85;}
+  .lane.l{left:42%;animation:dash 1s linear infinite;}
+  .lane.r{left:58%;animation:dash 1s linear infinite;}
+  @keyframes dash{to{background-position:0 50px;}}
+
+  .cam-ui{position:absolute;inset:0;color:#fff;font-size:13px;}
+  .cam-top{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;}
+  .cam-badge{background:rgba(0,0,0,.6);padding:6px 12px;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:8px;}
+  .rec-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.3;}}
+  .cam-speed{background:rgba(0,0,0,.6);padding:8px 14px;border-radius:8px;text-align:center;}
+  .cam-speed .n{font-size:26px;font-weight:700;line-height:1;}
+  .cam-speed .u{font-size:10px;opacity:.7;}
+
+  /* PIP with real camera */
+  .pip{position:absolute;bottom:14px;inset-inline-start:14px;width:240px;height:180px;border-radius:14px;overflow:hidden;background:#111;border:2px solid rgba(255,255,255,.2);transition:border-color .3s,box-shadow .3s;}
+  .pip.live{border-color:var(--sky-accent);}
+  .pip.warn{border-color:var(--warn);box-shadow:0 0 25px rgba(233,180,76,.4);}
+  .pip.danger{border-color:var(--danger);box-shadow:0 0 30px rgba(209,107,92,.55);}
+  .pip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:0;transition:opacity .5s;}
+  .pip video.on{opacity:1;}
+  .pip canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);pointer-events:none;}
+  .pip-label{position:absolute;top:6px;inset-inline-start:6px;background:rgba(0,0,0,.72);color:#fff;font-size:10px;padding:3px 8px;border-radius:4px;z-index:3;display:flex;align-items:center;gap:4px;}
+  .pip-live-dot{width:6px;height:6px;border-radius:50%;background:var(--danger);animation:blink 1s infinite;}
+  .pip-stat{position:absolute;bottom:6px;inset-inline-start:6px;inset-inline-end:6px;display:flex;justify-content:space-between;font-size:10px;color:#fff;z-index:3;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent);padding:6px 4px 3px;}
+  .pip-stat b{font-weight:700;color:var(--sky-accent);}
+  .pip.warn .pip-stat b{color:var(--warn);}
+  .pip.danger .pip-stat b{color:#FFB3AE;}
+
+  /* Health panel */
+  .health{position:absolute;bottom:14px;inset-inline-end:14px;background:rgba(0,0,0,.75);border-radius:12px;padding:14px 16px;min-width:220px;backdrop-filter:blur(6px);}
+  .health .t{font-size:10px;opacity:.7;margin-bottom:8px;letter-spacing:.5px;}
+  .health .row{display:flex;justify-content:space-between;font-size:12px;margin:5px 0;}
+  .health .row b{font-weight:700;}
+  .health .bar{height:5px;background:rgba(255,255,255,.1);border-radius:5px;overflow:hidden;margin-top:3px;}
+  .health .bar-fill{height:100%;background:linear-gradient(90deg,var(--ok),var(--warn));transition:width .3s ease,background .3s;border-radius:5px;}
+  .health .bar-fill.danger{background:linear-gradient(90deg,var(--warn),var(--danger));}
+
+  /* Live waveform for EAR */
+  .ear-canvas{width:100%;height:36px;background:rgba(255,255,255,.04);border-radius:4px;margin-top:6px;}
+
+  /* Alert banner */
+  .alert-banner{position:absolute;top:64px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:10px;font-weight:700;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none;font-size:14px;white-space:nowrap;}
+  .alert-banner.show{opacity:1;}
+  .alert-banner.warn{background:var(--warn);color:#3d2a00;}
+  .alert-banner.danger{background:var(--danger);color:#fff;box-shadow:0 10px 30px rgba(209,107,92,.6);animation:shake .4s infinite;}
+  @keyframes shake{25%{transform:translate(-52%,0);}75%{transform:translate(-48%,0);}}
+
+  /* Emergency */
+  .emerg{position:absolute;inset:0;background:rgba(209,107,92,.95);display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px;z-index:10;}
+  .emerg.show{display:flex;}
+  .emerg .call-icon{font-size:60px;margin-bottom:12px;animation:ring .8s infinite;}
+  @keyframes ring{50%{transform:rotate(-15deg);}}
+  .emerg h2{font-size:24px;margin-bottom:6px;}
+  .emerg p{font-size:14px;opacity:.9;margin-bottom:14px;}
+  .emerg .lines{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .emerg .line{background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;font-size:13px;}
+
+  /* Status pill */
+  .ai-status{position:absolute;top:60px;inset-inline-start:14px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:6px;z-index:2;backdrop-filter:blur(6px);}
+  .ai-status .dot{width:7px;height:7px;border-radius:50%;background:var(--warn);}
+  .ai-status.ready .dot{background:var(--ok);animation:pulse 1.5s infinite;}
+  @keyframes pulse{50%{opacity:.4;}}
+
+  /* Controls */
+  .ctrl{background:#111815;border-radius:14px;padding:14px;margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#E9F3EE;}
+  .ctrl .left{font-size:13px;opacity:.8;}
+  .btn{background:var(--sky);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn:hover{background:var(--sky-dark);}
+  .btn.ghost{background:rgba(255,255,255,.08);color:#E9F3EE;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .scenario{display:flex;gap:6px;flex-wrap:wrap;}
+  .scenario button{background:rgba(255,255,255,.06);color:#E9F3EE;border:1px solid transparent;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;}
+  .scenario button.active{background:var(--sky);border-color:var(--sky-accent);}
+
+  /* Live metrics bar */
+  .live-bar{background:#fff;border:1px solid #DCE8F3;border-radius:14px;padding:14px 16px;margin-top:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  .live-bar .cell{text-align:center;}
+  .live-bar .lbl{font-size:11px;color:var(--muted);letter-spacing:.5px;}
+  .live-bar .val{font-size:18px;font-weight:700;color:var(--sky-dark);margin-top:2px;font-variant-numeric:tabular-nums;}
+  .live-bar .cell.ok .val{color:var(--ok);}
+  .live-bar .cell.warn .val{color:var(--warn);}
+  .live-bar .cell.danger .val{color:var(--danger);}
+
+  /* Side */
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
+  .phone{background:#fff;border:1px solid #DCE8F3;border-radius:28px;padding:8px;box-shadow:0 20px 40px -25px rgba(27,79,122,.2);}
+  .phone-screen{background:var(--sky-light);border-radius:22px;overflow:hidden;min-height:460px;}
+  .ph-head{background:var(--sky-dark);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .ph-body{padding:16px;display:flex;flex-direction:column;gap:10px;}
+  .ph-card{background:#fff;border-radius:12px;padding:12px;border:1px solid transparent;transition:border .3s;}
+  .ph-card.alert{border-color:var(--danger);background:#FDF2F0;}
+  .ph-card .title{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;}
+  .ph-card .value{font-size:18px;font-weight:700;color:var(--sky-dark);margin-top:2px;}
+  .ph-card.alert .value{color:var(--danger);}
+  .ph-notify{background:#fff;border-radius:10px;padding:10px 12px;font-size:12px;border-inline-start:3px solid var(--sky);line-height:1.6;}
+  .ph-notify b{color:var(--sky-dark);display:block;margin-bottom:2px;}
+  .ph-notify.warn{border-color:var(--warn);}
+  .ph-notify.warn b{color:#8A5A00;}
+  .ph-notify.danger{border-color:var(--danger);background:#FDF2F0;}
+  .ph-notify.danger b{color:var(--danger);}
+
+  .kpi{background:#fff;border:1px solid #DCE8F3;border-radius:16px;padding:18px;}
+  .kpi h4{font-size:14px;margin-bottom:12px;color:var(--sky-dark);}
+  .kpi-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-top:1px dashed #DCE8F3;}
+  .kpi-row:first-of-type{border-top:none;}
+  .kpi-row b{color:var(--sky-dark);}
+
+  .flow{background:#fff;border:1px solid #DCE8F3;border-radius:16px;padding:18px;margin-top:22px;}
+  .flow h3{font-size:16px;margin-bottom:14px;}
+  .flow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .flow-step{background:var(--bg);padding:14px;border-radius:12px;border-top:3px solid var(--danger);}
+  .flow-step .n{font-size:11px;color:var(--muted);}
+  .flow-step .t{font-weight:600;margin-top:4px;font-size:14px;}
+  .flow-step .d{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .tech{background:var(--sky-dark);color:#E9F3EE;border-radius:16px;padding:20px;margin-top:22px;}
+  .tech h3{color:#fff;font-size:16px;margin-bottom:10px;}
+  .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px;}
+  .tech-item{background:rgba(255,255,255,.07);padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.6;}
+  .tech-item b{display:block;color:var(--sky-accent);font-size:12px;margin-bottom:2px;}
+
+  .cam-gate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,11,16,.92);z-index:50;backdrop-filter:blur(10px);color:#fff;text-align:center;padding:20px;}
+  .cam-gate.hidden{display:none;}
+  .cam-gate h3{font-size:22px;margin-bottom:8px;}
+  .cam-gate p{font-size:14px;opacity:.85;margin-bottom:20px;max-width:380px;line-height:1.8;}
+  .cam-gate button{background:var(--sky);color:#fff;border:none;padding:15px 30px;border-radius:12px;font-weight:700;font-size:16px;font-family:inherit;cursor:pointer;}
+  .cam-gate button:hover{background:var(--sky-accent);color:var(--sky-dark);}
+  .cam-gate .err{background:rgba(209,107,92,.2);border:1px solid rgba(209,107,92,.4);padding:10px 14px;border-radius:8px;margin-top:14px;font-size:13px;max-width:380px;display:none;}
+  .cam-gate .err.show{display:block;}
+  .cam-gate a{color:var(--sky-accent);font-size:13px;margin-top:14px;text-decoration:underline;}
+  @media(max-width:960px){.layout{grid-template-columns:1fr;}.side{position:static;}.live-bar{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">ص</div>
+      <div style="font-size:14px;">صحتي 2.0 — داش كام السيارة</div>
+    </div>
+    <a href="index.html" class="back">→ العودة لمركز العروض</a>
+  </div>
+</div>
+
+<div class="container page-head">
+  <span class="eyebrow">مبادرة خارج المنزل · السلامة المرورية</span>
+  <h1>داش كام السيارة — رصد حالة السائق وحمايته من الخطر <span class="ai-tag">⚡ مدعوم بنموذج FaceLandmarker حيّ</span></h1>
+  <p class="sub">الكاميرا تشتغل مباشرة، ونموذج MediaPipe يحسب <b>Eye Aspect Ratio</b> فعليًا — أغمض عينك أمام الكاميرا لثوانٍ وستلاحظ تصاعد التنبيه حتى اتصال الطوارئ ٩٣٧.</p>
+</div>
+
+<div class="container layout">
+
+  <div>
+    <div class="cam-frame">
+      <div class="cam-wrap">
+        <div class="cam-gate" id="camGate">
+          <h3>📷 تفعيل الكاميرا</h3>
+          <p>النموذج يحتاج الكاميرا ليرصد عينيك ويحسب معدل النعاس فعليًا. اضغط الزر ووافق على الإذن.</p>
+          <button id="gateBtn">تفعيل الكاميرا الآن</button>
+          <div class="err" id="gateErr"></div>
+          <a href="diagnostic.html">تواجه مشكلة؟ افتح صفحة التشخيص →</a>
+        </div>
+
+        <div class="road">
+          <div class="lane l"></div>
+          <div class="lane r"></div>
+        </div>
+
+        <div class="cam-ui">
+          <div class="cam-top">
+            <div class="cam-badge"><span class="rec-dot"></span> REC · صحتي Dash</div>
+            <div class="cam-speed"><div class="n" id="speed">١١٠</div><div class="u">كم/س</div></div>
+          </div>
+
+          <div class="ai-status" id="aiStatus"><span class="dot"></span><span id="aiText">جارٍ تحميل نموذج AI…</span></div>
+
+          <div class="pip" id="pip">
+            <video id="cam" autoplay playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            <div class="pip-label"><span class="pip-live-dot"></span>مباشر · السائق</div>
+            <div class="pip-stat">
+              <span>انتباه: <b id="attn">--</b></span>
+              <span>EAR: <b id="earVal">--</b></span>
+            </div>
+          </div>
+
+          <div class="health">
+            <div class="t">🩺 مؤشرات السلامة — لحظية</div>
+            <div class="row"><span>مستوى النعاس</span><b id="sleepLvl">—</b></div>
+            <div class="bar"><div class="bar-fill" id="sleepBar" style="width:5%;"></div></div>
+            <div class="row" style="margin-top:8px;"><span>معدل الرمش (دقيقة)</span><b id="blinkRate">—</b></div>
+            <div class="row"><span>دوران الرأس</span><b id="yaw">—°</b></div>
+            <canvas class="ear-canvas" id="earGraph" width="260" height="40"></canvas>
+          </div>
+
+          <div class="alert-banner" id="alertBanner"></div>
+
+          <div class="emerg" id="emerg">
+            <div class="call-icon">📞</div>
+            <h2>اتصال طوارئ تلقائي</h2>
+            <p>لم يتم الاستجابة للإنذارات — تم تفعيل البروتوكول</p>
+            <div class="lines">
+              <div class="line">🚑 الهلال الأحمر — ٩٣٧</div>
+              <div class="line">📍 طريق الملك فهد — كم ٢٣</div>
+              <div class="line">👤 نواف الحسين</div>
+            </div>
+            <div style="margin-top:14px;font-size:12px;opacity:.85;">تم مشاركة الموقع + آخر قراءات حيوية من صحتي مع الفريق المتحرك</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="live-bar">
+      <div class="cell ok" id="m-face"><div class="lbl">الوجه</div><div class="val">—</div></div>
+      <div class="cell" id="m-eyes"><div class="lbl">العينان</div><div class="val">—</div></div>
+      <div class="cell" id="m-blink"><div class="lbl">رمش/د</div><div class="val">٠</div></div>
+      <div class="cell" id="m-drowsy"><div class="lbl">نعاس</div><div class="val">٠%</div></div>
+      <div class="cell" id="m-fps"><div class="lbl">الإطار/ث</div><div class="val">٠</div></div>
+    </div>
+
+    <div class="ctrl">
+      <div class="left">🧠 النموذج: <b style="color:#8BFFDD;">FaceLandmarker</b> · تحليل على الجهاز</div>
+      <div class="scenario">
+        <button data-s="live" class="active">وضع حيّ (كاميرا)</button>
+        <button data-s="tired">سيناريو: إرهاق</button>
+        <button data-s="drowsy">سيناريو: نعاس شديد</button>
+        <button data-s="nap">سيناريو: نوم + طوارئ</button>
+      </div>
+      <div>
+        <button class="btn ghost" id="resetBtn">إعادة</button>
+      </div>
+    </div>
+
+    <div class="flow">
+      <h3>بروتوكول الاستجابة التصاعدي</h3>
+      <div class="flow-grid">
+        <div class="flow-step" style="border-top-color:var(--ok);"><div class="n">١ — أخضر</div><div class="t">رصد مستمر</div><div class="d">النموذج يحلل حركة العين (EAR) ودوران الرأس ومعدل الرمش</div></div>
+        <div class="flow-step" style="border-top-color:var(--warn);"><div class="n">٢ — أصفر</div><div class="t">تنبيه لطيف</div><div class="d">صوت يقترح استراحة + تشغيل تكييف + موسيقى نشطة</div></div>
+        <div class="flow-step" style="border-top-color:var(--danger);"><div class="n">٣ — أحمر</div><div class="t">تنبيه حاد</div><div class="d">اهتزاز مقعد + صوت عالٍ + إرشاد لأقرب استراحة</div></div>
+        <div class="flow-step" style="border-top-color:#8B0000;"><div class="n">٤ — طوارئ</div><div class="t">اتصال ٩٣٧</div><div class="d">مشاركة الموقع + الملف الصحي + تنبيه ذوي المستخدم</div></div>
+      </div>
+    </div>
+
+    <div class="tech">
+      <h3>المتطلبات التقنية</h3>
+      <div class="tech-grid">
+        <div class="tech-item"><b>النموذج</b>MediaPipe FaceLandmarker — ٤٧٨ نقطة + ٥٢ Blendshape لحظيًا</div>
+        <div class="tech-item"><b>الخوارزمية</b>Eye Aspect Ratio + PERCLOS + حركة الرأس + معدل الرمش</div>
+        <div class="tech-item"><b>الأجهزة</b>داش كام ٦٠fps موجّه للسائق + NPU على الحافة</div>
+        <div class="tech-item"><b>التكامل</b>صحتي + ٩٣٧ الهلال الأحمر + توكلنا + المرور</div>
+        <div class="tech-item"><b>الخصوصية</b>المعالجة على الجهاز — لا يُرفع فيديو إلا عند الحادث</div>
+        <div class="tech-item"><b>الشركاء</b>وكلاء السيارات · شركات التأمين · أجهزة ما بعد البيع</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="ph-head">
+          <div>
+            <div style="font-size:14px;font-weight:700;">صحتي</div>
+            <div style="font-size:11px;opacity:.8;">أسعفني · Drive Safe</div>
+          </div>
+          <div style="font-size:12px;">وضع القيادة نشط 🚗</div>
+        </div>
+        <div class="ph-body">
+          <div class="ph-card" id="phStatus">
+            <div class="title">الحالة الحالية</div>
+            <div class="value" id="phState">قيادة آمنة ✓</div>
+          </div>
+          <div class="ph-card">
+            <div class="title">رحلة اليوم</div>
+            <div class="value">١١٢ كم · ١س ٤٢د</div>
+          </div>
+          <div id="notifList" style="display:flex;flex-direction:column;gap:8px;">
+            <div class="ph-notify"><b>🟢 مراقبة نشطة</b>الداش كام يرصد حالتك الصحية والتركيز بواسطة AI.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <h4>📊 الأثر المتوقع — لقيادات الوزارة</h4>
+      <div class="kpi-row"><span>خفض حوادث النعاس المتوقع</span><b>−٣٤%</b></div>
+      <div class="kpi-row"><span>زمن استجابة الطوارئ</span><b>−٤٨%</b></div>
+      <div class="kpi-row"><span>أرواح يمكن إنقاذها سنويًا</span><b>٣٠٠+</b></div>
+      <div class="kpi-row"><span>تكامل مع ٩٣٧ والمرور</span><b>✓</b></div>
+      <div class="kpi-row"><span>فرصة لشركات التأمين</span><b>+</b></div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import {FaceLandmarker, FilesetResolver, DrawingUtils} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
+
+  const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+
+  const video=document.getElementById("cam");
+  const overlay=document.getElementById("overlay");
+  const ctx=overlay.getContext("2d");
+  const earGraph=document.getElementById("earGraph");
+  const gctx=earGraph.getContext("2d");
+  const pip=document.getElementById("pip");
+  const aiStatus=document.getElementById("aiStatus");
+  const aiText=document.getElementById("aiText");
+  const attnEl=document.getElementById("attn");
+  const earEl=document.getElementById("earVal");
+  const sleepLvl=document.getElementById("sleepLvl");
+  const sleepBar=document.getElementById("sleepBar");
+  const blinkRate=document.getElementById("blinkRate");
+  const yawEl=document.getElementById("yaw");
+  const banner=document.getElementById("alertBanner");
+  const emerg=document.getElementById("emerg");
+  const resetBtn=document.getElementById("resetBtn");
+  const phStatus=document.getElementById("phStatus");
+  const phState=document.getElementById("phState");
+  const notifList=document.getElementById("notifList");
+  const mFace=document.getElementById("m-face").querySelector(".val");
+  const mEyes=document.getElementById("m-eyes");
+  const mEyesV=mEyes.querySelector(".val");
+  const mBlink=document.getElementById("m-blink").querySelector(".val");
+  const mDrowsy=document.getElementById("m-drowsy");
+  const mDrowsyV=mDrowsy.querySelector(".val");
+  const mFps=document.getElementById("m-fps").querySelector(".val");
+
+  let faceLandmarker=null,lastFrameTime=0,running=false,scenarioMode="live";
+
+  // Blink tracking
+  let earHistory=[];const EAR_HISTORY_MAX=120;
+  let blinkCount=0,wasEyesClosed=false,blinkTimestamps=[];
+  let drowsyStart=null,drowsyLevel=0,emergencyTriggered=false,notifiedLvl=0;
+  let fpsFrames=0,fpsTimer=performance.now();
+
+  // ---- Setup video ----
+  const gate=document.getElementById("camGate");
+  const gateBtn=document.getElementById("gateBtn");
+  const gateErr=document.getElementById("gateErr");
+
+  async function startCamera(){
+    try{
+      aiText.textContent="جارٍ فتح الكاميرا…";
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false});
+      video.srcObject=stream;video.classList.add("on");
+      pip.classList.add("live");
+      await new Promise(r=>video.onloadedmetadata=r);
+      overlay.width=video.videoWidth;overlay.height=video.videoHeight;
+      gate.classList.add("hidden");
+      return true;
+    }catch(e){
+      aiText.textContent="⚠ أذِن للمتصفح بالوصول للكاميرا";
+      gateErr.classList.add("show");
+      gateErr.innerHTML=`<b>خطأ:</b> ${e.name} — ${e.message}`;
+      return false;
+    }
+  }
+  gateBtn.addEventListener("click",async ()=>{
+    gateBtn.disabled=true;gateBtn.textContent="⏳ جارٍ…";
+    const ok=await startCamera();
+    if(!ok){gateBtn.disabled=false;gateBtn.textContent="أعد المحاولة";}
+    else if(!faceLandmarker){const ok2=await loadModel();if(ok2){running=true;renderLoop();}}
+  });
+
+  // ---- Setup FaceLandmarker ----
+  async function loadModel(){
+    try{
+      aiText.textContent="جارٍ تحميل نموذج FaceLandmarker…";
+      const filesetResolver=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm");
+      faceLandmarker=await FaceLandmarker.createFromOptions(filesetResolver,{
+        baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},
+        outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true,
+        runningMode:"VIDEO",numFaces:1
+      });
+      aiText.textContent="✓ النموذج جاهز — ابقَ أمام الكاميرا";
+      aiStatus.classList.add("ready");
+      return true;
+    }catch(e){
+      aiText.textContent="⚠ تعذّر تحميل النموذج";
+      console.error(e);return false;
+    }
+  }
+
+  // ---- Eye Aspect Ratio calculation from FaceMesh landmarks ----
+  // Indices per MediaPipe FaceMesh spec
+  const LEFT_EYE=[33,160,158,133,153,144];  // outer, top1, top2, inner, bot2, bot1
+  const RIGHT_EYE=[362,385,387,263,373,380];
+
+  function dist(a,b){const dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
+  function ear(landmarks,idx){
+    const p=idx.map(i=>landmarks[i]);
+    return (dist(p[1],p[5])+dist(p[2],p[4]))/(2*dist(p[0],p[3]));
+  }
+
+  // ---- Main loop ----
+  function renderLoop(){
+    if(!running){requestAnimationFrame(renderLoop);return;}
+    const now=performance.now();
+    if(video.readyState>=2 && faceLandmarker && scenarioMode==="live"){
+      const res=faceLandmarker.detectForVideo(video,now);
+      ctx.clearRect(0,0,overlay.width,overlay.height);
+      if(res.faceLandmarks && res.faceLandmarks.length){
+        const lm=res.faceLandmarks[0];
+        mFace.textContent="مُكتشف";mFace.parentElement.classList.add("ok");
+
+        // EAR
+        const leftEAR=ear(lm,LEFT_EYE),rightEAR=ear(lm,RIGHT_EYE);
+        const avgEAR=(leftEAR+rightEAR)/2;
+        earHistory.push(avgEAR);if(earHistory.length>EAR_HISTORY_MAX)earHistory.shift();
+
+        // Use blendshapes for more accurate blink
+        let blinkL=0,blinkR=0;
+        if(res.faceBlendshapes && res.faceBlendshapes.length){
+          const cats=res.faceBlendshapes[0].categories;
+          const l=cats.find(c=>c.categoryName==="eyeBlinkLeft");
+          const r=cats.find(c=>c.categoryName==="eyeBlinkRight");
+          blinkL=l?l.score:0;blinkR=r?r.score:0;
+        }
+        const closedScore=(blinkL+blinkR)/2;
+        const eyesClosed=closedScore>0.5 || avgEAR<0.18;
+
+        // Count blinks (edge detection)
+        if(eyesClosed && !wasEyesClosed){blinkCount++;blinkTimestamps.push(now);}
+        wasEyesClosed=eyesClosed;
+        blinkTimestamps=blinkTimestamps.filter(t=>now-t<60000);
+        const rate=blinkTimestamps.length;
+
+        // Head yaw from transformation matrix
+        let yaw=0;
+        if(res.facialTransformationMatrixes && res.facialTransformationMatrixes.length){
+          const m=res.facialTransformationMatrixes[0].data;
+          yaw=Math.atan2(m[8],m[10])*(180/Math.PI);
+        }
+
+        // Drowsiness: sustained closed eyes
+        if(eyesClosed){
+          if(!drowsyStart)drowsyStart=now;
+          drowsyLevel=Math.min(100,(now-drowsyStart)/30);  // 100% after ~3s closed
+        } else {
+          drowsyStart=null;
+          drowsyLevel=Math.max(0,drowsyLevel-2);
+        }
+
+        // UI updates
+        earEl.textContent=avgEAR.toFixed(2);
+        attnEl.textContent=arNum(Math.round(Math.max(0,100-drowsyLevel)))+"%";
+        mEyesV.textContent=eyesClosed?"مغمضة":"مفتوحة";
+        mEyes.className="cell "+(eyesClosed?"danger":"ok");
+        mBlink.textContent=arNum(rate);
+        mDrowsyV.textContent=arNum(Math.round(drowsyLevel))+"%";
+        mDrowsy.className="cell "+(drowsyLevel>60?"danger":drowsyLevel>30?"warn":"ok");
+        blinkRate.textContent=arNum(rate);
+        yawEl.textContent=arNum(Math.round(yaw))+"°";
+
+        sleepBar.style.width=drowsyLevel+"%";
+        if(drowsyLevel>60){sleepLvl.textContent="مرتفع جدًا";sleepBar.classList.add("danger");pip.className="pip live danger";}
+        else if(drowsyLevel>30){sleepLvl.textContent="مرتفع";sleepBar.classList.add("danger");pip.className="pip live warn";}
+        else {sleepLvl.textContent="منخفض";sleepBar.classList.remove("danger");pip.className="pip live";}
+
+        // Trigger escalating alerts
+        const lvl=drowsyLevel>90?4:drowsyLevel>65?3:drowsyLevel>35?2:1;
+        if(lvl!==notifiedLvl){
+          notifiedLvl=lvl;
+          if(lvl===2){
+            showBanner("warn","⚠ ملامح إرهاق — خُذ استراحة");
+            addNotif("warn","⚠ تنبيه لطيف","تم تفعيل هواء بارد + اقتراح استراحة قريبة.");
+            phStatus.querySelector(".value").textContent="إرهاق ⚠";
+          } else if(lvl===3){
+            showBanner("danger","🔴 نعاس شديد — توقف فورًا");
+            addNotif("danger","🔴 إنذار حاد","اهتزاز مقعد + نغمة مرتفعة — تم توجيه أقرب استراحة.");
+            phStatus.classList.add("alert");phState.textContent="نعاس شديد 🔴";
+          } else if(lvl===4 && !emergencyTriggered){
+            emergencyTriggered=true;
+            emerg.classList.add("show");
+            addNotif("danger","🚨 طوارئ تفعّلت","تم الاتصال بـ٩٣٧ تلقائيًا ومشاركة الموقع والملف الصحي.");
+            phState.textContent="اتصال طوارئ جارٍ 📞";
+          } else if(lvl===1){
+            hideBanner();
+          }
+        }
+
+        // Draw landmarks
+        ctx.save();
+        ctx.fillStyle="rgba(125,195,232,0.7)";
+        for(let i=0;i<lm.length;i+=5){
+          const x=lm[i].x*overlay.width,y=lm[i].y*overlay.height;
+          ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+        }
+        // Highlight eyes
+        ctx.strokeStyle=eyesClosed?"#D16B5C":"#7DC3E8";
+        ctx.lineWidth=2;
+        [LEFT_EYE,RIGHT_EYE].forEach(idx=>{
+          ctx.beginPath();
+          idx.forEach((i,k)=>{const p=lm[i];if(k===0)ctx.moveTo(p.x*overlay.width,p.y*overlay.height);else ctx.lineTo(p.x*overlay.width,p.y*overlay.height);});
+          ctx.closePath();ctx.stroke();
+        });
+        ctx.restore();
+
+      } else {
+        mFace.textContent="—";mFace.parentElement.classList.remove("ok");
+        attnEl.textContent="--";earEl.textContent="--";
+      }
+
+      // Draw EAR waveform
+      drawEARGraph();
+    }
+
+    // FPS
+    fpsFrames++;
+    if(now-fpsTimer>=1000){mFps.textContent=arNum(fpsFrames);fpsFrames=0;fpsTimer=now;}
+
+    requestAnimationFrame(renderLoop);
+  }
+
+  function drawEARGraph(){
+    gctx.clearRect(0,0,earGraph.width,earGraph.height);
+    if(earHistory.length<2)return;
+    gctx.strokeStyle="rgba(125,195,232,0.9)";
+    gctx.lineWidth=1.5;
+    gctx.beginPath();
+    const w=earGraph.width,h=earGraph.height;
+    const min=0.1,max=0.4;
+    earHistory.forEach((v,i)=>{
+      const x=(i/EAR_HISTORY_MAX)*w;
+      const y=h-((v-min)/(max-min))*h;
+      if(i===0)gctx.moveTo(x,y);else gctx.lineTo(x,y);
+    });
+    gctx.stroke();
+    // Threshold line
+    gctx.strokeStyle="rgba(209,107,92,0.5)";gctx.setLineDash([3,3]);
+    const ty=h-((0.18-min)/(max-min))*h;
+    gctx.beginPath();gctx.moveTo(0,ty);gctx.lineTo(w,ty);gctx.stroke();
+    gctx.setLineDash([]);
+  }
+
+  function showBanner(type,msg){banner.className="alert-banner show "+type;banner.textContent=msg;}
+  function hideBanner(){banner.className="alert-banner";}
+  function addNotif(type,title,msg){
+    const d=document.createElement("div");
+    d.className="ph-notify "+(type||"");
+    d.innerHTML=`<b>${title}</b>${msg}`;
+    notifList.prepend(d);
+    while(notifList.children.length>5)notifList.removeChild(notifList.lastChild);
+  }
+
+  function reset(){
+    drowsyStart=null;drowsyLevel=0;emergencyTriggered=false;notifiedLvl=0;
+    earHistory=[];blinkTimestamps=[];blinkCount=0;
+    hideBanner();emerg.classList.remove("show");
+    phStatus.classList.remove("alert");phState.textContent="قيادة آمنة ✓";
+    notifList.innerHTML='<div class="ph-notify"><b>🟢 مراقبة نشطة</b>الداش كام يرصد حالتك الصحية والتركيز بواسطة AI.</div>';
+    sleepBar.style.width="5%";sleepBar.classList.remove("danger");
+    sleepLvl.textContent="منخفض";pip.className="pip live";
+  }
+
+  // ---- Scenarios (override live for demo) ----
+  function runScenario(kind){
+    scenarioMode=kind;
+    reset();
+    if(kind==="live")return;
+    // freeze landmarks processing, drive drowsyLevel manually
+    let progress=0;
+    const interval=setInterval(()=>{
+      progress++;
+      if(kind==="tired"){
+        drowsyLevel=Math.min(45,progress*3);
+        if(progress===15){showBanner("warn","⚠ ملامح إرهاق");addNotif("warn","💛 تنبيه لطيف","تكييف بارد + استراحة مقترحة بعد ٥ كم.");}
+      } else if(kind==="drowsy"){
+        drowsyLevel=Math.min(78,progress*4);
+        if(progress===8){showBanner("warn","⚠ نعاس — ارفع انتباهك");}
+        if(progress===18){showBanner("danger","🔴 نعاس شديد — توقف");phStatus.classList.add("alert");phState.textContent="نعاس شديد 🔴";addNotif("danger","🔴 إنذار حاد","اهتزاز + صوت عالٍ — توجيه لأقرب استراحة.");}
+      } else if(kind==="nap"){
+        drowsyLevel=Math.min(100,progress*5);
+        if(progress===8){showBanner("warn","⚠ نعاس");}
+        if(progress===16){showBanner("danger","🔴 لا استجابة");phStatus.classList.add("alert");phState.textContent="اتصال طوارئ جارٍ 📞";addNotif("danger","🚨 مستوى ٣","تجاهل الإنذارات — تفعيل ٩٣٧.");}
+        if(progress===22){emerg.classList.add("show");addNotif("danger","📞 ٩٣٧ متصل","مشاركة الموقع والملف الصحي والتنبيه للذوي.");clearInterval(interval);}
+      }
+      // Update UI for scenario drive
+      sleepBar.style.width=drowsyLevel+"%";
+      mDrowsyV.textContent=arNum(Math.round(drowsyLevel))+"%";
+      attnEl.textContent=arNum(Math.round(Math.max(0,100-drowsyLevel)))+"%";
+      if(drowsyLevel>60){sleepBar.classList.add("danger");pip.className="pip live danger";mDrowsy.className="cell danger";}
+      else if(drowsyLevel>30){pip.className="pip live warn";mDrowsy.className="cell warn";}
+      if(progress>30)clearInterval(interval);
+    },200);
+  }
+
+  // ---- Speed animation (decorative) ----
+  setInterval(()=>{document.getElementById("speed").textContent=arNum(108+Math.floor(Math.random()*6));},1200);
+
+  // Camera starts on user gesture (gate button click) for reliability
+
+  // scenario buttons
+  document.querySelectorAll(".scenario button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll(".scenario button").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      runScenario(b.dataset.s);
+    });
+  });
+  resetBtn.addEventListener("click",()=>{scenarioMode="live";document.querySelectorAll(".scenario button").forEach(x=>x.classList.toggle("active",x.dataset.s==="live"));reset();});
+  window.addEventListener("beforeunload",()=>{if(video.srcObject)video.srcObject.getTracks().forEach(t=>t.stop());});
+</script>
+
+</body>
+</html>

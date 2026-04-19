@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صحتي 2.0 — صحتي في كل مكان | مركز العروض التوضيحية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sehhaty-green:#3B8BBE;
+    --sehhaty-green-dark:#1B4F7A;
+    --sehhaty-green-light:#EBF4FB;
+    --sky-accent:#7DC3E8;
+    --accent:#E9B44C;
+    --ink:#0E1E2E;
+    --muted:#5C6F82;
+    --bg:#F5F9FC;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+  body{background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh;}
+  .topbar{background:linear-gradient(135deg,var(--sehhaty-green-dark) 0%,var(--sehhaty-green) 100%);color:#fff;padding:14px 0;}
+  .container{max-width:1240px;margin:0 auto;padding:0 24px;}
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+  .brand-mark{width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;color:var(--sehhaty-green-dark);font-weight:800;font-size:18px;}
+  .topbar-meta{font-size:13px;opacity:.9;}
+  .hero{padding:72px 0 48px;background:
+    radial-gradient(1200px 400px at 85% -20%,rgba(0,135,90,.12),transparent),
+    radial-gradient(800px 300px at 10% 0%,rgba(255,184,0,.12),transparent),
+    var(--bg);}
+  .eyebrow{display:inline-block;background:var(--sehhaty-green-light);color:var(--sehhaty-green-dark);
+    padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:18px;}
+  h1{font-size:44px;line-height:1.2;font-weight:700;margin-bottom:16px;letter-spacing:-.5px;}
+  h1 .hl{background:linear-gradient(135deg,var(--sehhaty-green),var(--sehhaty-green-dark));-webkit-background-clip:text;color:transparent;}
+  .lede{font-size:18px;color:var(--muted);max-width:780px;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:36px 0;}
+  .stat{background:#fff;border:1px solid #E5EEE9;border-radius:16px;padding:20px;}
+  .stat-num{font-size:28px;font-weight:700;color:var(--sehhaty-green-dark);}
+  .stat-label{font-size:13px;color:var(--muted);margin-top:4px;}
+  .section-title{display:flex;align-items:baseline;justify-content:space-between;margin:40px 0 20px;}
+  .section-title h2{font-size:26px;font-weight:700;}
+  .section-title p{color:var(--muted);font-size:14px;}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+  .card{background:#fff;border:1px solid #E5EEE9;border-radius:20px;overflow:hidden;
+    transition:all .25s ease;text-decoration:none;color:inherit;display:flex;flex-direction:column;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(0,92,60,.25);border-color:var(--sehhaty-green);}
+  .card-hero{aspect-ratio:16/9;position:relative;display:grid;place-items:center;overflow:hidden;}
+  .card-1 .card-hero{background:linear-gradient(135deg,#1B4F7A 0%,#3B8BBE 60%,#7DC3E8 100%);}
+  .card-2 .card-hero{background:linear-gradient(135deg,#0D3A56 0%,#2575A0 100%);}
+  .card-3 .card-hero{background:linear-gradient(135deg,#2B4C63 0%,#6BA3C8 100%);}
+  .card-4 .card-hero{background:linear-gradient(135deg,#3A0F0F 0%,#B54A2F 100%);}
+  .card-icon{font-size:64px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25));}
+  .card-tag{position:absolute;top:14px;inset-inline-start:14px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);
+    color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;font-weight:600;}
+  .card-body{padding:22px;flex:1;display:flex;flex-direction:column;}
+  .card-body h3{font-size:20px;font-weight:700;margin-bottom:8px;}
+  .card-body p{color:var(--muted);font-size:14px;flex:1;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .chip{background:var(--sehhaty-green-light);color:var(--sehhaty-green-dark);
+    font-size:12px;padding:4px 10px;border-radius:999px;font-weight:500;}
+  .cta{margin-top:16px;display:inline-flex;align-items:center;gap:8px;
+    color:var(--sehhaty-green-dark);font-weight:600;font-size:14px;}
+  .cta::after{content:"←";transition:transform .2s;}
+  .card:hover .cta::after{transform:translateX(-4px);}
+  .pillars{background:#fff;border:1px solid #E5EEE9;border-radius:20px;padding:28px;margin:40px 0;}
+  .pillars h3{font-size:18px;margin-bottom:16px;}
+  .pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .pillar{padding:16px;border-radius:14px;background:var(--bg);}
+  .pillar-icon{font-size:28px;margin-bottom:8px;}
+  .pillar h4{font-size:15px;margin-bottom:4px;}
+  .pillar p{font-size:13px;color:var(--muted);}
+  footer{background:var(--sehhaty-green-dark);color:#E6F4EE;padding:28px 0;margin-top:60px;font-size:13px;}
+  .footer-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .vision{background:rgba(255,255,255,.1);padding:6px 12px;border-radius:999px;font-weight:600;}
+  @media(max-width:820px){
+    h1{font-size:32px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .grid{grid-template-columns:1fr;}
+    .pillar-grid{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">ص</div>
+      <div>
+        <div style="font-size:15px;">منصة صحتي — وزارة الصحة</div>
+        <div style="font-size:11px;opacity:.85;font-weight:400;">المملكة العربية السعودية</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="diagnostic.html" style="background:rgba(255,255,255,.15);color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;text-decoration:none;font-weight:600;">🔧 تشخيص الكاميرا</a>
+      <div class="topbar-meta">مقترح «صحتي 2.0»</div>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">مقترح تطوير ۰ مرحلة جديدة</span>
+    <h1>صحتي <span class="hl">في كل مكان</span> حول المواطن</h1>
+    <p class="lede">
+      تنتقل منصة «صحتي» من تطبيق يُفتَح عند الحاجة إلى <b>منظومة صحية محيطية</b> تتكامل مع حياة المواطن اليومية —
+      داخل المنزل عبر المرآة والتلفزيون، وعلى الطاولة عبر المطبخ، وفي السيارة عبر الداش كام —
+      لتقدم رعاية استباقية مستمرة، وتخفّض الحِمل على المرافق الصحية، وتدعم مستهدفات <b>رؤية المملكة 2030</b> في برنامج تحوّل القطاع الصحي.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num"><span class="count" data-target="18" data-suffix="M" data-prefix="+">+0M</span></div>
+        <div class="stat-label">مستخدم نشط مستهدف داخل المنظومة الموسّعة</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num"><span class="count" data-target="32" data-suffix="%" data-prefix="−">−0%</span></div>
+        <div class="stat-label">خفض متوقع في زيارات الطوارئ غير الحرجة</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num"><span class="count" data-target="4.2" data-suffix="x" data-prefix="+">+0x</span></div>
+        <div class="stat-label">زيادة متوقعة في متوسط زمن الاستخدام اليومي</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">رصد صحي محيطي مستمر حول المواطن</div>
+      </div>
+    </div>
+
+    <!-- Live impact sparkline -->
+    <div style="background:#fff;border:1px solid #DCE8F3;border-radius:16px;padding:18px 22px;display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:center;margin-top:10px;">
+      <div>
+        <div style="font-size:13px;color:var(--muted);">الأثر التراكمي المتوقع (٣٦ شهرًا)</div>
+        <div style="font-size:24px;font-weight:700;color:var(--sehhaty-green-dark);margin-top:4px;">
+          <span class="count" data-target="847" data-suffix="K" data-prefix="">0K</span> قراءة/يوم
+        </div>
+        <div style="font-size:12px;color:var(--sehhaty-green);margin-top:4px;">📈 ينمو الأثر شهريًا مع توسع التكامل</div>
+      </div>
+      <canvas id="sparkline" width="600" height="80" style="width:100%;height:80px;"></canvas>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+
+  <div class="section-title">
+    <div>
+      <h2>العروض التوضيحية التفاعلية</h2>
+      <p>أربع مبادرات ترويجية — كل واحدة مصحوبة بديمو قابل للنقر</p>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <a href="demo-mirror.html" class="card card-1">
+      <div class="card-hero">
+        <span class="card-tag">داخل المنزل</span>
+        <div class="card-icon">🪞</div>
+      </div>
+      <div class="card-body">
+        <h3>المرآة الذكية — العلامات الحيوية بلا تلامس</h3>
+        <p>قياس فوري للنبض، التنفس، الإرهاق، والجفاف عبر كاميرا المرآة أو بصمة الدخول، مع تسجيل تلقائي في الملف الصحي.</p>
+        <div class="chips">
+          <span class="chip">rPPG</span>
+          <span class="chip">Computer Vision</span>
+          <span class="chip">IoT منزلي</span>
+        </div>
+        <span class="cta">افتح الديمو</span>
+      </div>
+    </a>
+
+    <a href="demo-trainer.html" class="card card-2">
+      <div class="card-hero">
+        <span class="card-tag">داخل المنزل</span>
+        <div class="card-icon">🏋️</div>
+      </div>
+      <div class="card-body">
+        <h3>مدرب التمارين المنزلية</h3>
+        <p>تكامل تطبيق صحتي مع تلفزيون المنزل يُدقق وضعية البوش أب، السكوات، البلانك، والاستريتشنج — مع مدرب افتراضي.</p>
+        <div class="chips">
+          <span class="chip">Pose Estimation</span>
+          <span class="chip">Smart TV</span>
+          <span class="chip">تحفيز سلوكي</span>
+        </div>
+        <span class="cta">افتح الديمو</span>
+      </div>
+    </a>
+
+    <a href="demo-chef.html" class="card card-3">
+      <div class="card-hero">
+        <span class="card-tag">داخل المنزل</span>
+        <div class="card-icon">🥗</div>
+      </div>
+      <div class="card-body">
+        <h3>الشيف الصحي — نظام غذائي مخصص</h3>
+        <p>خطة وجبات يومية مبنية على الملف الصحي (سكري، ضغط، حمل، متابعة وزن)، مع وصفات مقترحة وقائمة تسوّق مباشرة.</p>
+        <div class="chips">
+          <span class="chip">تخصيص AI</span>
+          <span class="chip">ربط مع الصيدلي</span>
+          <span class="chip">توصيل البقالة</span>
+        </div>
+        <span class="cta">افتح الديمو</span>
+      </div>
+    </a>
+
+    <a href="demo-dashcam.html" class="card card-4">
+      <div class="card-hero">
+        <span class="card-tag">خارج المنزل</span>
+        <div class="card-icon">🚗</div>
+      </div>
+      <div class="card-body">
+        <h3>داش كام السيارة — سلامة السائق</h3>
+        <p>رصد مستمر للنعاس والإرهاق مع تنبيه صوتي تصاعدي، واتصال تلقائي بالطوارئ (937) عند تجاهل الإنذارات.</p>
+        <div class="chips">
+          <span class="chip">DMS</span>
+          <span class="chip">ربط مع 937</span>
+          <span class="chip">توكلنا + مرور</span>
+        </div>
+        <span class="cta">افتح الديمو</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="pillars">
+    <h3>كيف تدعم هذه المبادرات مستهدفات القطاع الصحي؟</h3>
+    <div class="pillar-grid">
+      <div class="pillar">
+        <div class="pillar-icon">🎯</div>
+        <h4>الوقاية قبل العلاج</h4>
+        <p>تحويل الرعاية من ردّ فعل إلى استباقية مستمرة</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">💰</div>
+        <h4>خفض التكلفة</h4>
+        <p>تقليل زيارات الطوارئ والمستشفيات غير الضرورية</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🏠</div>
+        <h4>الرعاية عن بُعد</h4>
+        <p>دعم استراتيجية نقل الرعاية إلى المنزل</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🤝</div>
+        <h4>تمكين القطاع الخاص</h4>
+        <p>فتح أسواق لشركاء (مرايا ذكية، تلفزيونات، سيارات)</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div>© منصة صحتي — مقترح داخلي توضيحي (Demo)</div>
+    <div class="vision">متوافق مع رؤية المملكة 2030</div>
+  </div>
+</footer>
+
+<script>
+  // Animated counters
+  function animateCount(el){
+    const target=parseFloat(el.dataset.target);
+    const suffix=el.dataset.suffix||"";
+    const prefix=el.dataset.prefix||"";
+    const isFloat=target%1!==0;
+    let start=0,startT=null;
+    const dur=1400;
+    function step(ts){
+      if(!startT)startT=ts;
+      const p=Math.min((ts-startT)/dur,1);
+      const eased=1-Math.pow(1-p,3);
+      const v=target*eased;
+      el.textContent=prefix+(isFloat?v.toFixed(1):Math.floor(v))+suffix;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  document.querySelectorAll(".count").forEach(animateCount);
+
+  // Sparkline chart
+  (function(){
+    const canvas=document.getElementById("sparkline");
+    if(!canvas)return;
+    const ctx=canvas.getContext("2d");
+    // Scale for retina
+    const dpr=window.devicePixelRatio||1;
+    const w=canvas.width=canvas.offsetWidth*dpr;
+    const h=canvas.height=80*dpr;
+    ctx.scale(dpr,dpr);
+    const W=canvas.offsetWidth,H=80;
+
+    // Generate realistic growth curve (12 quarters)
+    const data=[];let v=40;
+    for(let i=0;i<36;i++){v+=(20+Math.random()*40)*(1+i/40);data.push(v);}
+    const min=Math.min(...data),max=Math.max(...data);
+    const pts=data.map((d,i)=>({x:(i/(data.length-1))*W,y:H-((d-min)/(max-min))*(H-10)-4}));
+
+    // Gradient fill
+    const grad=ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,"rgba(59,139,190,0.35)");
+    grad.addColorStop(1,"rgba(59,139,190,0)");
+
+    // Draw
+    let progress=0;
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      const count=Math.floor(pts.length*progress);
+      if(count<2){progress+=0.03;requestAnimationFrame(draw);return;}
+      const visible=pts.slice(0,count);
+      // fill
+      ctx.beginPath();
+      ctx.moveTo(visible[0].x,H);
+      visible.forEach(p=>ctx.lineTo(p.x,p.y));
+      ctx.lineTo(visible[visible.length-1].x,H);
+      ctx.closePath();
+      ctx.fillStyle=grad;ctx.fill();
+      // line
+      ctx.beginPath();
+      visible.forEach((p,i)=>{if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
+      ctx.strokeStyle="#1B4F7A";ctx.lineWidth=2;ctx.lineJoin="round";ctx.stroke();
+      // end dot
+      const last=visible[visible.length-1];
+      ctx.beginPath();ctx.arc(last.x,last.y,4,0,Math.PI*2);ctx.fillStyle="#3B8BBE";ctx.fill();
+      ctx.beginPath();ctx.arc(last.x,last.y,8,0,Math.PI*2);ctx.fillStyle="rgba(59,139,190,0.25)";ctx.fill();
+      progress+=0.03;
+      if(progress<1)requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+</script>
+</body>
+</html>

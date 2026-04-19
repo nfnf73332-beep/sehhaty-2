@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تشخيص الكاميرا — صحتي 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--sky:#3B8BBE;--sky-dark:#1B4F7A;--sky-light:#EBF4FB;--ok:#4AA3B8;--warn:#E9B44C;--danger:#D16B5C;--muted:#5C6F82;--bg:#F5F9FC;--ink:#0E1E2E;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+  body{background:var(--bg);color:var(--ink);padding:24px;max-width:900px;margin:0 auto;min-height:100vh;}
+  h1{color:var(--sky-dark);margin-bottom:8px;}
+  .sub{color:var(--muted);margin-bottom:24px;}
+  .check{background:#fff;border:1px solid #DCE8F3;border-radius:14px;padding:18px 20px;margin:12px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .check .icon{font-size:24px;min-width:34px;text-align:center;}
+  .check .t{flex:1;}
+  .check b{font-size:15px;display:block;}
+  .check .d{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.6;}
+  .check.ok{border-color:#B7DEC6;background:#F0F9F4;}
+  .check.ok .icon{color:var(--ok);}
+  .check.warn{border-color:#FFE3A8;background:#FFF8EB;}
+  .check.warn .icon{color:var(--warn);}
+  .check.bad{border-color:#F7C9C1;background:#FDF2F0;}
+  .check.bad .icon{color:var(--danger);}
+
+  .camera-test{background:#fff;border:1px solid #DCE8F3;border-radius:14px;padding:20px;margin:16px 0;}
+  .camera-test h3{font-size:17px;color:var(--sky-dark);margin-bottom:12px;}
+  video{width:100%;max-height:280px;background:#000;border-radius:10px;transform:scaleX(-1);}
+  .btn{background:var(--sky);color:#fff;border:none;padding:14px 22px;border-radius:12px;font-weight:600;cursor:pointer;font-family:inherit;font-size:15px;margin-top:12px;width:100%;}
+  .btn:hover{background:var(--sky-dark);}
+  .btn.ghost{background:var(--sky-light);color:var(--sky-dark);margin-top:8px;}
+  .err{background:#FDF2F0;border:1px solid #F7C9C1;color:#8A2A1E;padding:12px 16px;border-radius:10px;margin-top:12px;font-size:13px;line-height:1.7;display:none;}
+  .err.show{display:block;}
+  .err code{background:rgba(0,0,0,.08);padding:2px 6px;border-radius:4px;font-size:12px;}
+
+  .devlist{background:var(--sky-light);padding:12px 14px;border-radius:10px;margin-top:10px;font-size:13px;display:none;}
+  .devlist.show{display:block;}
+
+  .how{background:var(--sky-light);border-radius:14px;padding:18px 20px;margin-top:20px;}
+  .how h3{color:var(--sky-dark);margin-bottom:10px;}
+  .how ol{padding-inline-start:20px;}
+  .how li{margin:8px 0;line-height:1.7;}
+  .how code{background:#fff;padding:2px 6px;border-radius:4px;font-size:13px;border:1px solid #DCE8F3;}
+
+  .back{display:inline-block;color:var(--sky);text-decoration:none;margin-top:14px;font-size:14px;}
+  a.demo-link{display:block;background:var(--ok);color:#fff;text-align:center;padding:12px;border-radius:10px;text-decoration:none;margin:6px 0;font-weight:600;}
+  a.demo-link:hover{background:#3B8B98;}
+</style>
+</head>
+<body>
+
+<h1>🩺 تشخيص الكاميرا</h1>
+<p class="sub">هذه الصفحة تفحص سبب عدم عمل الكاميرا وتُرشدك لحله.</p>
+
+<div id="checks">
+  <div class="check" id="c-https">
+    <div class="icon">⏳</div>
+    <div class="t"><b>البروتوكول (HTTP/HTTPS)</b><div class="d" id="d-https">جارٍ الفحص…</div></div>
+  </div>
+  <div class="check" id="c-api">
+    <div class="icon">⏳</div>
+    <div class="t"><b>دعم getUserMedia</b><div class="d" id="d-api">جارٍ الفحص…</div></div>
+  </div>
+  <div class="check" id="c-perm">
+    <div class="icon">⏳</div>
+    <div class="t"><b>إذن الكاميرا</b><div class="d" id="d-perm">جارٍ الفحص…</div></div>
+  </div>
+  <div class="check" id="c-devices">
+    <div class="icon">⏳</div>
+    <div class="t"><b>الأجهزة المتوفرة</b><div class="d" id="d-devices">جارٍ الفحص…</div></div>
+  </div>
+</div>
+
+<div class="camera-test">
+  <h3>اختبار مباشر</h3>
+  <video id="preview" autoplay playsinline muted></video>
+  <button class="btn" id="testBtn">📷 شغّل الكاميرا الآن</button>
+  <button class="btn ghost" id="stopBtn" style="display:none;">إيقاف</button>
+  <div class="err" id="err"></div>
+  <div class="devlist" id="devList"></div>
+</div>
+
+<div class="how" id="howFix" style="display:none;">
+  <h3>🔧 كيف تُصلح الكاميرا؟</h3>
+  <ol id="fixSteps"></ol>
+</div>
+
+<div style="margin-top:24px;">
+  <h3 style="color:var(--sky-dark);margin-bottom:10px;">بعد نجاح الاختبار افتح الديمو:</h3>
+  <a class="demo-link" href="index.html">🏠 الصفحة الرئيسية — مركز العروض</a>
+  <a class="demo-link" href="demo-mirror.html">🪞 المرآة الذكية (rPPG)</a>
+  <a class="demo-link" href="demo-trainer.html">🏋️ مدرب التمارين (Pose)</a>
+  <a class="demo-link" href="demo-dashcam.html">🚗 داش كام السيارة (FaceLandmarker)</a>
+</div>
+
+<script>
+  const setCheck=(id,status,msg)=>{
+    const el=document.getElementById(id);
+    const icon=el.querySelector(".icon");
+    document.getElementById("d-"+id.split("-")[1]).innerHTML=msg;
+    el.classList.remove("ok","warn","bad");
+    if(status==="ok"){el.classList.add("ok");icon.textContent="✓";}
+    else if(status==="warn"){el.classList.add("warn");icon.textContent="⚠";}
+    else if(status==="bad"){el.classList.add("bad");icon.textContent="✕";}
+  };
+
+  // 1. Protocol
+  const proto=location.protocol;
+  const host=location.hostname;
+  const isSecure=proto==="https:"||host==="localhost"||host==="127.0.0.1";
+  if(proto==="file:"){
+    setCheck("c-https","bad",`أنت تفتح الملف مباشرة (<code>file://</code>) — الكاميرا والـMediaPipe <b>لن تعمل</b>. افتح الديمو عبر السيرفر المحلي بدل ذلك.`);
+  } else if(isSecure){
+    setCheck("c-https","ok",`ممتاز — <code>${proto}//${host}</code> آمن ويدعم الكاميرا.`);
+  } else {
+    setCheck("c-https","warn",`<code>${proto}//${host}</code> غير آمن — قد لا يدعم الكاميرا. استخدم <code>localhost</code> أو <code>https</code>.`);
+  }
+
+  // 2. API support
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    setCheck("c-api","ok","المتصفح يدعم <code>getUserMedia</code> — جيد.");
+  } else {
+    setCheck("c-api","bad","المتصفح لا يدعم الكاميرا. استخدم Chrome / Safari / Edge حديث.");
+  }
+
+  // 3. Permissions query (where supported)
+  (async ()=>{
+    try{
+      if(navigator.permissions && navigator.permissions.query){
+        const p=await navigator.permissions.query({name:"camera"});
+        if(p.state==="granted")setCheck("c-perm","ok","الإذن <b>ممنوح</b> بالفعل.");
+        else if(p.state==="prompt")setCheck("c-perm","warn","لم تُسأل بعد — اضغط زر «شغّل الكاميرا» ووافق على الإذن.");
+        else if(p.state==="denied")setCheck("c-perm","bad","الإذن <b>مرفوض</b> لهذا الموقع. اتبع خطوات الإصلاح أدناه.");
+      } else {
+        setCheck("c-perm","warn","المتصفح لا يسمح بمعرفة حالة الإذن — اضغط «شغّل الكاميرا» للاختبار.");
+      }
+    }catch(e){setCheck("c-perm","warn","تعذّر الاستعلام — اضغط «شغّل الكاميرا» للاختبار.");}
+  })();
+
+  // 4. Device list
+  (async ()=>{
+    try{
+      const devices=await navigator.mediaDevices.enumerateDevices();
+      const cams=devices.filter(d=>d.kind==="videoinput");
+      if(cams.length===0)setCheck("c-devices","bad","لا توجد كاميرا متصلة بالجهاز.");
+      else setCheck("c-devices","ok",`${cams.length} كاميرا مُكتشفة.`);
+      if(cams.length>0){
+        const list=document.getElementById("devList");
+        list.innerHTML="<b>الكاميرات:</b><br>"+cams.map((c,i)=>`${i+1}. ${c.label||"(اسم محجوب — وافق على الإذن لرؤيته)"}`).join("<br>");
+        list.classList.add("show");
+      }
+    }catch(e){setCheck("c-devices","warn","تعذّر سرد الأجهزة.");}
+  })();
+
+  // Camera test
+  const video=document.getElementById("preview");
+  const testBtn=document.getElementById("testBtn");
+  const stopBtn=document.getElementById("stopBtn");
+  const errBox=document.getElementById("err");
+  const howFix=document.getElementById("howFix");
+  const fixSteps=document.getElementById("fixSteps");
+  let stream=null;
+
+  function showFix(steps){
+    fixSteps.innerHTML=steps.map(s=>`<li>${s}</li>`).join("");
+    howFix.style.display="block";
+  }
+
+  testBtn.addEventListener("click",async ()=>{
+    errBox.classList.remove("show");howFix.style.display="none";
+    testBtn.disabled=true;testBtn.textContent="⏳ جارٍ الطلب…";
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
+      video.srcObject=stream;
+      testBtn.style.display="none";stopBtn.style.display="block";
+      setCheck("c-perm","ok","✓ الإذن مُنح بنجاح — الكاميرا تعمل.");
+    }catch(e){
+      testBtn.disabled=false;testBtn.textContent="📷 شغّل الكاميرا الآن";
+      errBox.classList.add("show");
+      let msg=`<b>الخطأ:</b> <code>${e.name}</code><br><b>الرسالة:</b> ${e.message}`;
+      let steps=[];
+      if(e.name==="NotAllowedError"||e.name==="PermissionDeniedError"){
+        msg+="<br><br>الإذن <b>مرفوض</b>.";
+        steps=[
+          "اضغط على 🔒 أيقونة القفل في شريط العناوين (قرب الرابط)",
+          "غيّر إعداد «الكاميرا» إلى «السماح» (Allow)",
+          "أعد تحميل الصفحة (F5 أو Cmd+R) ثم اضغط الزر مجددًا"
+        ];
+      } else if(e.name==="NotFoundError"||e.name==="DevicesNotFoundError"){
+        msg+="<br><br>لا توجد كاميرا.";
+        steps=[
+          "تأكد من توصيل كاميرا (مدمجة أو USB)",
+          "أغلق أي تطبيق آخر يستخدم الكاميرا (Zoom, Teams, FaceTime…)",
+          "أعد تشغيل المتصفح"
+        ];
+      } else if(e.name==="NotReadableError"||e.name==="TrackStartError"){
+        msg+="<br><br>الكاميرا مُستخدمة من تطبيق آخر.";
+        steps=[
+          "أغلق Zoom / Teams / FaceTime / أي تطبيق مفتوح للكاميرا",
+          "أغلق علامات التبويب الأخرى التي فتحت الكاميرا",
+          "أعد تحميل هذه الصفحة"
+        ];
+      } else if(e.name==="OverconstrainedError"){
+        msg+="<br><br>القيود (resolution) غير مدعومة من كاميرتك.";
+        steps=["سأجرّب إعدادات أبسط — أعد تشغيل الاختبار"];
+      } else if(e.name==="NotSupportedError"||e.name==="SecurityError"){
+        msg+="<br><br>المتصفح يمنع الكاميرا من هذا الموقع (غالبًا بسبب http غير آمن).";
+        steps=[
+          `افتح الموقع عبر <code>http://localhost:8765</code> أو <code>https://</code> فقط`,
+          "لا تفتح الملفات مباشرة بالضغط المزدوج — استخدم مشغّل <code>تشغيل-الديمو.command</code>"
+        ];
+      } else {
+        steps=["أعد تشغيل المتصفح","جرّب Chrome الأحدث","تأكد أن الكاميرا تعمل في تطبيق آخر"];
+      }
+      errBox.innerHTML=msg;
+      showFix(steps);
+    }
+  });
+
+  stopBtn.addEventListener("click",()=>{
+    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;}
+    testBtn.style.display="block";stopBtn.style.display="none";testBtn.disabled=false;testBtn.textContent="📷 شغّل الكاميرا الآن";
+  });
+</script>
+
+</body>
+</html>

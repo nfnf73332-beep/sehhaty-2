@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ديمو الشيف الصحي — صحتي 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#3B8BBE;--green-dark:#1B4F7A;--green-light:#EBF4FB;
+    --sky-accent:#7DC3E8;
+    --ink:#0E1E2E;--muted:#5C6F82;--bg:#F5F9FC;--accent:#D4A24A;
+    --warn:#E9B44C;--danger:#D16B5C;--ok:#4AA3B8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+  body{background:var(--bg);color:var(--ink);min-height:100vh;}
+  .topbar{background:linear-gradient(135deg,var(--green-dark),var(--green));color:#fff;padding:14px 0;}
+  .container{max-width:1280px;margin:0 auto;padding:0 24px;}
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+  .brand-mark{width:40px;height:40px;background:#fff;border-radius:12px;display:grid;place-items:center;color:var(--green-dark);font-weight:800;}
+  .back{color:#fff;text-decoration:none;font-size:14px;opacity:.9;}
+  .page-head{padding:28px 0 12px;}
+  .eyebrow{display:inline-block;background:var(--green-light);color:var(--green-dark);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:10px;}
+  h1{font-size:28px;font-weight:700;}
+  .sub{color:var(--muted);font-size:15px;margin-top:6px;}
+
+  .layout{display:grid;grid-template-columns:380px 1fr;gap:24px;margin:20px 0 60px;align-items:start;}
+
+  /* Phone mock */
+  .phone{background:#1a1a1a;border-radius:40px;padding:10px;box-shadow:0 30px 60px -30px rgba(0,0,0,.35);position:sticky;top:20px;}
+  .phone::before{content:"";display:block;width:60px;height:6px;background:#000;border-radius:0 0 10px 10px;margin:0 auto 8px;}
+  .screen{background:var(--bg);border-radius:32px;overflow:hidden;min-height:680px;display:flex;flex-direction:column;}
+  .sc-head{background:linear-gradient(135deg,var(--green-dark),var(--green));color:#fff;padding:20px 18px 24px;position:relative;}
+  .sc-head .hi{font-size:13px;opacity:.85;}
+  .sc-head .name{font-size:20px;font-weight:700;margin-top:2px;}
+  .sc-head .prof{background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border-radius:10px;padding:10px 12px;margin-top:14px;font-size:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .sc-head .prof div b{display:block;font-size:13px;font-weight:600;margin-top:2px;}
+
+  .sc-body{flex:1;padding:18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+  .day-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:2px;padding-bottom:4px;}
+  .day-tab{flex:0 0 auto;padding:8px 12px;border-radius:12px;background:#fff;border:1px solid #E5EEE9;font-size:12px;cursor:pointer;font-family:inherit;}
+  .day-tab.active{background:var(--green);color:#fff;border-color:var(--green);}
+  .day-tab b{display:block;font-size:14px;}
+
+  .cal-ring{background:#fff;border-radius:16px;padding:16px;display:flex;align-items:center;gap:16px;}
+  .ring{width:80px;height:80px;border-radius:50%;background:
+    conic-gradient(var(--green) 0 60%,#E5EEE9 60% 100%);display:grid;place-items:center;position:relative;}
+  .ring::after{content:"";position:absolute;inset:8px;background:#fff;border-radius:50%;}
+  .ring span{position:relative;font-weight:700;font-size:16px;}
+  .cal-ring .info b{font-size:16px;}
+  .cal-ring .info p{font-size:12px;color:var(--muted);}
+  .macros{display:flex;gap:10px;margin-top:8px;font-size:11px;}
+  .macros span{padding:3px 8px;border-radius:99px;background:var(--green-light);color:var(--green-dark);font-weight:600;}
+
+  .meal{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #E5EEE9;cursor:pointer;transition:all .2s;}
+  .meal:hover{border-color:var(--green);transform:translateY(-2px);}
+  .meal-pic{height:90px;position:relative;background:linear-gradient(135deg,#FFF3D6,#FFE9A8);}
+  .meal-pic .emoji{position:absolute;inset:0;display:grid;place-items:center;font-size:48px;}
+  .meal-time{position:absolute;top:8px;inset-inline-start:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;}
+  .meal-cal{position:absolute;top:8px;inset-inline-end:8px;background:var(--green);color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:600;}
+  .meal-body{padding:12px;}
+  .meal-body h4{font-size:14px;margin-bottom:4px;}
+  .meal-body .tags{display:flex;gap:4px;flex-wrap:wrap;font-size:10px;margin-top:6px;}
+  .meal-body .tags span{background:var(--green-light);color:var(--green-dark);padding:2px 6px;border-radius:4px;}
+  .meal-body .tags .warn-tag{background:#FFF3D6;color:#8A5A00;}
+
+  /* RIGHT: detail + KPIs */
+  .detail{background:#fff;border:1px solid #E5EEE9;border-radius:20px;overflow:hidden;}
+  .detail-hero{height:200px;background:linear-gradient(135deg,#5C3A00,#D4A24A);position:relative;display:grid;place-items:center;}
+  .detail-hero .emoji{font-size:96px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.3));}
+  .detail-hero .badge{position:absolute;top:14px;inset-inline-start:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);color:#fff;padding:5px 12px;border-radius:99px;font-size:12px;}
+  .detail-body{padding:22px;}
+  .detail-body h2{font-size:22px;margin-bottom:8px;}
+  .detail-body .mdesc{color:var(--muted);font-size:14px;}
+  .nutri{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;}
+  .nutri div{background:var(--bg);padding:10px 12px;border-radius:12px;}
+  .nutri .n{font-size:18px;font-weight:700;color:var(--green-dark);}
+  .nutri .l{font-size:11px;color:var(--muted);}
+
+  .why{background:var(--green-light);border-radius:12px;padding:14px;margin-top:4px;}
+  .why b{color:var(--green-dark);display:block;margin-bottom:4px;font-size:13px;}
+  .why p{font-size:13px;line-height:1.7;color:var(--ink);}
+
+  .section-h{display:flex;justify-content:space-between;align-items:baseline;margin:20px 0 10px;}
+  .section-h h3{font-size:16px;}
+  .section-h a{font-size:12px;color:var(--green-dark);text-decoration:none;}
+
+  .ingredients{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .ing{display:flex;justify-content:space-between;background:var(--bg);padding:10px 12px;border-radius:10px;font-size:13px;}
+  .ing b{color:var(--green-dark);}
+
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .btn{background:var(--green);color:#fff;border:none;padding:12px 18px;border-radius:12px;font-weight:600;cursor:pointer;font-family:inherit;flex:1;min-width:140px;transition:all .2s;}
+  .btn:hover{background:var(--green-dark);transform:translateY(-1px);}
+  .btn.ghost{background:var(--green-light);color:var(--green-dark);}
+  .btn.accent{background:var(--accent);color:#3d2a00;}
+  .btn.accent:hover{background:#C69340;}
+
+  /* AI chat box */
+  .ai-chat{background:var(--green-light);border:1px solid #C7DFF0;border-radius:14px;padding:14px;margin-top:18px;}
+  .ai-chat h4{font-size:14px;color:var(--green-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .ai-chat .sug{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .ai-chat .sug button{background:#fff;border:1px solid #C7DFF0;color:var(--green-dark);padding:5px 12px;border-radius:99px;font-size:12px;cursor:pointer;font-family:inherit;}
+  .ai-chat .sug button:hover{background:var(--green);color:#fff;border-color:var(--green);}
+  .ai-chat .input-row{display:flex;gap:8px;}
+  .ai-chat input{flex:1;padding:10px 12px;border:1px solid #C7DFF0;border-radius:10px;font-family:inherit;font-size:13px;background:#fff;}
+  .ai-chat input:focus{outline:2px solid var(--sky-accent);border-color:var(--green);}
+  .ai-chat .ai-reply{background:#fff;border-radius:10px;padding:10px 12px;font-size:13px;margin-top:10px;display:none;line-height:1.7;border-inline-start:3px solid var(--green);}
+  .ai-chat .ai-reply.show{display:block;animation:fadein .4s;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  /* Cart */
+  .cart-fab{position:fixed;bottom:24px;inset-inline-start:24px;background:var(--green);color:#fff;border:none;padding:14px 22px;border-radius:99px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 15px 30px -10px rgba(27,79,122,.5);display:flex;align-items:center;gap:10px;z-index:100;transition:all .2s;}
+  .cart-fab:hover{transform:translateY(-2px);background:var(--green-dark);}
+  .cart-fab .badge{background:#fff;color:var(--green-dark);border-radius:99px;padding:2px 10px;font-size:13px;font-weight:700;min-width:24px;text-align:center;}
+  .cart-modal{position:fixed;inset:0;background:rgba(14,30,46,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+  .cart-modal.show{display:flex;}
+  .cart-box{background:#fff;border-radius:20px;max-width:460px;width:100%;max-height:80vh;overflow-y:auto;padding:24px;}
+  .cart-box h3{font-size:18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+  .cart-box .close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
+  .cart-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed #DCE8F3;font-size:14px;}
+  .cart-item b{font-weight:600;}
+  .cart-item .rm{background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;}
+  .cart-total{display:flex;justify-content:space-between;padding:14px 0 6px;font-weight:700;font-size:16px;color:var(--green-dark);border-top:2px solid var(--green-light);margin-top:8px;}
+  .cart-empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;}
+
+  .kpi{background:#fff;border:1px solid #E5EEE9;border-radius:16px;padding:18px;margin-top:22px;}
+  .kpi h4{font-size:14px;margin-bottom:12px;color:var(--green-dark);}
+  .kpi-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-top:1px dashed #E5EEE9;}
+  .kpi-row:first-of-type{border-top:none;}
+  .kpi-row b{color:var(--green-dark);}
+
+  .flow{background:#fff;border:1px solid #E5EEE9;border-radius:16px;padding:18px;margin-top:22px;}
+  .flow h3{font-size:16px;margin-bottom:14px;}
+  .flow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .flow-step{background:var(--bg);padding:14px;border-radius:12px;border-top:3px solid var(--green);}
+  .flow-step .n{font-size:11px;color:var(--muted);}
+  .flow-step .t{font-weight:600;margin-top:4px;font-size:14px;}
+  .flow-step .d{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .tech{background:var(--green-dark);color:#E9F3EE;border-radius:16px;padding:20px;margin-top:22px;}
+  .tech h3{color:#fff;font-size:16px;margin-bottom:10px;}
+  .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px;}
+  .tech-item{background:rgba(255,255,255,.06);padding:10px 12px;border-radius:10px;font-size:13px;}
+  .tech-item b{display:block;color:#8BFFDD;font-size:12px;margin-bottom:2px;}
+
+  .warn-card{background:#FFF5E6;border:1px solid #FFD76B;border-radius:12px;padding:14px;font-size:13px;margin-top:10px;}
+  .warn-card b{color:#8A5A00;}
+
+  @media(max-width:960px){.layout{grid-template-columns:1fr;} .phone{position:static;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">ص</div>
+      <div style="font-size:14px;">صحتي 2.0 — الشيف الصحي</div>
+    </div>
+    <a href="index.html" class="back">→ العودة لمركز العروض</a>
+  </div>
+</div>
+
+<div class="container page-head">
+  <span class="eyebrow">مبادرة داخل المنزل</span>
+  <h1>الشيف الصحي — نظام غذائي مخصَّص وفق ملفك الصحي</h1>
+  <p class="sub">خطة وجبات يومية ذكية مصمّمة بناء على حالتك الصحية (سكري، ضغط، حمل، متابعة وزن) — مع وصفات وقائمة تسوق وربط مع محلات البقالة.</p>
+</div>
+
+<div class="container layout">
+
+  <!-- PHONE -->
+  <div class="phone">
+    <div class="screen">
+      <div class="sc-head">
+        <div class="hi">الأحد ١٠ رمضان</div>
+        <div class="name">الشيف الصحي 🍴</div>
+        <div class="prof">
+          <div>العمر<b>٣٤</b></div>
+          <div>الحالة<b>سكري ٢</b></div>
+          <div>الهدف<b>خفض ٥ كغ</b></div>
+        </div>
+      </div>
+      <div class="sc-body">
+
+        <div class="day-tabs">
+          <div class="day-tab active"><b>أحد</b>١٠</div>
+          <div class="day-tab"><b>اثنين</b>١١</div>
+          <div class="day-tab"><b>ثلاثاء</b>١٢</div>
+          <div class="day-tab"><b>أربعاء</b>١٣</div>
+          <div class="day-tab"><b>خميس</b>١٤</div>
+        </div>
+
+        <div class="cal-ring">
+          <div class="ring"><span>١٢٤٠</span></div>
+          <div class="info">
+            <b>١٢٤٠ / ٢٠٥٠ كيلو</b>
+            <p>متبقي ٨١٠ للوجبة المقبلة</p>
+            <div class="macros">
+              <span>بروتين ٣٨%</span>
+              <span>كارب ٤٢%</span>
+              <span>دهون ٢٠%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="meal" data-meal="0">
+          <div class="meal-pic" style="background:linear-gradient(135deg,#FFE9A8,#FFCB77);">
+            <div class="emoji">🥣</div>
+            <span class="meal-time">الإفطار · ٠٦:٠٠</span>
+            <span class="meal-cal">٣٨٠ كيلو</span>
+          </div>
+          <div class="meal-body">
+            <h4>شوفان بالتمر واللوز + بيض مسلوق</h4>
+            <div class="tags"><span>منخفض الكارب</span><span>بروتين عالي</span></div>
+          </div>
+        </div>
+
+        <div class="meal" data-meal="1">
+          <div class="meal-pic" style="background:linear-gradient(135deg,#D4EBDB,#9EDAB1);">
+            <div class="emoji">🥗</div>
+            <span class="meal-time">الغداء · ١٣:٠٠</span>
+            <span class="meal-cal">٥٢٠ كيلو</span>
+          </div>
+          <div class="meal-body">
+            <h4>كبسة دجاج بالأرز البني والخضار</h4>
+            <div class="tags"><span>سعوديّ</span><span>مناسب السكري</span></div>
+          </div>
+        </div>
+
+        <div class="meal" data-meal="2">
+          <div class="meal-pic" style="background:linear-gradient(135deg,#FFD3CC,#FFB3A8);">
+            <div class="emoji">🍎</div>
+            <span class="meal-time">سناك · ١٦:٣٠</span>
+            <span class="meal-cal">١٥٠ كيلو</span>
+          </div>
+          <div class="meal-body">
+            <h4>تفاحة + حفنة جوز</h4>
+            <div class="tags"><span>سريع</span></div>
+          </div>
+        </div>
+
+        <div class="meal" data-meal="3">
+          <div class="meal-pic" style="background:linear-gradient(135deg,#CFE4F5,#9AC7EA);">
+            <div class="emoji">🐟</div>
+            <span class="meal-time">العشاء · ٢٠:٠٠</span>
+            <span class="meal-cal">٤٨٠ كيلو</span>
+          </div>
+          <div class="meal-body">
+            <h4>سمك هامور مشوي مع سلطة تبولة</h4>
+            <div class="tags"><span>أوميقا ٣</span><span>خفيف</span></div>
+          </div>
+        </div>
+
+        <div class="warn-card">
+          <b>🩺 تنبيه من طبيبك:</b>
+          <div style="margin-top:4px;">تم ضبط كمية الأملاح اليوم بسبب قراءة ضغط مرتفعة أمس. استمر في شرب ٢ لتر ماء.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div>
+    <div class="detail" id="detail">
+      <div class="detail-hero" id="hero">
+        <span class="badge" id="badge">سعوديّ · مناسب للسكري</span>
+        <div class="emoji" id="heroEmoji">🥗</div>
+      </div>
+      <div class="detail-body">
+        <h2 id="mname">كبسة دجاج بالأرز البني والخضار</h2>
+        <p class="mdesc" id="mdesc">وجبة متوازنة من مطبخنا السعودي، مُعاد صياغتها بأرز بنيّ، وصدر دجاج منزوع الجلد، وخضار موسمية. ملائمة لمرضى السكري وتدعم هدف خفض الوزن.</p>
+
+        <div class="nutri">
+          <div><div class="n" id="n-cal">٥٢٠</div><div class="l">كيلو سعرة</div></div>
+          <div><div class="n" id="n-p">٣٨غ</div><div class="l">بروتين</div></div>
+          <div><div class="n" id="n-c">٥٤غ</div><div class="l">كربوهيدرات</div></div>
+          <div><div class="n" id="n-f">١٤غ</div><div class="l">دهون</div></div>
+        </div>
+
+        <div class="why">
+          <b>💡 لماذا اخترنا هذه الوجبة لك؟</b>
+          <p id="why-p">الأرز البني يُبطئ امتصاص السكر مقارنة بالأبيض — مثالي لقراءة HbA1c عندك. صدر الدجاج يوفر ٣٨غ بروتين يدعم الشبع وحفاظ الكتلة العضلية أثناء خفض الوزن.</p>
+        </div>
+
+        <div class="section-h"><h3>المقادير (لشخصين)</h3><a href="#">📋 قائمة تسوّق</a></div>
+        <div class="ingredients" id="ings">
+          <div class="ing"><span>صدر دجاج</span><b>٣٠٠ غ</b></div>
+          <div class="ing"><span>أرز بنيّ</span><b>١ كوب</b></div>
+          <div class="ing"><span>بصل</span><b>١ متوسطة</b></div>
+          <div class="ing"><span>طماطم</span><b>٢ حبة</b></div>
+          <div class="ing"><span>جزر</span><b>١ حبة</b></div>
+          <div class="ing"><span>بهارات كبسة</span><b>٢ ملعقة</b></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="addCartBtn">🛒 أضِف للسلة</button>
+          <button class="btn accent" id="swapBtn">🔄 اقترح بديل</button>
+          <button class="btn ghost">📺 عرض خطوات الطهي</button>
+        </div>
+
+        <div class="ai-chat">
+          <h4>🤖 اسأل الشيف الذكي</h4>
+          <div class="sug">
+            <button data-q="بدون غلوتين">بدون غلوتين</button>
+            <button data-q="عشاء أسرع">عشاء أسرع</button>
+            <button data-q="أعلى بروتين">أعلى بروتين</button>
+            <button data-q="نباتي">نباتي</button>
+            <button data-q="أقل سعرات">أقل سعرات</button>
+          </div>
+          <div class="input-row">
+            <input id="aiInput" placeholder="مثال: وجبة سريعة بأقل من ٣٠٠ كالوري…">
+            <button class="btn" style="flex:0 0 auto;" id="aiSend">إرسال</button>
+          </div>
+          <div class="ai-reply" id="aiReply"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <h3>كيف تعمل الرحلة؟</h3>
+      <div class="flow-grid">
+        <div class="flow-step"><div class="n">١</div><div class="t">التخصيص</div><div class="d">النظام يقرأ ملفك الصحي (أمراض، أدوية، حساسية، هدف)</div></div>
+        <div class="flow-step"><div class="n">٢</div><div class="t">التوليد</div><div class="d">AI يُنتج خطة أسبوعية من مطبخ محلي + عالمي</div></div>
+        <div class="flow-step"><div class="n">٣</div><div class="t">التوريد</div><div class="d">ربط مباشر مع محلات البقالة (هنقرستيشن/نعناع/المراعي)</div></div>
+        <div class="flow-step"><div class="n">٤</div><div class="t">المتابعة</div><div class="d">تسجيل الوجبة تلقائيًا في «اعرف أرقامك»</div></div>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <h4>📊 الأثر المتوقع — لقيادات الوزارة</h4>
+      <div class="kpi-row"><span>التزام مرضى السكري بالحمية</span><b>+٤٨%</b></div>
+      <div class="kpi-row"><span>خفض معدل HbA1c المتوقع</span><b>−٠.٩%</b></div>
+      <div class="kpi-row"><span>تقليل مضاعفات الضغط المُكتشفة</span><b>−٢١%</b></div>
+      <div class="kpi-row"><span>شراكات تجارية مع قطاع الغذاء</span><b>+١٢</b></div>
+      <div class="kpi-row"><span>تكامل مع برنامج «وقاية»</span><b>✓</b></div>
+    </div>
+
+    <div class="tech">
+      <h3>المتطلبات التقنية (مبدئية)</h3>
+      <div class="tech-grid">
+        <div class="tech-item"><b>محرك التخصيص</b>LLM مُدرَّب على مطبخ خليجي + بيانات تغذية سعودية</div>
+        <div class="tech-item"><b>مصدر البيانات</b>الملف الصحي الموحّد + «اعرف أرقامك»</div>
+        <div class="tech-item"><b>الشركاء التجاريون</b>هنقرستيشن، نعناع، بنده، المراعي</div>
+        <div class="tech-item"><b>التحقق الطبي</b>مراجعة أخصائيي تغذية معتمدين في كل وصفة</div>
+        <div class="tech-item"><b>الثقافة المحلية</b>قوائم رمضانية، سحور صحي، موروث المناطق</div>
+        <div class="tech-item"><b>التحفيز</b>خصومات على البقالة الصحية ضمن «صحتي»</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Cart FAB + Modal -->
+<button class="cart-fab" id="cartBtn">🛒 سلة التسوق <span class="badge" id="cartCount">٠</span></button>
+<div class="cart-modal" id="cartModal">
+  <div class="cart-box">
+    <h3>🛒 سلة البقالة<button class="close" id="closeCart">×</button></h3>
+    <div id="cartList"><div class="cart-empty">السلة فارغة — أضِف مكونات وجبة لبدء التسوق</div></div>
+    <div class="cart-total" id="cartTotal" style="display:none;"><span>الإجمالي التقديري</span><span id="cartSum">٠ ر.س</span></div>
+    <button class="btn" style="margin-top:14px;width:100%;" id="checkoutBtn">إرسال لهنقرستيشن / نعناع</button>
+  </div>
+</div>
+
+<script>
+  const meals=[
+    {n:"شوفان بالتمر واللوز + بيض مسلوق",d:"وجبة إفطار غنية بالألياف وبطيئة الامتصاص — مناسبة لبدء نهارك بثبات سكر الدم.",emoji:"🥣",bg:"linear-gradient(135deg,#FFE9A8,#FFCB77)",badge:"صباحي · غنيّ بالألياف",
+     nutri:["٣٨٠","١٨غ","٤٢غ","١٢غ"],why:"التمر الفاكهة الوحيدة التي تحتفظ بخصائص مفيدة لمرضى السكري إن تم دمجها ببروتين ودهون جيدة — وهو ما فعلناه باللوز والبيض.",
+     ings:[["شوفان","٥٠ غ"],["حليب قليل الدسم","١٥٠ مل"],["تمر مناسب","٣ حبات"],["لوز","١٠ غ"],["بيض","٢ حبة"],["قرفة","رشة"]]},
+    {n:"كبسة دجاج بالأرز البني والخضار",d:"وجبة متوازنة من مطبخنا السعودي، مُعاد صياغتها بأرز بنيّ، وصدر دجاج منزوع الجلد، وخضار موسمية.",emoji:"🥗",bg:"linear-gradient(135deg,#5C3A00,#D4A24A)",badge:"سعوديّ · مناسب للسكري",
+     nutri:["٥٢٠","٣٨غ","٥٤غ","١٤غ"],why:"الأرز البني يُبطئ امتصاص السكر مقارنة بالأبيض — مثالي لقراءة HbA1c عندك. صدر الدجاج يوفر ٣٨غ بروتين يدعم الشبع وحفاظ الكتلة العضلية أثناء خفض الوزن.",
+     ings:[["صدر دجاج","٣٠٠ غ"],["أرز بنيّ","١ كوب"],["بصل","١ متوسطة"],["طماطم","٢ حبة"],["جزر","١ حبة"],["بهارات كبسة","٢ ملعقة"]]},
+    {n:"تفاحة + حفنة جوز",d:"سناك سريع يمنحك طاقة بدون رفع حاد للسكر.",emoji:"🍎",bg:"linear-gradient(135deg,#FFD3CC,#FFB3A8)",badge:"سناك · سريع",
+     nutri:["١٥٠","٤غ","١٨غ","٩غ"],why:"مزيج الألياف من التفاح مع دهون الجوز الصحية يُخفّض الاستجابة السكرية — بديل ممتاز عن البسكويت والشوكولاتة.",
+     ings:[["تفاحة متوسطة","١ حبة"],["جوز","٢٥ غ"],["قرفة","رشة"]]},
+    {n:"سمك هامور مشوي مع سلطة تبولة",d:"وجبة خفيفة غنية بالأوميقا ٣ مثالية لختام اليوم ودعم صحة القلب.",emoji:"🐟",bg:"linear-gradient(135deg,#1A3A5C,#5FA9D4)",badge:"خفيف · صحة القلب",
+     nutri:["٤٨٠","٤٢غ","٢٤غ","١٨غ"],why:"الهامور مصدر ممتاز للأوميقا ٣ الذي يُخفّض الالتهاب وضغط الدم — مهمّ لك بسبب قراءتك أمس. تبولة خفيفة الملح.",
+     ings:[["سمك هامور","٢٥٠ غ"],["برغل","٣ ملاعق"],["بقدونس","حزمة"],["طماطم","١ حبة"],["ليمون","١ حبة"],["زيت زيتون","١ ملعقة"]]}
+  ];
+
+  const detail=document.getElementById("detail");
+  const hero=document.getElementById("hero");
+  const heroEmoji=document.getElementById("heroEmoji");
+  const badge=document.getElementById("badge");
+  const mname=document.getElementById("mname");
+  const mdesc=document.getElementById("mdesc");
+  const why=document.getElementById("why-p");
+  const ings=document.getElementById("ings");
+
+  function setMeal(i){
+    const m=meals[i];
+    hero.style.background=m.bg;
+    heroEmoji.textContent=m.emoji;
+    badge.textContent=m.badge;
+    mname.textContent=m.n;
+    mdesc.textContent=m.d;
+    why.textContent=m.why;
+    const [cal,p,c,f]=m.nutri;
+    document.getElementById("n-cal").textContent=cal;
+    document.getElementById("n-p").textContent=p;
+    document.getElementById("n-c").textContent=c;
+    document.getElementById("n-f").textContent=f;
+    ings.innerHTML=m.ings.map(x=>`<div class="ing"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
+  }
+
+  document.querySelectorAll(".meal").forEach(el=>{
+    el.addEventListener("click",()=>{
+      setMeal(+el.dataset.meal);
+      detail.scrollIntoView({behavior:"smooth",block:"start"});
+    });
+  });
+
+  document.querySelectorAll(".day-tab").forEach(t=>{
+    t.addEventListener("click",()=>{
+      document.querySelectorAll(".day-tab").forEach(x=>x.classList.remove("active"));
+      t.classList.add("active");
+    });
+  });
+
+  // ---- SMART INTERACTIONS ----
+  const priceMap={
+    "شوفان":8,"حليب قليل الدسم":9,"تمر مناسب":15,"لوز":18,"بيض":16,"قرفة":4,
+    "صدر دجاج":30,"أرز بنيّ":18,"بصل":4,"طماطم":6,"جزر":5,"بهارات كبسة":12,
+    "تفاحة متوسطة":3,"جوز":22,
+    "سمك هامور":55,"برغل":10,"بقدونس":3,"ليمون":4,"زيت زيتون":35
+  };
+  function priceFor(name){
+    const k=Object.keys(priceMap).find(k=>name.includes(k)||k.includes(name));
+    return k?priceMap[k]:8;
+  }
+  function arNum(n){return String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);}
+
+  let cart=[];
+  const cartBtn=document.getElementById("cartBtn");
+  const cartModal=document.getElementById("cartModal");
+  const closeCart=document.getElementById("closeCart");
+  const cartList=document.getElementById("cartList");
+  const cartCount=document.getElementById("cartCount");
+  const cartSum=document.getElementById("cartSum");
+  const cartTotal=document.getElementById("cartTotal");
+  const addCartBtn=document.getElementById("addCartBtn");
+  const swapBtn=document.getElementById("swapBtn");
+  const aiInput=document.getElementById("aiInput");
+  const aiSend=document.getElementById("aiSend");
+  const aiReply=document.getElementById("aiReply");
+
+  let currentMealIdx=1;
+  const origSetMeal=setMeal;
+  setMeal=function(i){currentMealIdx=i;origSetMeal(i);};
+
+  function renderCart(){
+    cartCount.textContent=arNum(cart.length);
+    if(cart.length===0){
+      cartList.innerHTML='<div class="cart-empty">السلة فارغة — أضِف مكونات وجبة لبدء التسوق</div>';
+      cartTotal.style.display="none";return;
+    }
+    cartList.innerHTML=cart.map((c,i)=>`
+      <div class="cart-item">
+        <span><b>${c.name}</b> · ${c.qty}</span>
+        <span style="display:flex;align-items:center;gap:10px;">
+          <b>${arNum(c.price)} ر.س</b>
+          <button class="rm" data-i="${i}">حذف</button>
+        </span>
+      </div>`).join("");
+    cartList.querySelectorAll(".rm").forEach(b=>b.addEventListener("click",()=>{cart.splice(+b.dataset.i,1);renderCart();}));
+    const sum=cart.reduce((a,b)=>a+b.price,0);
+    cartSum.textContent=arNum(sum)+" ر.س";
+    cartTotal.style.display="flex";
+  }
+
+  cartBtn.addEventListener("click",()=>cartModal.classList.add("show"));
+  closeCart.addEventListener("click",()=>cartModal.classList.remove("show"));
+  cartModal.addEventListener("click",e=>{if(e.target===cartModal)cartModal.classList.remove("show");});
+
+  addCartBtn.addEventListener("click",()=>{
+    const m=meals[currentMealIdx];
+    m.ings.forEach(([name,qty])=>{
+      const price=priceFor(name);
+      const existing=cart.find(c=>c.name===name);
+      if(!existing)cart.push({name,qty,price});
+    });
+    renderCart();
+    addCartBtn.textContent="✓ أُضيفت للسلة";
+    setTimeout(()=>addCartBtn.textContent="🛒 أضِف للسلة",1500);
+  });
+
+  document.getElementById("checkoutBtn").addEventListener("click",()=>{
+    alert("تم إرسال الطلب — سيتم التوصيل خلال ٤٥ دقيقة · رقم الطلب: SEH-٢٤٨٧");
+    cartModal.classList.remove("show");
+  });
+
+  // Smart meal swap
+  swapBtn.addEventListener("click",()=>{
+    const next=(currentMealIdx+1)%meals.length;
+    setMeal(next);
+    document.getElementById("detail").scrollIntoView({behavior:"smooth"});
+    aiReply.innerHTML=`<b>🔄 بديل مقترح:</b> استبدلت الوجبة الحالية بـ<b>${meals[next].n}</b> — تناسب ملفك الصحي أيضًا مع تنوع أكبر في المغذيات الدقيقة.`;
+    aiReply.classList.add("show");
+  });
+
+  // AI chat
+  const aiResponses={
+    "بدون غلوتين":"اقتراحي: <b>سمك هامور مشوي مع سلطة تبولة بالكينوا بدون غلوتين</b> — ٤٤٠ سعرة. استبدلت البرغل بالكينوا.",
+    "عشاء أسرع":"جرّب <b>تفاحة + جوز + قطع دجاج مطبوخة مسبقًا</b> — ٥ دقائق فقط، ٣٢٠ سعرة.",
+    "أعلى بروتين":"زدتُ البروتين بتبديل الشوفان بـ<b>عجة بيض ببياض + حمص</b> — ٤٨غ بروتين بدلًا من ١٨غ.",
+    "نباتي":"اقتراح نباتي: <b>كينوا مع عدس أصفر وخضار مشكلة</b> — ٢٢غ بروتين نباتي، ٤٥٠ سعرة.",
+    "أقل سعرات":"لتقليل ٣٠٠ سعرة: استبدل الأرز البني بـ<b>الشعير أو القرنبيط المفروم</b> — نفس الطعم بنصف الكاربوهيدرات."
+  };
+  function handleAI(q){
+    aiReply.classList.remove("show");
+    setTimeout(()=>{
+      const resp=aiResponses[q]||`قرأت طلبك: «${q}». إليك اقتراح مخصص بناء على ملفك الصحي: <b>وجبة محسّنة</b> — ستصلك ٣ خيارات خلال ثوانٍ عبر محرك التخصيص.`;
+      aiReply.innerHTML=resp;
+      aiReply.classList.add("show");
+    },300);
+  }
+  document.querySelectorAll(".ai-chat .sug button").forEach(b=>{
+    b.addEventListener("click",()=>{aiInput.value=b.dataset.q;handleAI(b.dataset.q);});
+  });
+  aiSend.addEventListener("click",()=>{const q=aiInput.value.trim();if(q)handleAI(q);});
+  aiInput.addEventListener("keydown",e=>{if(e.key==="Enter"){const q=aiInput.value.trim();if(q)handleAI(q);}});
+
+  renderCart();
+</script>
+
+</body>
+</html>
