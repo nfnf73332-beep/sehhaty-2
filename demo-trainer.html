@@ -52,9 +52,11 @@
   .counter .n{font-size:48px;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--sky-accent),var(--sky));-webkit-background-clip:text;color:transparent;}
   .counter .l{font-size:11px;opacity:.75;margin-top:2px;}
 
-  .posture-chip{position:absolute;bottom:14px;inset-inline-start:14px;background:rgba(74,163,184,.25);border:1px solid rgba(125,195,232,.5);color:#C7EAF7;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;transition:all .3s;z-index:4;backdrop-filter:blur(4px);}
-  .posture-chip.warn{background:rgba(233,180,76,.25);border-color:rgba(233,180,76,.6);color:#FFE5A8;}
-  .posture-chip.bad{background:rgba(209,107,92,.3);border-color:rgba(209,107,92,.6);color:#FFD3CC;}
+  .posture-chip{position:absolute;bottom:14px;inset-inline-start:14px;max-width:60%;background:rgba(74,163,184,.3);border:2px solid rgba(125,195,232,.55);color:#E8F6FC;padding:12px 18px;border-radius:14px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;transition:all .25s;z-index:4;backdrop-filter:blur(6px);box-shadow:0 8px 20px -10px rgba(0,0,0,.5);}
+  .posture-chip.warn{background:rgba(233,180,76,.3);border-color:rgba(233,180,76,.7);color:#FFEFB8;animation:flash 0.6s ease-out;}
+  .posture-chip.bad{background:rgba(209,107,92,.4);border-color:rgba(209,107,92,.75);color:#FFE3DD;animation:shake 0.4s;}
+  @keyframes flash{0%{transform:scale(1);}50%{transform:scale(1.04);}100%{transform:scale(1);}}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
 
   .angle-hint{position:absolute;top:50px;inset-inline-start:14px;font-size:11px;color:var(--sky-accent);background:rgba(0,0,0,.5);padding:4px 8px;border-radius:4px;z-index:4;font-variant-numeric:tabular-nums;}
 
@@ -216,7 +218,8 @@
         <button data-ex="plank">بلانك</button>
         <button data-ex="stretch">استريتشنج</button>
       </div>
-      <div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn ghost" id="voiceBtn" title="تشغيل/إيقاف صوت المدرب">🔊 الصوت</button>
         <button class="btn ghost" id="resetBtn">إعادة العدّ</button>
       </div>
     </div>
@@ -377,6 +380,39 @@
   let rep=0,state="up",startT=0,calories=0,points=240;
   let fpsFrames=0,fpsTimer=performance.now();
   let repTimestamps=[];
+  let voiceEnabled=true,lastSpokenTip="",lastTipTime=0;
+
+  // ---- Voice coach (Web Speech API) ----
+  const arabicNumberWord=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر","عشرون"];
+  function speak(text,opts={}){
+    if(!voiceEnabled)return;
+    if(!("speechSynthesis" in window))return;
+    // Avoid stacking: cancel current if new priority speech
+    if(opts.priority)window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="ar-SA";
+    u.rate=opts.rate||1.05;
+    u.pitch=opts.pitch||1.0;
+    u.volume=opts.volume||1;
+    // pick arabic voice if available
+    const voices=window.speechSynthesis.getVoices();
+    const arabic=voices.find(v=>v.lang&&v.lang.startsWith("ar"));
+    if(arabic)u.voice=arabic;
+    window.speechSynthesis.speak(u);
+  }
+  // Preload voices list (some browsers lazy-load)
+  if("speechSynthesis" in window){window.speechSynthesis.onvoiceschanged=()=>{};}
+
+  function speakCount(n){
+    if(n<=20)speak(arabicNumberWord[n]||String(n));
+    else speak(String(n));
+  }
+  function speakTip(msg){
+    const now=performance.now();
+    if(msg===lastSpokenTip && now-lastTipTime<6000)return;
+    lastSpokenTip=msg;lastTipTime=now;
+    speak(msg,{priority:true,rate:1.0});
+  }
 
   function angle(a,b,c){
     // angle at b formed by a-b-c
@@ -424,6 +460,9 @@
     document.querySelectorAll(".ex-switch button").forEach(b=>b.classList.toggle("active",b.dataset.ex===key));
     setPosture("ok","👋 ابدأ — النموذج يراقبك");
     mReps.textContent="٠";
+    if(running){
+      speak(`استعد. سنبدأ بتمرين ${e.name}. الهدف ${e.reps} ${e.isTime?"ثانية":"تكرارات"}.`,{priority:true});
+    }
   }
 
   function setPosture(t,m){chip.className="posture-chip"+(t==="ok"?"":" "+t);chip.textContent=m;}
@@ -454,6 +493,7 @@
     setPosture("ok","🎉 أحسنت! تم إنجاز الحصة");
     tip.textContent="تم حفظ الحصة في ملفك بصحتي. ستُضاف لك ٤٠ نقطة.";
     points+=40;phPts.textContent=arNum(points);
+    speak("ممتاز! أنهيت الحصة. أحسنت.",{priority:true,rate:1.0});
   }
 
   function analyzeExercise(lm){
@@ -464,19 +504,20 @@
       const a=angle(lm[L_HIP],lm[L_KNEE],lm[L_ANKLE]);
       mAngleV.textContent=arNum(Math.round(a))+"°";
       angleHint.textContent=`ركبة: ${Math.round(a)}°`;
-      if(a<e.downAngle && state==="up"){state="down";setPosture("ok","✓ نزول جيد");}
+      if(a<e.downAngle && state==="up"){state="down";setPosture("ok","✓ نزول جيد — الآن قم");}
       else if(a>e.upAngle && state==="down"){
         state="up";rep++;countEl.textContent=arNum(rep);curRep.textContent=arNum(rep);
         calories+=e.cal;cal.textContent=arNum(Math.round(calories));
         form.textContent=arNum(90+Math.floor(Math.random()*8))+"%";
         bar.style.width=(rep/e.reps*100)+"%";
         setPosture("ok",`✓ تكرار ${arNum(rep)} — ممتاز`);
+        speakCount(rep);
         repTimestamps.push(performance.now());
         updateTempo();
         mReps.textContent=arNum(rep);
         if(rep>=e.reps)finish();
-      } else if(a>=100&&a<=150&&state==="down"){setPosture("warn","⚡ انزل أكثر قليلًا");}
-      if(lm[L_KNEE].x<lm[L_ANKLE].x-0.05){setPosture("bad","⚠ ركبة تتعدى القدم");}
+      } else if(a>=100&&a<=150&&state==="down"){setPosture("warn","⚡ انزل أكثر قليلًا");speakTip("انزل أكثر");}
+      if(lm[L_KNEE].x<lm[L_ANKLE].x-0.05){setPosture("bad","⚠ ركبة تتعدى القدم");speakTip("ادفع وركك للخلف");}
     }
     else if(e.joint==="elbow"){
       // Pushup: elbow angle
@@ -484,13 +525,14 @@
       const a=angle(lm[L_SHOULDER],lm[L_ELBOW],lm[L_WRIST]);
       mAngleV.textContent=arNum(Math.round(a))+"°";
       angleHint.textContent=`كوع: ${Math.round(a)}°`;
-      if(a<e.downAngle && state==="up"){state="down";}
+      if(a<e.downAngle && state==="up"){state="down";setPosture("ok","✓ نزول ممتاز — ارفع");}
       else if(a>e.upAngle && state==="down"){
         state="up";rep++;countEl.textContent=arNum(rep);curRep.textContent=arNum(rep);
         calories+=e.cal;cal.textContent=arNum(Math.round(calories));
         form.textContent=arNum(89+Math.floor(Math.random()*9))+"%";
         bar.style.width=(rep/e.reps*100)+"%";
         setPosture("ok",`✓ تكرار ${arNum(rep)}`);
+        speakCount(rep);
         repTimestamps.push(performance.now());
         updateTempo();
         mReps.textContent=arNum(rep);
@@ -504,8 +546,8 @@
       mAngleV.textContent=arNum(Math.round(a))+"°";
       angleHint.textContent=`استقامة: ${Math.round(a)}°`;
       if(a>165){setPosture("ok","✓ جسم مستقيم — حافظ عليه");form.textContent=arNum(95+Math.floor(Math.random()*5))+"%";}
-      else if(a>150){setPosture("warn","⚡ ارفع الورك قليلًا");form.textContent=arNum(78)+"%";}
-      else {setPosture("bad","⚠ الورك منخفض جدًا");form.textContent=arNum(60)+"%";}
+      else if(a>150){setPosture("warn","⚡ ارفع الورك قليلًا");form.textContent=arNum(78)+"%";speakTip("ارفع وركك قليلًا");}
+      else {setPosture("bad","⚠ الورك منخفض جدًا");form.textContent=arNum(60)+"%";speakTip("ارفع وركك — الجسم غير مستقيم");}
       const sec=Math.floor((performance.now()-startT)/1000);
       countEl.textContent=arNum(Math.min(sec,e.reps));
       curRep.textContent=arNum(Math.min(sec,e.reps));
@@ -565,6 +607,12 @@
     b.addEventListener("click",()=>setExercise(b.dataset.ex));
   });
   document.getElementById("resetBtn").addEventListener("click",()=>setExercise(current));
+  document.getElementById("voiceBtn").addEventListener("click",(e)=>{
+    voiceEnabled=!voiceEnabled;
+    e.currentTarget.innerHTML=voiceEnabled?"🔊 الصوت":"🔇 كتم";
+    if(!voiceEnabled && "speechSynthesis" in window)window.speechSynthesis.cancel();
+    else speak("تم تفعيل صوت المدرب");
+  });
 
   // Camera starts only on user gesture (gate button click) for reliability
   setExercise("squat");
