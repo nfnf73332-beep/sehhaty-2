@@ -292,8 +292,48 @@
 
 </div>
 
+<!-- Plain script: camera gate (runs even if MediaPipe CDN fails) -->
+<script>
+(function(){
+  const video=document.getElementById("cam");
+  const overlay=document.getElementById("overlay");
+  const gate=document.getElementById("camGate");
+  const gateBtn=document.getElementById("gateBtn");
+  const gateErr=document.getElementById("gateErr");
+
+  gateBtn.addEventListener("click",async ()=>{
+    gateErr.classList.remove("show");
+    gateBtn.disabled=true;gateBtn.textContent="⏳ جارٍ…";
+    try{
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+        throw new Error("المتصفح لا يدعم الكاميرا");
+      }
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false});
+      video.srcObject=stream;video.classList.add("on");
+      await new Promise(r=>{if(video.readyState>=1)r();else video.onloadedmetadata=r;});
+      overlay.width=video.videoWidth;overlay.height=video.videoHeight;
+      gate.classList.add("hidden");
+      window._sehhatyCamReady=true;
+      window.dispatchEvent(new CustomEvent("sehhaty:cameraReady"));
+    }catch(e){
+      gateBtn.disabled=false;gateBtn.textContent="أعد المحاولة";
+      gateErr.classList.add("show");
+      gateErr.innerHTML=`<b>خطأ:</b> ${e.name||"Error"} — ${e.message}<br><a href="diagnostic.html" style="color:#7DC3E8;">افتح صفحة التشخيص ←</a>`;
+    }
+  });
+})();
+</script>
+
 <script type="module">
-  import {FaceLandmarker, FilesetResolver} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
+  let FaceLandmarker,FilesetResolver;
+  try{
+    const mod=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");
+    FaceLandmarker=mod.FaceLandmarker;FilesetResolver=mod.FilesetResolver;
+  }catch(e){
+    console.error("MediaPipe import failed:",e);
+    const s=document.getElementById("aiStatus");
+    if(s)s.innerHTML='<span class="dot2" style="background:#D16B5C"></span>⚠ تعذّر تحميل AI — الكاميرا فقط';
+  }
 
   const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 
@@ -303,6 +343,7 @@
 
   const video=document.getElementById("cam");
   const overlay=document.getElementById("overlay");
+  overlay.width=overlay.width||640;overlay.height=overlay.height||480;
   const octx=overlay.getContext("2d");
   const waveCanvas=document.getElementById("waveCanvas");
   const wctx=waveCanvas.getContext("2d");
@@ -332,32 +373,12 @@
 
   function setStatus(a,b){status.querySelector(".s1").textContent=a;status.querySelector(".s2").textContent=b;}
 
-  const gate=document.getElementById("camGate");
-  const gateBtn=document.getElementById("gateBtn");
-  const gateErr=document.getElementById("gateErr");
-
-  async function startCamera(){
-    try{
-      aiText.textContent="فتح الكاميرا…";
-      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false});
-      video.srcObject=stream;video.classList.add("on");
-      await new Promise(r=>video.onloadedmetadata=r);
-      overlay.width=video.videoWidth;overlay.height=video.videoHeight;
-      samp.width=video.videoWidth;samp.height=video.videoHeight;
-      gate.classList.add("hidden");
-      return true;
-    }catch(e){
-      aiText.textContent="⚠ إذن الكاميرا مطلوب";
-      gateErr.classList.add("show");
-      gateErr.innerHTML=`<b>خطأ:</b> ${e.name} — ${e.message}`;
-      return false;
-    }
-  }
-  gateBtn.addEventListener("click",async ()=>{
-    gateBtn.disabled=true;gateBtn.textContent="⏳ جارٍ…";
-    const ok=await startCamera();
-    if(!ok){gateBtn.disabled=false;gateBtn.textContent="أعد المحاولة";}
-    else if(!faceLandmarker){await loadModel();running=true;loop();}
+  // Camera is handled by the plain script above. We just wait for the ready signal.
+  window.addEventListener("sehhaty:cameraReady",async ()=>{
+    samp.width=video.videoWidth;samp.height=video.videoHeight;
+    if(!FaceLandmarker)return; // AI not available, camera only
+    const ok=await loadModel();
+    if(ok){running=true;loop();}
   });
 
   async function loadModel(){
