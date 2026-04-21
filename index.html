@@ -3,331 +3,630 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>صحتي 2.0 — صحتي في كل مكان | مركز العروض التوضيحية</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>صحتي 2.0 — صحتي في كل مكان</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --sehhaty-green:#3B8BBE;
-    --sehhaty-green-dark:#1B4F7A;
-    --sehhaty-green-light:#EBF4FB;
-    --sky-accent:#7DC3E8;
-    --accent:#E9B44C;
-    --ink:#0E1E2E;
-    --muted:#5C6F82;
-    --bg:#F5F9FC;
+    --royal:#1e1b4b;--royal-2:#312e81;--royal-3:#3730a3;
+    --sky:#3B8BBE;--sky-dark:#1B4F7A;--sky-light:#EBF4FB;--sky-accent:#7DC3E8;
+    --purple:#7C3AED;--purple-light:#A78BFA;--purple-glow:#C084FC;
+    --gold:#FBBF24;--gold-light:#FDE68A;
+    --ink:#0E1E2E;--muted:#64748b;--bg:#F5F9FC;
+    --ok:#10B981;--warn:#F59E0B;--danger:#EF4444;
   }
   *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
-  body{background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh;}
-  .topbar{background:linear-gradient(135deg,var(--sehhaty-green-dark) 0%,var(--sehhaty-green) 100%);color:#fff;padding:14px 0;}
-  .container{max-width:1240px;margin:0 auto;padding:0 24px;}
+  html,body{min-height:100%;scroll-behavior:smooth;}
+  body{color:var(--ink);line-height:1.7;overflow-x:hidden;background:#fff;}
+
+  /* Royal hero backdrop */
+  .hero-backdrop{position:absolute;inset:0;background:
+    radial-gradient(ellipse 80% 60% at 50% 100%,rgba(255,255,255,.9) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 20%,rgba(124,58,237,.25) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 15% 30%,rgba(59,139,190,.2) 0%,transparent 50%),
+    linear-gradient(180deg,#ffffff 0%,#F5FAFE 30%,#E7EFFB 50%,#DDE6F8 70%,#F5FAFE 100%);
+    z-index:-1;}
+
+  #bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.6;}
+
+  .container{max-width:1340px;margin:0 auto;padding:0 28px;position:relative;z-index:2;}
+
+  /* Top bar — elevated glass */
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.75);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid rgba(59,139,190,.1);padding:14px 0;}
   .topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;}
-  .brand{display:flex;align-items:center;gap:12px;font-weight:700;}
-  .brand-mark{width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;color:var(--sehhaty-green-dark);font-weight:800;font-size:18px;}
-  .topbar-meta{font-size:13px;opacity:.9;}
-  .hero{padding:72px 0 48px;background:
-    radial-gradient(1200px 400px at 85% -20%,rgba(0,135,90,.12),transparent),
-    radial-gradient(800px 300px at 10% 0%,rgba(255,184,0,.12),transparent),
-    var(--bg);}
-  .eyebrow{display:inline-block;background:var(--sehhaty-green-light);color:var(--sehhaty-green-dark);
-    padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:18px;}
-  h1{font-size:44px;line-height:1.2;font-weight:700;margin-bottom:16px;letter-spacing:-.5px;}
-  h1 .hl{background:linear-gradient(135deg,var(--sehhaty-green),var(--sehhaty-green-dark));-webkit-background-clip:text;color:transparent;}
-  .lede{font-size:18px;color:var(--muted);max-width:780px;}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:36px 0;}
-  .stat{background:#fff;border:1px solid #E5EEE9;border-radius:16px;padding:20px;}
-  .stat-num{font-size:28px;font-weight:700;color:var(--sehhaty-green-dark);}
-  .stat-label{font-size:13px;color:var(--muted);margin-top:4px;}
-  .section-title{display:flex;align-items:baseline;justify-content:space-between;margin:40px 0 20px;}
-  .section-title h2{font-size:26px;font-weight:700;}
-  .section-title p{color:var(--muted);font-size:14px;}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
-  .card{background:#fff;border:1px solid #E5EEE9;border-radius:20px;overflow:hidden;
-    transition:all .25s ease;text-decoration:none;color:inherit;display:flex;flex-direction:column;}
-  .card:hover{transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(0,92,60,.25);border-color:var(--sehhaty-green);}
-  .card-hero{aspect-ratio:16/9;position:relative;display:grid;place-items:center;overflow:hidden;}
-  .card-1 .card-hero{background:linear-gradient(135deg,#1B4F7A 0%,#3B8BBE 60%,#7DC3E8 100%);}
-  .card-2 .card-hero{background:linear-gradient(135deg,#0D3A56 0%,#2575A0 100%);}
-  .card-3 .card-hero{background:linear-gradient(135deg,#2B4C63 0%,#6BA3C8 100%);}
-  .card-4 .card-hero{background:linear-gradient(135deg,#3A0F0F 0%,#B54A2F 100%);}
-  .card-icon{font-size:64px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25));}
-  .card-tag{position:absolute;top:14px;inset-inline-start:14px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);
-    color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;font-weight:600;}
-  .card-body{padding:22px;flex:1;display:flex;flex-direction:column;}
-  .card-body h3{font-size:20px;font-weight:700;margin-bottom:8px;}
-  .card-body p{color:var(--muted);font-size:14px;flex:1;}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
-  .chip{background:var(--sehhaty-green-light);color:var(--sehhaty-green-dark);
-    font-size:12px;padding:4px 10px;border-radius:999px;font-weight:500;}
-  .cta{margin-top:16px;display:inline-flex;align-items:center;gap:8px;
-    color:var(--sehhaty-green-dark);font-weight:600;font-size:14px;}
+  .brand{display:flex;align-items:center;gap:14px;color:var(--sky-dark);}
+  .brand-mark{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--royal-2) 0%,var(--sky-dark) 50%,var(--sky) 100%);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px;box-shadow:0 12px 28px -8px rgba(27,27,79,.5),inset 0 0 0 1px rgba(255,255,255,.15);}
+  .brand .title{font-weight:800;font-size:16px;letter-spacing:-.3px;}
+  .brand .subtitle{font-size:11px;opacity:.6;font-weight:500;}
+  .top-actions{display:flex;gap:10px;align-items:center;}
+  .pill{padding:9px 16px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .25s;border:1px solid transparent;font-family:inherit;cursor:pointer;}
+  .pill.ghost{background:rgba(255,255,255,.6);color:var(--sky-dark);border-color:rgba(27,79,122,.15);}
+  .pill.ghost:hover{background:#fff;border-color:var(--sky);transform:translateY(-1px);}
+  .pill.primary{background:linear-gradient(135deg,var(--royal-2),var(--sky));color:#fff;border:none;box-shadow:0 8px 20px -8px rgba(124,58,237,.5);}
+  .pill.primary:hover{transform:translateY(-1px);box-shadow:0 14px 30px -8px rgba(124,58,237,.6);}
+
+  /* HERO */
+  .hero{position:relative;padding:50px 0 60px;overflow:visible;}
+  .hero-inner{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;}
+
+  .hero-content{position:relative;z-index:3;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(59,139,190,.08));color:var(--royal-3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:22px;border:1px solid rgba(124,58,237,.15);}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);animation:pulse 1.6s ease-in-out infinite;}
+  @keyframes pulse{50%{opacity:.5;transform:scale(1.4);}}
+  h1{font-size:62px;line-height:1.08;font-weight:900;margin-bottom:22px;letter-spacing:-2px;color:#0a0a1a;}
+  h1 .hl{background:linear-gradient(135deg,var(--royal-2) 0%,var(--sky) 60%,var(--purple-glow) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block;}
+  .lede{font-size:18px;color:#3b4251;max-width:580px;line-height:1.9;margin-bottom:32px;font-weight:400;}
+  .lede b{color:var(--royal-2);font-weight:700;}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px;}
+  .btn-primary{background:linear-gradient(135deg,var(--royal-2) 0%,var(--sky-dark) 60%,var(--sky) 100%);color:#fff;padding:16px 34px;border-radius:16px;font-weight:700;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:10px;border:none;cursor:pointer;font-family:inherit;transition:all .3s;box-shadow:0 20px 40px -12px rgba(124,58,237,.45),inset 0 0 0 1px rgba(255,255,255,.12);position:relative;overflow:hidden;}
+  .btn-primary::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .6s;}
+  .btn-primary:hover::after{left:100%;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 25px 50px -12px rgba(124,58,237,.55);}
+  .btn-secondary{background:rgba(255,255,255,.7);backdrop-filter:blur(10px);color:var(--royal-2);padding:16px 28px;border-radius:16px;font-weight:600;text-decoration:none;border:1px solid rgba(124,58,237,.2);transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-secondary:hover{background:#fff;border-color:var(--purple);}
+
+  /* ---- Hero visual: Royal stage around family image ---- */
+  .hero-visual{position:relative;height:640px;z-index:3;display:flex;align-items:center;justify-content:center;}
+
+  .family-stage{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 70%,rgba(124,58,237,.35) 0%,transparent 65%),
+      linear-gradient(135deg,#0a0a2e 0%,#1e1b4b 30%,#312e81 60%,#3730a3 100%);
+    box-shadow:
+      0 60px 100px -30px rgba(27,27,79,.55),
+      0 0 0 1px rgba(255,255,255,.08),
+      0 0 140px -20px rgba(124,58,237,.35),
+      inset 0 0 120px rgba(125,195,232,.08);}
+
+  /* Inner glow pulsing */
+  .family-stage::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(ellipse 70% 50% at 50% 50%,rgba(167,139,250,.25) 0%,transparent 60%);
+    z-index:1;animation:breathe 6s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
+
+  /* Animated heart light trails SVG */
+  .light-trails{position:absolute;inset:0;z-index:2;pointer-events:none;}
+  .light-trails path{fill:none;stroke-linecap:round;animation:trailFlow 8s ease-in-out infinite;}
+  .light-trails .t1{stroke:rgba(167,139,250,.55);stroke-width:3;filter:drop-shadow(0 0 12px rgba(167,139,250,.7));}
+  .light-trails .t2{stroke:rgba(125,195,232,.5);stroke-width:2.5;filter:drop-shadow(0 0 10px rgba(125,195,232,.7));animation-delay:-2s;}
+  .light-trails .t3{stroke:rgba(192,132,252,.4);stroke-width:2;filter:drop-shadow(0 0 8px rgba(192,132,252,.6));animation-delay:-4s;}
+  .light-trails .t4{stroke:rgba(251,191,36,.35);stroke-width:1.8;filter:drop-shadow(0 0 6px rgba(251,191,36,.5));animation-delay:-6s;}
+  @keyframes trailFlow{
+    0%,100%{opacity:.4;stroke-dashoffset:0;}
+    50%{opacity:1;stroke-dashoffset:40;}
+  }
+
+  /* Family image */
+  .family-img-wrap{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .family-real-img{width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;transition:opacity .9s ease;}
+  .family-real-img.loaded{opacity:1;}
+
+  /* Loading state */
+  .img-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:5;text-align:center;padding:20px;gap:14px;transition:opacity .6s;}
+  .img-loading.hide{opacity:0;pointer-events:none;}
+  .img-loading .spin{width:50px;height:50px;border:3px solid rgba(255,255,255,.15);border-top-color:#A78BFA;border-radius:50%;animation:spinA 1s linear infinite;}
+  .img-loading .txt{font-size:14px;font-weight:600;opacity:.95;}
+  .img-loading .sub{font-size:11px;opacity:.65;max-width:260px;line-height:1.7;}
+  @keyframes spinA{to{transform:rotate(360deg);}}
+
+  /* SVG fallback wrap */
+  .family-svg{position:absolute;inset:0;width:100%;height:100%;z-index:3;display:none;}
+  .family-svg.show{display:block;}
+
+  /* Top scrim / bottom glow */
+  .scrim-top{position:absolute;top:0;left:0;right:0;height:100px;background:linear-gradient(180deg,rgba(10,10,46,.5) 0%,transparent 100%);z-index:4;pointer-events:none;}
+  .scrim-bottom{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(0deg,rgba(10,10,46,.6) 0%,transparent 100%);z-index:4;pointer-events:none;}
+
+  /* Star dots */
+  .starlight{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
+  .starlight .star{position:absolute;background:rgba(255,255,255,.7);border-radius:50%;animation:twinkle 3s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
+
+  /* Floating premium cards */
+  .floating-card{position:absolute;background:rgba(255,255,255,.92);backdrop-filter:blur(20px) saturate(1.8);-webkit-backdrop-filter:blur(20px) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:18px;padding:12px 16px;box-shadow:0 20px 50px -20px rgba(27,27,79,.35),inset 0 0 0 1px rgba(255,255,255,.5);z-index:6;animation:float 5s ease-in-out infinite;}
+  .floating-card .ico{font-size:22px;}
+  .floating-card .t{font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:500;}
+  .floating-card .v{font-weight:800;color:var(--royal-2);font-size:15px;display:flex;align-items:center;gap:6px;}
+  .floating-card .pulsedot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 1.2s infinite;}
+  .fc-1{top:6%;inset-inline-start:-5%;animation-delay:0s;}
+  .fc-2{top:32%;inset-inline-end:-8%;animation-delay:1.2s;}
+  .fc-3{bottom:32%;inset-inline-start:-7%;animation-delay:2.4s;}
+  .fc-4{bottom:14%;inset-inline-end:-5%;animation-delay:3.6s;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+
+  /* Photo controls */
+  .photo-controls{position:absolute;bottom:18px;inset-inline-start:18px;inset-inline-end:18px;display:flex;justify-content:center;gap:8px;z-index:7;}
+  .photo-btn{background:rgba(255,255,255,.9);backdrop-filter:blur(10px);color:var(--royal-2);border:1px solid rgba(255,255,255,.5);padding:10px 16px;border-radius:999px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 10px 25px -10px rgba(27,27,79,.35);}
+  .photo-btn:hover{background:#fff;transform:translateY(-1px);}
+
+  /* ---- Stats ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:60px 0 40px;position:relative;z-index:3;}
+  .stat{background:rgba(255,255,255,.7);backdrop-filter:blur(14px) saturate(1.4);border:1px solid rgba(59,139,190,.12);border-radius:20px;padding:24px;transition:all .3s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;}
+  .stat::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(124,58,237,.05));opacity:0;transition:opacity .3s;}
+  .stat:hover{transform:translateY(-5px);border-color:var(--purple);box-shadow:0 25px 50px -20px rgba(124,58,237,.3);}
+  .stat:hover::before{opacity:1;}
+  .stat-num{font-size:34px;font-weight:900;background:linear-gradient(135deg,var(--royal-2),var(--sky));-webkit-background-clip:text;color:transparent;line-height:1;letter-spacing:-1px;font-variant-numeric:tabular-nums;}
+  .stat-label{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.5;font-weight:500;}
+
+  /* ---- Sections ---- */
+  .section-title{text-align:center;max-width:720px;margin:80px auto 42px;position:relative;z-index:3;}
+  .section-title h2{font-size:42px;font-weight:900;color:#0a0a1a;letter-spacing:-1.2px;margin-bottom:12px;}
+  .section-title h2 .hl{background:linear-gradient(135deg,var(--royal-2),var(--sky));-webkit-background-clip:text;color:transparent;}
+  .section-title p{color:var(--muted);font-size:15.5px;line-height:1.8;}
+
+  /* ---- Cards ---- */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;position:relative;z-index:3;}
+  .card{background:rgba(255,255,255,.82);backdrop-filter:blur(16px);border:1px solid rgba(59,139,190,.12);border-radius:26px;overflow:hidden;transition:all .35s cubic-bezier(.2,.8,.2,1);text-decoration:none;color:inherit;position:relative;display:flex;flex-direction:column;}
+  .card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(124,58,237,.08));opacity:0;transition:opacity .3s;pointer-events:none;z-index:1;}
+  .card:hover{transform:translateY(-7px);border-color:var(--purple-light);box-shadow:0 40px 80px -30px rgba(124,58,237,.4);}
+  .card:hover::before{opacity:1;}
+  .card-hero{aspect-ratio:16/8;position:relative;display:grid;place-items:center;overflow:hidden;}
+  .card-icon{font-size:62px;filter:drop-shadow(0 15px 30px rgba(0,0,0,.3));position:relative;z-index:2;}
+  .card-1 .card-hero{background:linear-gradient(135deg,#1B4F7A 0%,#3B8BBE 55%,#7DC3E8 100%);}
+  .card-2 .card-hero{background:linear-gradient(135deg,#0D3A56,#2575A0);}
+  .card-3 .card-hero{background:linear-gradient(135deg,#2B4C63,#6BA3C8);}
+  .card-4 .card-hero{background:linear-gradient(135deg,#3A2B5C,#7C5AA8);}
+  .card-5 .card-hero{background:linear-gradient(135deg,#1e1b4b,#7C3AED 50%,#EC4899);}
+  .card-tag{position:absolute;top:14px;inset-inline-start:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);color:#fff;font-size:11px;padding:5px 12px;border-radius:999px;font-weight:700;z-index:2;border:1px solid rgba(255,255,255,.2);}
+  .card-body{padding:24px;flex:1;display:flex;flex-direction:column;position:relative;z-index:2;}
+  .card-body h3{font-size:20px;font-weight:800;margin-bottom:8px;color:#0a0a1a;letter-spacing:-.3px;}
+  .card-body p{color:var(--muted);font-size:14px;flex:1;line-height:1.75;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;}
+  .chip{background:rgba(124,58,237,.08);color:var(--royal-2);font-size:11px;padding:5px 11px;border-radius:999px;font-weight:700;border:1px solid rgba(124,58,237,.1);}
+  .cta{margin-top:18px;display:inline-flex;align-items:center;gap:8px;color:var(--royal-2);font-weight:800;font-size:14px;}
   .cta::after{content:"←";transition:transform .2s;}
-  .card:hover .cta::after{transform:translateX(-4px);}
-  .pillars{background:#fff;border:1px solid #E5EEE9;border-radius:20px;padding:28px;margin:40px 0;}
-  .pillars h3{font-size:18px;margin-bottom:16px;}
-  .pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
-  .pillar{padding:16px;border-radius:14px;background:var(--bg);}
-  .pillar-icon{font-size:28px;margin-bottom:8px;}
-  .pillar h4{font-size:15px;margin-bottom:4px;}
-  .pillar p{font-size:13px;color:var(--muted);}
-  footer{background:var(--sehhaty-green-dark);color:#E6F4EE;padding:28px 0;margin-top:60px;font-size:13px;}
-  .footer-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-  .vision{background:rgba(255,255,255,.1);padding:6px 12px;border-radius:999px;font-weight:600;}
-  @media(max-width:820px){
-    h1{font-size:32px;}
+  .card:hover .cta::after{transform:translateX(-6px);}
+
+  /* ---- Pillars ---- */
+  .pillars{background:rgba(255,255,255,.7);backdrop-filter:blur(14px);border:1px solid rgba(59,139,190,.12);border-radius:26px;padding:36px;margin:50px 0;position:relative;z-index:3;}
+  .pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .pillar{padding:22px;border-radius:18px;background:linear-gradient(135deg,#fff,#F5F9FE);border:1px solid rgba(59,139,190,.1);transition:all .25s;}
+  .pillar:hover{transform:translateY(-3px);border-color:var(--purple-light);}
+  .pillar-icon{font-size:36px;margin-bottom:12px;filter:drop-shadow(0 8px 16px rgba(124,58,237,.15));}
+  .pillar h4{font-size:16px;margin-bottom:6px;color:var(--royal-2);font-weight:800;}
+  .pillar p{font-size:13px;color:var(--muted);line-height:1.7;}
+
+  /* ---- Impact ---- */
+  .impact{background:linear-gradient(135deg,var(--royal-2) 0%,var(--sky-dark) 60%,var(--sky) 100%);color:#fff;border-radius:28px;padding:36px 42px;display:grid;grid-template-columns:1fr 2fr;gap:32px;align-items:center;margin:40px 0 70px;position:relative;z-index:3;overflow:hidden;box-shadow:0 40px 80px -20px rgba(27,27,79,.4);}
+  .impact::before{content:"";position:absolute;top:-50%;right:-15%;width:450px;height:450px;background:radial-gradient(circle,rgba(167,139,250,.35),transparent);}
+  .impact::after{content:"";position:absolute;bottom:-40%;left:-10%;width:350px;height:350px;background:radial-gradient(circle,rgba(125,195,232,.25),transparent);}
+  .impact h3{font-size:22px;margin-bottom:6px;font-weight:700;position:relative;z-index:2;}
+  .impact .big{font-size:34px;font-weight:900;margin-top:10px;letter-spacing:-1px;position:relative;z-index:2;}
+  .impact .small{font-size:13.5px;opacity:.85;margin-top:8px;position:relative;z-index:2;}
+
+  footer{background:linear-gradient(135deg,var(--royal-2),var(--sky-dark));color:#E6F2FB;padding:42px 0;margin-top:50px;position:relative;z-index:3;}
+  .footer-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center;}
+  .vision{background:rgba(255,255,255,.12);padding:10px 18px;border-radius:999px;font-weight:600;font-size:13px;border:1px solid rgba(255,255,255,.15);}
+
+  @media(max-width:1050px){
+    h1{font-size:42px;}
+    .hero-inner{grid-template-columns:1fr;gap:40px;}
+    .hero-visual{height:540px;}
     .stats{grid-template-columns:repeat(2,1fr);}
     .grid{grid-template-columns:1fr;}
     .pillar-grid{grid-template-columns:repeat(2,1fr);}
+    .impact{grid-template-columns:1fr;}
+    .section-title h2{font-size:30px;}
   }
 </style>
 </head>
 <body>
+
+<div class="hero-backdrop"></div>
+<canvas id="bgCanvas"></canvas>
 
 <div class="topbar">
   <div class="container topbar-inner">
     <div class="brand">
       <div class="brand-mark">ص</div>
       <div>
-        <div style="font-size:15px;">منصة صحتي — وزارة الصحة</div>
-        <div style="font-size:11px;opacity:.85;font-weight:400;">المملكة العربية السعودية</div>
+        <div class="title">صحتي 2.0</div>
+        <div class="subtitle">وزارة الصحة · المملكة العربية السعودية</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <a href="diagnostic.html" style="background:rgba(255,255,255,.15);color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;text-decoration:none;font-weight:600;">🔧 تشخيص الكاميرا</a>
-      <div class="topbar-meta">مقترح «صحتي 2.0»</div>
+    <div class="top-actions">
+      <a href="diagnostic.html" class="pill ghost">🔧 تشخيص</a>
+      <a href="#demos" class="pill primary">استكشف الديموهات</a>
     </div>
   </div>
 </div>
 
 <section class="hero">
-  <div class="container">
-    <span class="eyebrow">مقترح تطوير ۰ مرحلة جديدة</span>
-    <h1>صحتي <span class="hl">في كل مكان</span> حول المواطن</h1>
-    <p class="lede">
-      تنتقل منصة «صحتي» من تطبيق يُفتَح عند الحاجة إلى <b>منظومة صحية محيطية</b> تتكامل مع حياة المواطن اليومية —
-      داخل المنزل عبر المرآة والتلفزيون، وعلى الطاولة عبر المطبخ، وفي السيارة عبر الداش كام —
-      لتقدم رعاية استباقية مستمرة، وتخفّض الحِمل على المرافق الصحية، وتدعم مستهدفات <b>رؤية المملكة 2030</b> في برنامج تحوّل القطاع الصحي.
-    </p>
+  <div class="container hero-inner">
 
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num"><span class="count" data-target="18" data-suffix="M" data-prefix="+">+0M</span></div>
-        <div class="stat-label">مستخدم نشط مستهدف داخل المنظومة الموسّعة</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num"><span class="count" data-target="32" data-suffix="%" data-prefix="−">−0%</span></div>
-        <div class="stat-label">خفض متوقع في زيارات الطوارئ غير الحرجة</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num"><span class="count" data-target="4.2" data-suffix="x" data-prefix="+">+0x</span></div>
-        <div class="stat-label">زيادة متوقعة في متوسط زمن الاستخدام اليومي</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">24/7</div>
-        <div class="stat-label">رصد صحي محيطي مستمر حول المواطن</div>
+    <div class="hero-content">
+      <span class="eyebrow"><span class="dot"></span>مقترح استراتيجي · رؤية ٢٠٣٠</span>
+      <h1>صحتي <span class="hl">في كل مكان</span><br>حول الأسرة السعودية</h1>
+      <p class="lede">
+        منظومة صحية محيطية ذكية تتكامل مع حياة كل فرد في الأسرة السعودية — من <b>المرآة الذكية</b> صباحًا التي تحيي وتقيس، إلى <b>التلفزيون</b> الذي يصبح مدربًا شخصيًا، و<b>الطاولة</b> حيث يخصّص الشيف الذكي وجباتك، وحتى <b>السيارة</b> التي تحميك من النعاس.
+      </p>
+      <div class="hero-cta">
+        <a href="#demos" class="btn-primary">جرّب الديموهات الحيّة</a>
+        <a href="diagnostic.html" class="btn-secondary">🎥 اختبار الكاميرا</a>
       </div>
     </div>
 
-    <!-- Live impact sparkline -->
-    <div style="background:#fff;border:1px solid #DCE8F3;border-radius:16px;padding:18px 22px;display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:center;margin-top:10px;">
-      <div>
-        <div style="font-size:13px;color:var(--muted);">الأثر التراكمي المتوقع (٣٦ شهرًا)</div>
-        <div style="font-size:24px;font-weight:700;color:var(--sehhaty-green-dark);margin-top:4px;">
-          <span class="count" data-target="847" data-suffix="K" data-prefix="">0K</span> قراءة/يوم
+    <!-- ROYAL HERO VISUAL -->
+    <div class="hero-visual">
+      <div class="family-stage" id="familyStage">
+
+        <!-- Twinkling stars -->
+        <div class="starlight" id="starlight"></div>
+
+        <!-- Heart light trails SVG -->
+        <svg class="light-trails" viewBox="0 0 500 640" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <!-- Heart-like ribbon paths flowing around the family -->
+          <path class="t1" d="M 80 280 C 120 180, 200 140, 250 200 C 300 140, 380 180, 420 280 C 440 360, 340 420, 250 500 C 160 420, 60 360, 80 280 Z" stroke-dasharray="8 6"/>
+          <path class="t2" d="M 120 320 C 160 240, 220 210, 250 260 C 280 210, 340 240, 380 320 C 400 380, 320 420, 250 470 C 180 420, 100 380, 120 320 Z" stroke-dasharray="5 10"/>
+          <path class="t3" d="M 60 340 C 100 250, 180 200, 250 250 Q 320 200, 440 340" stroke-dasharray="10 14"/>
+          <path class="t4" d="M 100 450 Q 250 390, 400 450" stroke-dasharray="4 8"/>
+        </svg>
+
+        <!-- Loading indicator (shown while AI image generates) -->
+        <div class="img-loading" id="imgLoading">
+          <div class="spin"></div>
+          <div class="txt">جارٍ توليد صورة العائلة السعودية</div>
+          <div class="sub">صورة واقعية بالذكاء الاصطناعي · قد تستغرق ١٠-٢٠ ثانية</div>
         </div>
-        <div style="font-size:12px;color:var(--sehhaty-green);margin-top:4px;">📈 ينمو الأثر شهريًا مع توسع التكامل</div>
+
+        <!-- Real family photo (AI generated or uploaded) -->
+        <div class="family-img-wrap">
+          <img class="family-real-img" id="familyRealImg" alt="العائلة السعودية">
+
+          <!-- SVG fallback (only shown if everything fails) -->
+          <svg class="family-svg" id="familySvg" viewBox="0 0 500 640" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="shemagh" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+                <rect width="14" height="14" fill="#ffffff"/>
+                <path d="M0 7 L14 7 M7 0 L7 14" stroke="#c91d2f" stroke-width="1.6"/>
+                <circle cx="7" cy="7" r="1.2" fill="#c91d2f"/>
+              </pattern>
+              <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C4A0"/><stop offset="1" stop-color="#D4A574"/></linearGradient>
+              <linearGradient id="thobe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ECF3F8"/></linearGradient>
+              <linearGradient id="abaya" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a2e"/><stop offset="1" stop-color="#0a0a1a"/></linearGradient>
+              <linearGradient id="girlDress" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7DC3E8"/><stop offset="1" stop-color="#3B8BBE"/></linearGradient>
+            </defs>
+            <!-- Simplified fallback family -->
+            <g transform="translate(120,380)">
+              <path d="M-28 30 Q-34 100 -40 180 L40 180 Q34 100 28 30 Q28 20 0 18 Q-28 20 -28 30 Z" fill="url(#girlDress)"/>
+              <ellipse cx="0" cy="-5" rx="22" ry="26" fill="url(#skin)"/>
+              <path d="M-26 -20 Q-34 -8 -30 15 L30 15 Q34 -8 26 -20 Q26 -36 0 -38 Q-26 -36 -26 -20 Z" fill="#FBD9E4"/>
+              <circle cx="-6" cy="-8" r="2" fill="#1a1a2e"/><circle cx="6" cy="-8" r="2" fill="#1a1a2e"/>
+            </g>
+            <g transform="translate(210,340)">
+              <path d="M-42 40 Q-58 150 -70 235 L70 235 Q58 150 42 40 Q42 25 0 22 Q-42 25 -42 40 Z" fill="url(#abaya)"/>
+              <ellipse cx="0" cy="-8" rx="26" ry="32" fill="url(#skin)"/>
+              <path d="M-30 -15 Q-40 10 -40 42 L-28 42 L-24 22 Q-30 0 -24 -14 Q-24 -38 0 -40 Q24 -38 24 -14 Q30 0 28 22 L40 42 Q40 10 30 -15 Q30 -45 0 -48 Q-30 -45 -30 -15 Z" fill="url(#abaya)"/>
+              <circle cx="-7" cy="-8" r="2.5" fill="#1a1a2e"/><circle cx="7" cy="-8" r="2.5" fill="#1a1a2e"/>
+            </g>
+            <g transform="translate(310,320)">
+              <path d="M-48 45 Q-55 170 -65 260 L65 260 Q55 170 48 45 Q48 30 0 28 Q-48 30 -48 45 Z" fill="url(#thobe)"/>
+              <ellipse cx="0" cy="-2" rx="30" ry="36" fill="url(#skin)"/>
+              <path d="M-34 -10 Q-48 25 -44 55 L-28 55 Q-24 25 -24 -10 Z" fill="url(#shemagh)"/>
+              <path d="M34 -10 Q48 25 44 55 L28 55 Q24 25 24 -10 Z" fill="url(#shemagh)"/>
+              <path d="M-34 -10 Q-38 -40 0 -44 Q38 -40 34 -10 L34 8 Q32 18 24 14 Q20 10 0 8 Q-20 10 -24 14 Q-32 18 -34 8 Z" fill="url(#shemagh)"/>
+              <ellipse cx="0" cy="-30" rx="36" ry="5" fill="#0a0a0a"/><ellipse cx="0" cy="-25" rx="37" ry="5" fill="#141414"/>
+              <circle cx="-10" cy="-3" r="2.5" fill="#1a1a2e"/><circle cx="10" cy="-3" r="2.5" fill="#1a1a2e"/>
+            </g>
+            <g transform="translate(410,400)">
+              <path d="M-30 30 Q-36 105 -44 180 L44 180 Q36 105 30 30 Q30 18 0 16 Q-30 18 -30 30 Z" fill="url(#thobe)"/>
+              <ellipse cx="0" cy="-5" rx="22" ry="27" fill="url(#skin)"/>
+              <path d="M-22 -10 Q-30 5 -28 30 L28 30 Q30 5 22 -10 Q22 -34 0 -36 Q-22 -34 -22 -10 Z" fill="url(#thobe)"/>
+              <ellipse cx="0" cy="-25" rx="24" ry="3" fill="#0a0a0a"/>
+              <circle cx="-6" cy="-5" r="2" fill="#1a1a2e"/><circle cx="6" cy="-5" r="2" fill="#1a1a2e"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Scrims for depth -->
+        <div class="scrim-top"></div>
+        <div class="scrim-bottom"></div>
+
+        <!-- Upload control -->
+        <div class="photo-controls">
+          <button class="photo-btn" id="uploadPhotoBtn">📁 ارفع صورة (تُحفظ تلقائيًا)</button>
+          <button class="photo-btn" id="resetPhotoBtn" style="display:none;">🔄 إعادة تعيين</button>
+          <input type="file" id="photoUpload" accept="image/*" style="display:none;">
+        </div>
+
       </div>
-      <canvas id="sparkline" width="600" height="80" style="width:100%;height:80px;"></canvas>
+
+      <!-- Premium floating cards -->
+      <div class="floating-card fc-1"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">❤️</span><div><div class="t">النبض</div><div class="v"><span class="pulsedot"></span>٧٢ ن/د</div></div></div></div>
+      <div class="floating-card fc-2"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">💤</span><div><div class="t">جودة النوم</div><div class="v">٨٤%</div></div></div></div>
+      <div class="floating-card fc-3"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">🏋️</span><div><div class="t">تمارين اليوم</div><div class="v">١٢ / ٢٠</div></div></div></div>
+      <div class="floating-card fc-4"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">🧠</span><div><div class="t">تركيز دماغي</div><div class="v">٨٨%</div></div></div></div>
+
     </div>
+
   </div>
 </section>
 
-<main class="container">
+<div class="container">
 
-  <div class="section-title">
-    <div>
-      <h2>العروض التوضيحية التفاعلية</h2>
-      <p>أربع مبادرات ترويجية — كل واحدة مصحوبة بديمو قابل للنقر</p>
-    </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num"><span class="count" data-target="18" data-suffix="M" data-prefix="+">+0M</span></div><div class="stat-label">مستخدم نشط مستهدف في المنظومة الموسّعة</div></div>
+    <div class="stat"><div class="stat-num"><span class="count" data-target="32" data-suffix="%" data-prefix="−">−0%</span></div><div class="stat-label">خفض متوقع في زيارات الطوارئ غير الحرجة</div></div>
+    <div class="stat"><div class="stat-num"><span class="count" data-target="4.2" data-suffix="x" data-prefix="+">+0x</span></div><div class="stat-label">زيادة متوقعة في زمن الاستخدام اليومي</div></div>
+    <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">رصد صحي محيطي مستمر حول الأسرة</div></div>
+  </div>
+
+  <div class="section-title" id="demos">
+    <h2>خمسة ديموهات <span class="hl">تفاعلية حيّة</span></h2>
+    <p>جرّبها الآن — كاميرا حقيقية + نماذج AI تعمل داخل متصفحك بدون خوادم</p>
   </div>
 
   <div class="grid">
-
     <a href="demo-mirror.html" class="card card-1">
-      <div class="card-hero">
-        <span class="card-tag">داخل المنزل</span>
-        <div class="card-icon">🪞</div>
-      </div>
+      <div class="card-hero"><span class="card-tag">داخل المنزل · صباحًا</span><div class="card-icon">🪞</div></div>
       <div class="card-body">
-        <h3>المرآة الذكية — العلامات الحيوية بلا تلامس</h3>
-        <p>قياس فوري للنبض، التنفس، الإرهاق، والجفاف عبر كاميرا المرآة أو بصمة الدخول، مع تسجيل تلقائي في الملف الصحي.</p>
-        <div class="chips">
-          <span class="chip">rPPG</span>
-          <span class="chip">Computer Vision</span>
-          <span class="chip">IoT منزلي</span>
-        </div>
+        <h3>المرآة الذكية الاستباقية</h3>
+        <p>تحية زمنية شخصية + قياس نبض تلقائي من لون جبهتك + تحليل النوم والإرهاق + نصائح صوتية من كوتش صحتي.</p>
+        <div class="chips"><span class="chip">rPPG</span><span class="chip">AI صوتي</span><span class="chip">IoT منزلي</span></div>
         <span class="cta">افتح الديمو</span>
       </div>
     </a>
-
     <a href="demo-trainer.html" class="card card-2">
-      <div class="card-hero">
-        <span class="card-tag">داخل المنزل</span>
-        <div class="card-icon">🏋️</div>
-      </div>
+      <div class="card-hero"><span class="card-tag">داخل المنزل · نشاط</span><div class="card-icon">🏋️</div></div>
       <div class="card-body">
-        <h3>مدرب التمارين المنزلية</h3>
-        <p>تكامل تطبيق صحتي مع تلفزيون المنزل يُدقق وضعية البوش أب، السكوات، البلانك، والاستريتشنج — مع مدرب افتراضي.</p>
-        <div class="chips">
-          <span class="chip">Pose Estimation</span>
-          <span class="chip">Smart TV</span>
-          <span class="chip">تحفيز سلوكي</span>
-        </div>
+        <h3>مدرب مع شخصية مرافقة</h3>
+        <p>كشف وضعية البداية، عدّ تنازلي ٣-٢-١، شخصية «تميكو» تتدرّب معك، عدّ تكرارات دقيق من زوايا المفاصل.</p>
+        <div class="chips"><span class="chip">MediaPipe Pose</span><span class="chip">شخصية مرافقة</span><span class="chip">صوت عربي</span></div>
         <span class="cta">افتح الديمو</span>
       </div>
     </a>
-
     <a href="demo-chef.html" class="card card-3">
-      <div class="card-hero">
-        <span class="card-tag">داخل المنزل</span>
-        <div class="card-icon">🥗</div>
-      </div>
+      <div class="card-hero"><span class="card-tag">على الطاولة</span><div class="card-icon">🥗</div></div>
       <div class="card-body">
-        <h3>الشيف الصحي — نظام غذائي مخصص</h3>
-        <p>خطة وجبات يومية مبنية على الملف الصحي (سكري، ضغط، حمل، متابعة وزن)، مع وصفات مقترحة وقائمة تسوّق مباشرة.</p>
-        <div class="chips">
-          <span class="chip">تخصيص AI</span>
-          <span class="chip">ربط مع الصيدلي</span>
-          <span class="chip">توصيل البقالة</span>
-        </div>
+        <h3>الشيف الصحي الذكي</h3>
+        <p>خطة وجبات مخصصة لكل فرد في الأسرة وفق ملفه الصحي، مع ربط مباشر بمحلات البقالة وسلة تسوّق حيّة.</p>
+        <div class="chips"><span class="chip">تخصيص AI</span><span class="chip">جاهز · هنقرستيشن</span><span class="chip">وصفات سعودية</span></div>
         <span class="cta">افتح الديمو</span>
       </div>
     </a>
-
     <a href="demo-dashcam.html" class="card card-4">
-      <div class="card-hero">
-        <span class="card-tag">خارج المنزل</span>
-        <div class="card-icon">🚗</div>
-      </div>
+      <div class="card-hero"><span class="card-tag">خارج المنزل · السيارة</span><div class="card-icon">🚗</div></div>
       <div class="card-body">
-        <h3>داش كام السيارة — سلامة السائق</h3>
-        <p>رصد مستمر للنعاس والإرهاق مع تنبيه صوتي تصاعدي، واتصال تلقائي بالطوارئ (937) عند تجاهل الإنذارات.</p>
-        <div class="chips">
-          <span class="chip">DMS</span>
-          <span class="chip">ربط مع 937</span>
-          <span class="chip">توكلنا + مرور</span>
-        </div>
+        <h3>داش كام السلامة</h3>
+        <p>رصد فعلي لنعاس السائق + استخدام الجوال + شرود الذهن، مع تقرير كامل لكل رحلة واتصال تلقائي بـ٩٣٧.</p>
+        <div class="chips"><span class="chip">FaceLandmarker</span><span class="chip">تكامل ٩٣٧</span><span class="chip">تقرير رحلة</span></div>
         <span class="cta">افتح الديمو</span>
       </div>
     </a>
+    <a href="demo-focus.html" class="card card-5" style="grid-column:1/-1;">
+      <div class="card-hero"><span class="card-tag">جديد · صحة دماغك</span><div class="card-icon">🧠</div></div>
+      <div class="card-body">
+        <h3>دورة علاج «تعفن الدماغ» — ألعاب معرفية</h3>
+        <p>جلسة يومية ٥ دقائق من الألعاب المعرفية: سرعة البديهة، ستروب، الذاكرة التسلسلية — علاج فعّال لتدهور التركيز من الإفراط في Reels.</p>
+        <div class="chips"><span class="chip">٣ ألعاب</span><span class="chip">قياس Corsi</span><span class="chip">تقرير يومي</span><span class="chip">العائلة كاملة</span></div>
+        <span class="cta">افتح الديمو</span>
+      </div>
+    </a>
+  </div>
 
+  <div class="impact">
+    <div>
+      <h3>أثر صحي تراكمي</h3>
+      <div class="big"><span class="count" data-target="847" data-suffix="K" data-prefix="">0K</span> قراءة/يوم</div>
+      <div class="small">خلال ٣٦ شهرًا من التوسع التدريجي</div>
+    </div>
+    <canvas id="sparkline" width="700" height="100" style="width:100%;height:100px;position:relative;z-index:2;"></canvas>
+  </div>
+
+  <div class="section-title">
+    <h2>كيف تدعم رؤية <span class="hl">٢٠٣٠</span>؟</h2>
+    <p>تحوّل الرعاية الصحية من ردّ فعل إلى منظومة استباقية محيطية</p>
   </div>
 
   <div class="pillars">
-    <h3>كيف تدعم هذه المبادرات مستهدفات القطاع الصحي؟</h3>
     <div class="pillar-grid">
-      <div class="pillar">
-        <div class="pillar-icon">🎯</div>
-        <h4>الوقاية قبل العلاج</h4>
-        <p>تحويل الرعاية من ردّ فعل إلى استباقية مستمرة</p>
-      </div>
-      <div class="pillar">
-        <div class="pillar-icon">💰</div>
-        <h4>خفض التكلفة</h4>
-        <p>تقليل زيارات الطوارئ والمستشفيات غير الضرورية</p>
-      </div>
-      <div class="pillar">
-        <div class="pillar-icon">🏠</div>
-        <h4>الرعاية عن بُعد</h4>
-        <p>دعم استراتيجية نقل الرعاية إلى المنزل</p>
-      </div>
-      <div class="pillar">
-        <div class="pillar-icon">🤝</div>
-        <h4>تمكين القطاع الخاص</h4>
-        <p>فتح أسواق لشركاء (مرايا ذكية، تلفزيونات، سيارات)</p>
-      </div>
+      <div class="pillar"><div class="pillar-icon">🎯</div><h4>الوقاية قبل العلاج</h4><p>تحويل الرعاية من ردّ فعل إلى استباقية مستمرة</p></div>
+      <div class="pillar"><div class="pillar-icon">💰</div><h4>خفض التكلفة</h4><p>تقليل زيارات الطوارئ والمستشفيات غير الضرورية</p></div>
+      <div class="pillar"><div class="pillar-icon">🏠</div><h4>الرعاية المنزلية</h4><p>دعم استراتيجية نقل الرعاية إلى المنزل</p></div>
+      <div class="pillar"><div class="pillar-icon">🤝</div><h4>تمكين القطاع الخاص</h4><p>فتح أسواق لشركاء: مرايا، تلفزيونات، سيارات</p></div>
     </div>
   </div>
 
-</main>
+</div>
 
 <footer>
   <div class="container footer-inner">
-    <div>© منصة صحتي — مقترح داخلي توضيحي (Demo)</div>
-    <div class="vision">متوافق مع رؤية المملكة 2030</div>
+    <div>© منصة صحتي — مقترح داخلي توضيحي</div>
+    <div class="vision">🇸🇦 متوافق مع رؤية المملكة ٢٠٣٠</div>
   </div>
 </footer>
 
 <script>
   // Animated counters
-  function animateCount(el){
-    const target=parseFloat(el.dataset.target);
-    const suffix=el.dataset.suffix||"";
-    const prefix=el.dataset.prefix||"";
-    const isFloat=target%1!==0;
-    let start=0,startT=null;
-    const dur=1400;
+  document.querySelectorAll(".count").forEach(function(el){
+    var target=parseFloat(el.dataset.target);
+    var suffix=el.dataset.suffix||"",prefix=el.dataset.prefix||"";
+    var isFloat=target%1!==0;
+    var startT=null,dur=1800;
     function step(ts){
       if(!startT)startT=ts;
-      const p=Math.min((ts-startT)/dur,1);
-      const eased=1-Math.pow(1-p,3);
-      const v=target*eased;
+      var p=Math.min((ts-startT)/dur,1);
+      var eased=1-Math.pow(1-p,3);
+      var v=target*eased;
       el.textContent=prefix+(isFloat?v.toFixed(1):Math.floor(v))+suffix;
       if(p<1)requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
-  }
-  document.querySelectorAll(".count").forEach(animateCount);
+  });
 
-  // Sparkline chart
+  // Starlight dots in hero
   (function(){
-    const canvas=document.getElementById("sparkline");
-    if(!canvas)return;
-    const ctx=canvas.getContext("2d");
-    // Scale for retina
-    const dpr=window.devicePixelRatio||1;
-    const w=canvas.width=canvas.offsetWidth*dpr;
-    const h=canvas.height=80*dpr;
+    var s=document.getElementById("starlight");
+    if(!s)return;
+    for(var i=0;i<28;i++){
+      var d=document.createElement("div");
+      d.className="star";
+      var size=1+Math.random()*3;
+      d.style.width=d.style.height=size+"px";
+      d.style.top=Math.random()*100+"%";
+      d.style.left=Math.random()*100+"%";
+      d.style.animationDelay=(Math.random()*3)+"s";
+      d.style.animationDuration=(2+Math.random()*3)+"s";
+      s.appendChild(d);
+    }
+  })();
+
+  // Sparkline
+  (function(){
+    var canvas=document.getElementById("sparkline");if(!canvas)return;
+    var ctx=canvas.getContext("2d");
+    var dpr=window.devicePixelRatio||1;
+    var w=canvas.width=canvas.offsetWidth*dpr;
+    var h=canvas.height=100*dpr;
     ctx.scale(dpr,dpr);
-    const W=canvas.offsetWidth,H=80;
-
-    // Generate realistic growth curve (12 quarters)
-    const data=[];let v=40;
-    for(let i=0;i<36;i++){v+=(20+Math.random()*40)*(1+i/40);data.push(v);}
-    const min=Math.min(...data),max=Math.max(...data);
-    const pts=data.map((d,i)=>({x:(i/(data.length-1))*W,y:H-((d-min)/(max-min))*(H-10)-4}));
-
-    // Gradient fill
-    const grad=ctx.createLinearGradient(0,0,0,H);
-    grad.addColorStop(0,"rgba(59,139,190,0.35)");
-    grad.addColorStop(1,"rgba(59,139,190,0)");
-
-    // Draw
-    let progress=0;
+    var W=canvas.offsetWidth,H=100;
+    var data=[],v=40;
+    for(var i=0;i<36;i++){v+=(22+Math.random()*38)*(1+i/40);data.push(v);}
+    var mn=Math.min.apply(null,data),mx=Math.max.apply(null,data);
+    var pts=data.map(function(d,i){return {x:(i/(data.length-1))*W,y:H-((d-mn)/(mx-mn))*(H-12)-6};});
+    var grad=ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,"rgba(255,255,255,.5)");grad.addColorStop(1,"rgba(255,255,255,0)");
+    var p=0;
     function draw(){
       ctx.clearRect(0,0,W,H);
-      const count=Math.floor(pts.length*progress);
-      if(count<2){progress+=0.03;requestAnimationFrame(draw);return;}
-      const visible=pts.slice(0,count);
-      // fill
-      ctx.beginPath();
-      ctx.moveTo(visible[0].x,H);
-      visible.forEach(p=>ctx.lineTo(p.x,p.y));
-      ctx.lineTo(visible[visible.length-1].x,H);
-      ctx.closePath();
+      var c=Math.floor(pts.length*p);
+      if(c<2){p+=0.025;requestAnimationFrame(draw);return;}
+      var vp=pts.slice(0,c);
+      ctx.beginPath();ctx.moveTo(vp[0].x,H);
+      vp.forEach(function(pt){ctx.lineTo(pt.x,pt.y);});
+      ctx.lineTo(vp[vp.length-1].x,H);ctx.closePath();
       ctx.fillStyle=grad;ctx.fill();
-      // line
-      ctx.beginPath();
-      visible.forEach((p,i)=>{if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
-      ctx.strokeStyle="#1B4F7A";ctx.lineWidth=2;ctx.lineJoin="round";ctx.stroke();
-      // end dot
-      const last=visible[visible.length-1];
-      ctx.beginPath();ctx.arc(last.x,last.y,4,0,Math.PI*2);ctx.fillStyle="#3B8BBE";ctx.fill();
-      ctx.beginPath();ctx.arc(last.x,last.y,8,0,Math.PI*2);ctx.fillStyle="rgba(59,139,190,0.25)";ctx.fill();
-      progress+=0.03;
-      if(progress<1)requestAnimationFrame(draw);
+      ctx.beginPath();vp.forEach(function(pt,i){if(i===0)ctx.moveTo(pt.x,pt.y);else ctx.lineTo(pt.x,pt.y);});
+      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.lineJoin="round";ctx.stroke();
+      var last=vp[vp.length-1];
+      ctx.beginPath();ctx.arc(last.x,last.y,5,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();
+      ctx.beginPath();ctx.arc(last.x,last.y,11,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,.35)";ctx.fill();
+      p+=0.025;
+      if(p<1)requestAnimationFrame(draw);
     }
     draw();
   })();
+
+  // Ambient particles
+  (function(){
+    var canvas=document.getElementById("bgCanvas");
+    var ctx=canvas.getContext("2d");
+    var w,h,particles=[];
+    function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
+    resize();window.addEventListener("resize",resize);
+    var colors=["rgba(124,58,237,","rgba(59,139,190,","rgba(167,139,250,","rgba(251,191,36,"];
+    for(var i=0;i<38;i++){particles.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:.5+Math.random()*2.2,o:.08+Math.random()*.22,c:colors[Math.floor(Math.random()*colors.length)]});}
+    function tick(){
+      ctx.clearRect(0,0,w,h);
+      particles.forEach(function(p,i){
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x<0||p.x>w)p.vx*=-1;
+        if(p.y<0||p.y>h)p.vy*=-1;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=p.c+p.o+")";ctx.fill();
+        for(var j=i+1;j<particles.length;j++){
+          var q=particles[j];
+          var dx=q.x-p.x,dy=q.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<140){ctx.strokeStyle="rgba(124,58,237,"+(.1*(1-d/140))+")";ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}
+        }
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  // Family image: use uploaded image (persisted in localStorage) or family.jpg, NO AI generation
+  (function(){
+    var uploadBtn=document.getElementById("uploadPhotoBtn");
+    var uploadInput=document.getElementById("photoUpload");
+    var realImg=document.getElementById("familyRealImg");
+    var svg=document.getElementById("familySvg");
+    var loading=document.getElementById("imgLoading");
+    var STORAGE_KEY="sehhaty:familyImg:v1";
+
+    function showImage(src){
+      realImg.src=src;
+      realImg.onload=function(){
+        realImg.classList.add("loaded");
+        loading.classList.add("hide");
+        svg.classList.remove("show");
+      };
+      realImg.onerror=function(){
+        loading.classList.add("hide");
+        svg.classList.add("show");
+      };
+    }
+
+    function showSvgFallback(){
+      loading.classList.add("hide");
+      svg.classList.add("show");
+      realImg.classList.remove("loaded");
+    }
+
+    // 1) Check localStorage for previously uploaded image (persistent)
+    var saved=null;
+    try{saved=localStorage.getItem(STORAGE_KEY);}catch(e){}
+    if(saved){
+      showImage(saved);
+    } else {
+      // 2) Try family.jpg next to index.html (if user committed it to repo)
+      var probe=new Image();
+      var done=false;
+      probe.onload=function(){if(done)return;done=true;showImage("family.jpg");};
+      probe.onerror=function(){if(done)return;done=true;showSvgFallback();};
+      probe.src="family.jpg";
+      setTimeout(function(){if(!done){done=true;showSvgFallback();}},3000);
+    }
+
+    // Show reset button if we already have a saved image
+    var resetBtn=document.getElementById("resetPhotoBtn");
+    function updateResetBtn(){
+      try{
+        resetBtn.style.display=localStorage.getItem(STORAGE_KEY)?"inline-flex":"none";
+      }catch(e){}
+    }
+    updateResetBtn();
+
+    // Upload replaces & persists permanently in browser (localStorage)
+    uploadBtn.addEventListener("click",function(){uploadInput.click();});
+    uploadInput.addEventListener("change",function(e){
+      var file=e.target.files&&e.target.files[0];
+      if(!file)return;
+      var r=new FileReader();
+      r.onload=function(ev){
+        var dataUrl=ev.target.result;
+        try{
+          localStorage.setItem(STORAGE_KEY,dataUrl);
+          uploadBtn.innerHTML="✓ تم حفظ الصورة تلقائيًا";
+          setTimeout(function(){uploadBtn.innerHTML="📁 استبدل بصورة أخرى";},2200);
+        }catch(err){
+          console.warn("LocalStorage save failed (quota exceeded):",err);
+          uploadBtn.innerHTML="⚠ الصورة كبيرة جدًا";
+          setTimeout(function(){uploadBtn.innerHTML="📁 استبدل بصورة أخرى";},2500);
+        }
+        showImage(dataUrl);
+        loading.classList.add("hide");
+        svg.classList.remove("show");
+        updateResetBtn();
+      };
+      r.readAsDataURL(file);
+    });
+
+    resetBtn.addEventListener("click",function(){
+      if(!confirm("هل تريد حذف الصورة المحفوظة؟"))return;
+      try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+      realImg.classList.remove("loaded");
+      realImg.src="";
+      // Try family.jpg again, else show SVG
+      var probe=new Image();
+      var done=false;
+      probe.onload=function(){if(done)return;done=true;showImage("family.jpg");};
+      probe.onerror=function(){if(done)return;done=true;showSvgFallback();};
+      probe.src="family.jpg";
+      setTimeout(function(){if(!done){done=true;showSvgFallback();}},2000);
+      updateResetBtn();
+    });
+  })();
 </script>
+
 </body>
 </html>

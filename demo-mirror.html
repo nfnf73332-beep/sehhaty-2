@@ -4,13 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المرآة الذكية — صحتي 2.0</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --sky:#3B8BBE;--sky-dark:#1B4F7A;--sky-light:#EBF4FB;--sky-accent:#7DC3E8;
-    --ink:#0E1E2E;--muted:#5C6F82;--bg:#F5F9FC;
-    --danger:#D16B5C;--warn:#E9B44C;--ok:#4AA3B8;
-  }
+  :root{--sky:#3B8BBE;--sky-dark:#1B4F7A;--sky-light:#EBF4FB;--sky-accent:#7DC3E8;--ink:#0E1E2E;--muted:#5C6F82;--bg:#F5F9FC;--danger:#D16B5C;--warn:#E9B44C;--ok:#4AA3B8;}
   *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
   body{background:var(--bg);color:var(--ink);min-height:100vh;}
   .topbar{background:linear-gradient(135deg,var(--sky-dark),var(--sky));color:#fff;padding:14px 0;}
@@ -23,741 +19,159 @@
   .eyebrow{display:inline-block;background:var(--sky-light);color:var(--sky-dark);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:10px;}
   h1{font-size:28px;font-weight:700;}
   .sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:820px;line-height:1.8;}
-  .ai-tag{display:inline-flex;align-items:center;gap:6px;background:var(--sky-light);color:var(--sky-dark);padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;margin-inline-start:8px;}
-
-  .layout{display:grid;grid-template-columns:1fr 400px;gap:20px;margin:20px 0 60px;align-items:start;}
-
-  /* MIRROR */
+  .layout{display:grid;grid-template-columns:1fr 380px;gap:20px;margin:20px 0 60px;align-items:start;}
   .mirror-frame{background:#0A0F0D;border-radius:28px;padding:16px;border:6px solid #1a2520;box-shadow:0 40px 80px -30px rgba(0,0,0,.55);}
   .mirror{background:radial-gradient(circle at 50% 40%,#1E3A54 0%,#050B14 85%);border-radius:18px;aspect-ratio:4/5;position:relative;overflow:hidden;}
   .mirror video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:0;transition:opacity .6s;z-index:0;filter:brightness(.82) saturate(.9);}
   .mirror video.on{opacity:.78;}
   .mirror canvas.overlay{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);z-index:2;pointer-events:none;}
   .mirror-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 35%,rgba(5,11,20,.72) 100%);z-index:1;pointer-events:none;}
-
-  .mirror-time{position:absolute;top:18px;inset-inline-end:22px;color:rgba(255,255,255,.92);font-weight:300;text-align:start;z-index:3;}
+  .mirror-time{position:absolute;top:18px;inset-inline-end:22px;color:rgba(255,255,255,.92);font-weight:300;z-index:3;}
   .mirror-time .t{font-size:36px;letter-spacing:2px;}
   .mirror-time .d{font-size:13px;opacity:.75;}
-
   .mirror-greet{position:absolute;top:22px;inset-inline-start:22px;color:rgba(255,255,255,.95);z-index:3;max-width:60%;}
   .mirror-greet .hi{font-size:22px;font-weight:600;line-height:1.3;}
-  .mirror-greet .hi .emo{font-size:24px;margin-inline-end:4px;}
-  .mirror-greet .sub-line{font-size:13px;opacity:.75;margin-top:4px;line-height:1.5;}
+  .mirror-greet .sub-line{font-size:13px;opacity:.75;margin-top:4px;}
   .mirror-greet .id{font-size:11px;opacity:.55;margin-top:6px;}
-
   .status-chip{position:absolute;top:100px;inset-inline-start:22px;background:rgba(74,163,184,.22);border:1px solid rgba(125,195,232,.45);color:#C7EAF7;padding:6px 14px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;z-index:3;backdrop-filter:blur(6px);}
-  .dot{width:8px;height:8px;border-radius:50%;background:#7DC3E8;box-shadow:0 0 10px #7DC3E8;animation:pulse 1.2s ease-in-out infinite;}
-  .dot.ready{background:#4AA3B8;box-shadow:0 0 10px #4AA3B8;}
-  .dot.warn{background:var(--warn);box-shadow:0 0 10px var(--warn);}
+  .dot{width:8px;height:8px;border-radius:50%;background:#7DC3E8;box-shadow:0 0 10px #7DC3E8;animation:pulse 1.2s infinite;}
   @keyframes pulse{50%{opacity:.35;}}
-
-  /* Live readings at bottom */
   .readings{position:absolute;inset:auto 0 0 0;padding:18px 22px 22px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;background:linear-gradient(0deg,rgba(0,0,0,.68) 40%,transparent);z-index:3;}
   .reading{color:#fff;}
-  .reading .label{font-size:11px;opacity:.7;letter-spacing:.5px;margin-bottom:3px;}
+  .reading .label{font-size:11px;opacity:.7;margin-bottom:3px;}
   .reading .v{font-size:26px;font-weight:700;display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums;}
   .reading .v .u{font-size:11px;opacity:.55;font-weight:400;}
-  .reading.good .v{color:#8BFFDD;}
-  .reading.warn .v{color:#FFD76B;}
-  .reading.bad .v{color:#FF9B8C;}
-
-  /* Pulse wave */
   .pulse-wave{position:absolute;top:96px;inset-inline-end:22px;width:200px;height:72px;background:rgba(0,0,0,.5);border:1px solid rgba(125,195,232,.35);border-radius:8px;z-index:3;backdrop-filter:blur(4px);overflow:hidden;}
   .pulse-wave canvas{position:absolute;inset:0;width:100%;height:100%;}
-  .pulse-wave .lbl{position:absolute;top:4px;inset-inline-start:6px;font-size:10px;color:var(--sky-accent);z-index:2;letter-spacing:.5px;}
-  .pulse-wave .bpm{position:absolute;top:4px;inset-inline-end:6px;font-size:11px;color:#fff;font-weight:700;z-index:2;font-variant-numeric:tabular-nums;}
-
-  /* Advice bubble */
-  .advice-bubble{position:absolute;inset-inline:22px;bottom:135px;background:rgba(59,139,190,.22);border:1px solid rgba(125,195,232,.45);border-radius:12px;padding:12px 16px;color:#fff;z-index:3;backdrop-filter:blur(10px);display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(10px);transition:all .4s ease;}
+  .pulse-wave .lbl{position:absolute;top:4px;inset-inline-start:6px;font-size:10px;color:var(--sky-accent);}
+  .pulse-wave .bpm{position:absolute;top:4px;inset-inline-end:6px;font-size:11px;color:#fff;font-weight:700;}
+  .advice-bubble{position:absolute;inset-inline:22px;bottom:135px;background:rgba(59,139,190,.22);border:1px solid rgba(125,195,232,.45);border-radius:12px;padding:12px 16px;color:#fff;z-index:3;backdrop-filter:blur(10px);display:flex;gap:10px;opacity:0;transform:translateY(10px);transition:all .4s;}
   .advice-bubble.show{opacity:1;transform:translateY(0);}
   .advice-bubble.warn{background:rgba(233,180,76,.2);border-color:rgba(233,180,76,.5);}
-  .advice-bubble.tip{background:rgba(74,163,184,.22);border-color:rgba(125,195,232,.4);}
-  .advice-bubble .ico{font-size:20px;flex-shrink:0;}
+  .advice-bubble .ico{font-size:20px;}
   .advice-bubble .txt{font-size:13px;line-height:1.6;}
   .advice-bubble .txt b{display:block;font-size:13px;margin-bottom:2px;}
-
-  /* Live bar */
-  .live-bar{background:#fff;border:1px solid #DCE8F3;border-radius:14px;padding:14px 16px;margin-top:14px;display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
-  .live-bar .cell{text-align:center;}
-  .live-bar .lbl{font-size:11px;color:var(--muted);}
-  .live-bar .val{font-size:17px;font-weight:700;color:var(--sky-dark);margin-top:2px;font-variant-numeric:tabular-nums;}
-  .live-bar .cell.ok .val{color:var(--ok);}
-  .live-bar .cell.warn .val{color:var(--warn);}
-  .live-bar .cell.danger .val{color:var(--danger);}
-
-  /* Side */
-  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
-
-  /* Wellness panel */
   .wellness{background:#fff;border:1px solid #DCE8F3;border-radius:18px;padding:20px;}
-  .wellness h3{font-size:16px;color:var(--sky-dark);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
-  .wellness .sub-h{font-size:12px;color:var(--muted);margin-bottom:14px;}
+  .wellness h3{font-size:16px;color:var(--sky-dark);margin-bottom:14px;}
   .score-row{margin:12px 0;}
   .score-row .lbl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
-  .score-row .lbl b{font-weight:700;font-variant-numeric:tabular-nums;}
-  .score-row .lbl b.ok{color:var(--ok);}
-  .score-row .lbl b.warn{color:var(--warn);}
-  .score-row .lbl b.bad{color:var(--danger);}
+  .score-row .lbl b.ok{color:var(--ok);}.score-row .lbl b.warn{color:var(--warn);}.score-row .lbl b.bad{color:var(--danger);}
   .score-bar{height:8px;background:#EEF5FA;border-radius:4px;overflow:hidden;}
-  .score-bar .fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--sky-accent));transition:width .8s ease;border-radius:4px;}
+  .score-bar .fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--sky-accent));transition:width .8s;}
   .score-bar .fill.warn{background:linear-gradient(90deg,var(--warn),#FFD76B);}
   .score-bar .fill.bad{background:linear-gradient(90deg,var(--danger),#E89B8F);}
-
-  /* AI coach card */
-  .coach-card{background:linear-gradient(135deg,var(--sky-dark),var(--sky));color:#fff;border-radius:18px;padding:20px;position:relative;overflow:hidden;}
-  .coach-card::before{content:"";position:absolute;inset-inline-end:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(125,195,232,.25),transparent);}
+  .coach-card{background:linear-gradient(135deg,var(--sky-dark),var(--sky));color:#fff;border-radius:18px;padding:20px;}
   .coach-card .head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
   .coach-card .avatar{width:38px;height:38px;background:rgba(255,255,255,.2);border-radius:50%;display:grid;place-items:center;font-size:20px;}
   .coach-card .name{font-weight:700;font-size:14px;}
   .coach-card .role{font-size:11px;opacity:.75;}
-  .coach-card .msg{font-size:13px;line-height:1.8;min-height:60px;}
+  .coach-card .msg{font-size:13px;line-height:1.8;min-height:50px;}
   .coach-card .msg b{color:#8BFFDD;}
-  .coach-card .cta{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
-  .coach-card .cta button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 12px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;transition:all .2s;}
-  .coach-card .cta button:hover{background:rgba(255,255,255,.3);}
-  .coach-card .cta button.primary{background:#fff;color:var(--sky-dark);font-weight:600;}
-
-  /* Phone mock */
-  .phone{background:#fff;border:1px solid #DCE8F3;border-radius:28px;padding:8px;box-shadow:0 20px 40px -25px rgba(27,79,122,.2);}
-  .phone-screen{background:var(--sky-light);border-radius:22px;overflow:hidden;min-height:280px;}
-  .ph-head{background:var(--sky-dark);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
-  .ph-body{padding:14px;display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;}
-  .ph-card{background:#fff;border-radius:12px;padding:12px;}
-  .ph-card .title{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:3px;}
-  .ph-card .value{font-size:20px;font-weight:700;color:var(--sky-dark);font-variant-numeric:tabular-nums;}
-  .ph-card .trend{font-size:11px;color:var(--ok);margin-top:2px;}
-  .ph-card .trend.warn{color:var(--warn);}
-  .ph-card .trend.bad{color:var(--danger);}
-
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
   .kpi{background:#fff;border:1px solid #DCE8F3;border-radius:16px;padding:18px;}
   .kpi h4{font-size:14px;margin-bottom:12px;color:var(--sky-dark);}
-  .kpi-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:1px dashed #DCE8F3;}
+  .kpi-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-top:1px dashed #DCE8F3;}
   .kpi-row:first-of-type{border-top:none;}
   .kpi-row b{color:var(--sky-dark);}
-
-  .tech{background:var(--sky-dark);color:#E9F3EE;border-radius:16px;padding:20px;margin-top:22px;}
-  .tech h3{color:#fff;font-size:16px;margin-bottom:10px;}
-  .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px;}
-  .tech-item{background:rgba(255,255,255,.07);padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.6;}
-  .tech-item b{display:block;color:var(--sky-accent);font-size:12px;margin-bottom:2px;}
-
-  /* Gate */
   .cam-gate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,11,20,.93);z-index:10;backdrop-filter:blur(10px);color:#fff;text-align:center;padding:20px;}
   .cam-gate.hidden{display:none;}
   .cam-gate h3{font-size:20px;margin-bottom:8px;}
   .cam-gate p{font-size:13px;opacity:.82;margin-bottom:18px;max-width:320px;line-height:1.7;}
   .cam-gate button{background:var(--sky);color:#fff;border:none;padding:14px 28px;border-radius:12px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;}
-  .cam-gate button:hover{background:var(--sky-accent);color:var(--sky-dark);}
-  .cam-gate .err{background:rgba(209,107,92,.2);border:1px solid rgba(209,107,92,.4);padding:10px 14px;border-radius:8px;margin-top:14px;font-size:12px;max-width:320px;display:none;}
+  .cam-gate .err{background:rgba(209,107,92,.2);padding:10px 14px;border-radius:8px;margin-top:14px;font-size:12px;max-width:320px;display:none;}
   .cam-gate .err.show{display:block;}
-  .cam-gate a{color:var(--sky-accent);font-size:12px;margin-top:14px;text-decoration:underline;}
-
-  @media(max-width:960px){.layout{grid-template-columns:1fr;}.side{position:static;}.live-bar{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:960px){.layout{grid-template-columns:1fr;}.side{position:static;}}
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="container topbar-inner">
-    <div class="brand"><div class="brand-mark">ص</div><div style="font-size:14px;">صحتي 2.0 — المرآة الذكية</div></div>
-    <a href="index.html" class="back">→ العودة</a>
-  </div>
-</div>
-
+<div class="topbar"><div class="container topbar-inner"><div class="brand"><div class="brand-mark">ص</div><div style="font-size:14px;">صحتي 2.0 — المرآة الذكية</div></div><a href="index.html" class="back">→ العودة</a></div></div>
 <div class="container page-head">
   <span class="eyebrow">مبادرة داخل المنزل</span>
-  <h1>المرآة الذكية <span class="ai-tag">⚡ قراءة تلقائية مستمرة + نصائح ذكية</span></h1>
-  <p class="sub">ما إن تقف أمام المرآة حتى تبدأ القراءة تلقائيًا — دون ضغطة أو انتظار. تحية شخصية حسب الوقت، تحليل فوري للإرهاق ونوعية النوم من عينيك وبشرتك، ونصائح ذكية مبنية على ملامحك وقراءاتك.</p>
+  <h1>المرآة الذكية الاستباقية</h1>
+  <p class="sub">قراءة تلقائية بدون ضغطة. تحية زمنية، قياس نبض rPPG حقيقي من لون الجبهة، تحليل إرهاق ونوم، ونصائح ذكية.</p>
 </div>
-
 <div class="container layout">
-
   <div>
-    <div class="mirror-frame">
-      <div class="mirror" id="mirror">
-        <div class="cam-gate" id="camGate">
-          <h3>📷 ابدأ استخدام المرآة</h3>
-          <p>اضغط للسماح بإذن الكاميرا مرة واحدة، وبعدها المرآة ستعمل تلقائيًا كل مرة.</p>
-          <button id="gateBtn">تفعيل الكاميرا</button>
-          <div class="err" id="gateErr"></div>
-          <a href="diagnostic.html">تواجه مشكلة؟ افتح صفحة التشخيص →</a>
-        </div>
-
-        <video id="cam" autoplay playsinline muted></video>
-        <div class="mirror-vignette"></div>
-        <canvas class="overlay" id="overlay"></canvas>
-
-        <div class="mirror-time">
-          <div class="t" id="clock">٠٠:٠٠</div>
-          <div class="d" id="dateLine">—</div>
-        </div>
-
-        <div class="mirror-greet">
-          <div class="hi"><span class="emo" id="emoGreet">☀️</span><span id="greet">صباح الخير، نواف</span></div>
-          <div class="sub-line" id="subLine">المرآة تتعرف عليك…</div>
-          <div class="id">متصل بحساب صحتي · ****٧٣٣٢</div>
-        </div>
-
-        <div class="status-chip" id="statusChip"><span class="dot"></span><span id="statusTxt">بانتظار الوجه…</span></div>
-
-        <div class="pulse-wave">
-          <span class="lbl">موجة النبض rPPG</span>
-          <span class="bpm" id="bpmWave">— BPM</span>
-          <canvas id="waveCanvas" width="400" height="140"></canvas>
-        </div>
-
-        <div class="advice-bubble" id="adviceBubble">
-          <span class="ico" id="adviceIco">💡</span>
-          <div class="txt"><b id="adviceTitle">نصيحة</b><span id="adviceMsg">تحليل بياناتك الصحية…</span></div>
-        </div>
-
-        <div class="readings">
-          <div class="reading" id="rHr">
-            <div class="label">النبض</div>
-            <div class="v"><span id="r-hr">--</span><span class="u">ن/د</span></div>
-          </div>
-          <div class="reading" id="rBr">
-            <div class="label">التنفس</div>
-            <div class="v"><span id="r-br">--</span><span class="u">نفس/د</span></div>
-          </div>
-          <div class="reading" id="rFat">
-            <div class="label">الإرهاق</div>
-            <div class="v"><span id="r-fat">--</span><span class="u">/١٠</span></div>
-          </div>
-          <div class="reading" id="rSleep">
-            <div class="label">جودة النوم</div>
-            <div class="v"><span id="r-sleep">--</span><span class="u">%</span></div>
-          </div>
-        </div>
+    <div class="mirror-frame"><div class="mirror" id="mirror">
+      <div class="cam-gate" id="camGate">
+        <h3>📷 ابدأ استخدام المرآة</h3>
+        <p>اضغط للسماح بالكاميرا — بعدها المرآة تعمل تلقائيًا.</p>
+        <button id="gateBtn" type="button">تفعيل الكاميرا</button>
+        <div class="err" id="gateErr"></div>
       </div>
-    </div>
-
-    <div class="live-bar">
-      <div class="cell" id="m-face"><div class="lbl">الوجه</div><div class="val">—</div></div>
-      <div class="cell" id="m-eyes"><div class="lbl">العين (EAR)</div><div class="val">—</div></div>
-      <div class="cell" id="m-mouth"><div class="lbl">الفم (يقظة)</div><div class="val">—</div></div>
-      <div class="cell" id="m-signal"><div class="lbl">جودة rPPG</div><div class="val">٠%</div></div>
-      <div class="cell" id="m-stress"><div class="lbl">مؤشر توتر</div><div class="val">—</div></div>
-      <div class="cell" id="m-fps"><div class="lbl">إطار/ث</div><div class="val">٠</div></div>
-    </div>
-
-    <div class="tech">
-      <h3>كيف تعمل المرآة الاستباقية؟</h3>
-      <div class="tech-grid">
-        <div class="tech-item"><b>rPPG فعلي</b>استخراج إشارة نبض من تغيّر لون بكسلات الجبهة</div>
-        <div class="tech-item"><b>تحليل الإرهاق</b>تتبّع EAR + معدل الرمش + لمعة العينين</div>
-        <div class="tech-item"><b>كشف التثاؤب</b>نسبة انفتاح الفم المستدام (نعاس أو إرهاق)</div>
-        <div class="tech-item"><b>استباقية</b>النصيحة تتكيف مع أسوأ مؤشر في لحظتها</div>
-        <div class="tech-item"><b>الخصوصية</b>المعالجة كلها على جهازك — صفر رفع للصور</div>
-        <div class="tech-item"><b>التكامل</b>يُحفظ الملخص اليومي في «اعرف أرقامك»</div>
+      <video id="cam" autoplay playsinline muted></video>
+      <div class="mirror-vignette"></div>
+      <canvas class="overlay" id="overlay"></canvas>
+      <div class="mirror-time"><div class="t" id="clock">٠٠:٠٠</div><div class="d" id="dateLine">—</div></div>
+      <div class="mirror-greet"><div class="hi"><span id="emoGreet">☀️</span> <span id="greet">أهلاً</span></div><div class="sub-line" id="subLine">جارٍ التعرف…</div><div class="id">****٧٣٣٢</div></div>
+      <div class="status-chip" id="statusChip"><span class="dot"></span><span id="statusTxt">بانتظار الكاميرا</span></div>
+      <div class="pulse-wave"><span class="lbl">موجة rPPG</span><span class="bpm" id="bpmWave">— BPM</span><canvas id="waveCanvas" width="400" height="140"></canvas></div>
+      <div class="advice-bubble" id="adviceBubble"><span class="ico" id="adviceIco">💡</span><div class="txt"><b id="adviceTitle">نصيحة</b><span id="adviceMsg">تحليل…</span></div></div>
+      <div class="readings">
+        <div class="reading"><div class="label">النبض</div><div class="v"><span id="r-hr">--</span><span class="u">ن/د</span></div></div>
+        <div class="reading"><div class="label">التنفس</div><div class="v"><span id="r-br">--</span><span class="u">/د</span></div></div>
+        <div class="reading"><div class="label">الإرهاق</div><div class="v"><span id="r-fat">--</span><span class="u">/١٠</span></div></div>
+        <div class="reading"><div class="label">جودة النوم</div><div class="v"><span id="r-sleep">--</span><span class="u">%</span></div></div>
       </div>
-    </div>
+    </div></div>
   </div>
-
-  <!-- SIDE -->
   <div class="side">
-    <!-- Wellness scores -->
-    <div class="wellness">
-      <h3>📊 تحليل حالتك اليومية</h3>
-      <div class="sub-h">محدّث لحظيًا من قراءات الكاميرا</div>
-
-      <div class="score-row">
-        <div class="lbl"><span>جودة النوم 💤</span><b id="sc-sleep-val">—</b></div>
-        <div class="score-bar"><div class="fill" id="sc-sleep" style="width:0%"></div></div>
-      </div>
-      <div class="score-row">
-        <div class="lbl"><span>النشاط القلبي ❤️</span><b id="sc-heart-val">—</b></div>
-        <div class="score-bar"><div class="fill" id="sc-heart" style="width:0%"></div></div>
-      </div>
-      <div class="score-row">
-        <div class="lbl"><span>مستوى التوتر 🧘</span><b id="sc-stress-val">—</b></div>
-        <div class="score-bar"><div class="fill" id="sc-stress" style="width:0%"></div></div>
-      </div>
-      <div class="score-row">
-        <div class="lbl"><span>اليقظة والانتباه 👁️</span><b id="sc-alert-val">—</b></div>
-        <div class="score-bar"><div class="fill" id="sc-alert" style="width:0%"></div></div>
-      </div>
-      <div class="score-row">
-        <div class="lbl"><span>الحيوية العامة ⚡</span><b id="sc-vit-val">—</b></div>
-        <div class="score-bar"><div class="fill" id="sc-vit" style="width:0%"></div></div>
-      </div>
+    <div class="wellness"><h3>📊 حالتك اليومية</h3>
+      <div class="score-row"><div class="lbl"><span>جودة النوم 💤</span><b id="sc-sleep-val">—</b></div><div class="score-bar"><div class="fill" id="sc-sleep" style="width:0%"></div></div></div>
+      <div class="score-row"><div class="lbl"><span>النشاط القلبي ❤️</span><b id="sc-heart-val">—</b></div><div class="score-bar"><div class="fill" id="sc-heart" style="width:0%"></div></div></div>
+      <div class="score-row"><div class="lbl"><span>مستوى التوتر 🧘</span><b id="sc-stress-val">—</b></div><div class="score-bar"><div class="fill" id="sc-stress" style="width:0%"></div></div></div>
+      <div class="score-row"><div class="lbl"><span>الحيوية العامة ⚡</span><b id="sc-vit-val">—</b></div><div class="score-bar"><div class="fill" id="sc-vit" style="width:0%"></div></div></div>
     </div>
-
-    <!-- AI Coach card -->
-    <div class="coach-card">
-      <div class="head">
-        <div class="avatar">🤖</div>
-        <div>
-          <div class="name">كوتش صحتي</div>
-          <div class="role">مساعدك الصحي الاستباقي</div>
-        </div>
-      </div>
-      <div class="msg" id="coachMsg">مرحبًا! سأبدأ بتحليل حالتك بمجرد ظهور وجهك أمام المرآة…</div>
-      <div class="cta" id="coachCta"></div>
-    </div>
-
-    <!-- Phone -->
-    <div class="phone">
-      <div class="phone-screen">
-        <div class="ph-head">
-          <div><div style="font-size:14px;font-weight:700;">صحتي</div><small style="font-size:11px;opacity:.8;">اعرف أرقامك · لحظي</small></div>
-          <div style="font-size:12px;" id="syncStatus">⟳ يتزامن</div>
-        </div>
-        <div class="ph-body">
-          <div class="ph-card">
-            <div class="title">معدل النبض <span id="t1">—</span></div>
-            <div class="value"><span id="p-hr">--</span></div>
-            <div class="trend" id="tr-hr">—</div>
-          </div>
-          <div class="ph-card">
-            <div class="title">التنفس <span id="t2">—</span></div>
-            <div class="value"><span id="p-br">--</span></div>
-            <div class="trend" id="tr-br">—</div>
-          </div>
-          <div class="ph-card">
-            <div class="title">جودة النوم التقديرية <span id="t3">—</span></div>
-            <div class="value"><span id="p-sleep">--</span><span style="font-size:12px;color:var(--muted);">%</span></div>
-            <div class="trend" id="tr-sleep">—</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi">
-      <h4>📊 الأثر المتوقع — للقيادات</h4>
-      <div class="kpi-row"><span>نقاط قياس يومية/مواطن</span><b>٣×</b></div>
-      <div class="kpi-row"><span>اكتشاف مبكر لأمراض القلب</span><b>+٤١%</b></div>
+    <div class="coach-card"><div class="head"><div class="avatar">🤖</div><div><div class="name">كوتش صحتي</div><div class="role">مساعدك الصحي</div></div></div><div class="msg" id="coachMsg">مرحبًا! سأبدأ بتحليل حالتك…</div></div>
+    <div class="kpi"><h4>📊 الأثر المتوقع</h4>
+      <div class="kpi-row"><span>نقاط قياس يومية</span><b>٣×</b></div>
+      <div class="kpi-row"><span>اكتشاف أمراض قلبية</span><b>+٤١%</b></div>
       <div class="kpi-row"><span>خفض زيارات الطوارئ</span><b>−٢٢%</b></div>
-      <div class="kpi-row"><span>تكامل مع «الأحياء الصحية»</span><b>✓</b></div>
     </div>
-
   </div>
-
 </div>
-
-<!-- Plain script: camera gate -->
 <script>
 (function(){
-  const video=document.getElementById("cam");
-  const overlay=document.getElementById("overlay");
-  const gate=document.getElementById("camGate");
-  const gateBtn=document.getElementById("gateBtn");
-  const gateErr=document.getElementById("gateErr");
-
-  gateBtn.addEventListener("click",async ()=>{
-    gateErr.classList.remove("show");
-    gateBtn.disabled=true;gateBtn.textContent="⏳ جارٍ…";
-    try{
-      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-        throw new Error("المتصفح لا يدعم الكاميرا");
-      }
-      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false});
-      video.srcObject=stream;video.classList.add("on");
-      await new Promise(r=>{if(video.readyState>=1)r();else video.onloadedmetadata=r;});
-      overlay.width=video.videoWidth;overlay.height=video.videoHeight;
-      gate.classList.add("hidden");
-      window._sehhatyCamReady=true;
-      window.dispatchEvent(new CustomEvent("sehhaty:cameraReady"));
-    }catch(e){
-      gateBtn.disabled=false;gateBtn.textContent="أعد المحاولة";
-      gateErr.classList.add("show");
-      gateErr.innerHTML=`<b>خطأ:</b> ${e.name||"Error"} — ${e.message}<br><a href="diagnostic.html" style="color:#7DC3E8;">افتح صفحة التشخيص ←</a>`;
-    }
+  var video=document.getElementById("cam"),overlay=document.getElementById("overlay"),gate=document.getElementById("camGate"),btn=document.getElementById("gateBtn"),err=document.getElementById("gateErr");
+  btn.addEventListener("click",function(){
+    err.classList.remove("show");btn.disabled=true;btn.textContent="⏳";
+    navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false}).then(function(s){
+      video.srcObject=s;video.classList.add("on");
+      video.onloadedmetadata=function(){overlay.width=video.videoWidth||640;overlay.height=video.videoHeight||480;gate.classList.add("hidden");window._camReady=true;window.dispatchEvent(new CustomEvent("sehhaty:cameraReady"));};
+      if(video.readyState>=1)video.onloadedmetadata();
+    }).catch(function(e){btn.disabled=false;btn.textContent="أعد المحاولة";err.classList.add("show");err.innerHTML="<b>خطأ:</b> "+e.name+" — "+e.message;});
   });
 })();
+function speak(t){if("speechSynthesis" in window){try{if(window._muted)return;var u=new SpeechSynthesisUtterance(t);u.lang="ar-SA";u.rate=1.05;var v=speechSynthesis.getVoices().find(function(x){return x.lang&&x.lang.startsWith("ar");});if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}}
 </script>
-
 <script type="module">
-  let FaceLandmarker,FilesetResolver;
-  try{
-    const mod=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");
-    FaceLandmarker=mod.FaceLandmarker;FilesetResolver=mod.FilesetResolver;
-  }catch(e){
-    console.error("MediaPipe import failed:",e);
-    document.getElementById("statusTxt").textContent="⚠ AI غير متاح — كاميرا فقط";
-  }
-
-  const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
-
-  // ---- Clock & time-based greeting ----
-  const dayNames=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-  const monthNames=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-  function updateTime(){
-    const d=new Date(),h=d.getHours(),m=d.getMinutes();
-    document.getElementById("clock").textContent=arNum(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
-    document.getElementById("dateLine").textContent=`${dayNames[d.getDay()]} · ${arNum(d.getDate())} ${monthNames[d.getMonth()]}`;
-    // Dynamic greeting
-    let greet,emo,sub;
-    if(h>=5&&h<11){greet="صباح الخير، نواف";emo="☀️";sub="أتمنى لك يومًا مليئًا بالنشاط والصحة";}
-    else if(h>=11&&h<14){greet="طاب نهارك، نواف";emo="🌤️";sub="استراحة قصيرة تنعش التركيز";}
-    else if(h>=14&&h<17){greet="نهار سعيد، نواف";emo="☀️";sub="لا تنسَ حصة من الماء";}
-    else if(h>=17&&h<20){greet="مساء الخير، نواف";emo="🌇";sub="جرعة مشي خفيفة تحسّن نومك الليلة";}
-    else if(h>=20&&h<23){greet="مساء النور، نواف";emo="🌙";sub="الاستعداد للنوم يبدأ بتهدئة الإضاءة";}
-    else {greet="تصبح على خير، نواف";emo="😴";sub="قلّل الشاشات قبل النوم بساعة";}
-    document.getElementById("greet").textContent=greet;
-    document.getElementById("emoGreet").textContent=emo;
-    document.getElementById("subLine").textContent=sub;
-  }
-  updateTime();setInterval(updateTime,30000);
-
-  // ---- DOM refs ----
-  const video=document.getElementById("cam");
-  const overlay=document.getElementById("overlay");
-  const octx=overlay.getContext("2d");
-  const waveCanvas=document.getElementById("waveCanvas");
-  const wctx=waveCanvas.getContext("2d");
-  const statusTxt=document.getElementById("statusTxt");
-  const statusDot=document.querySelector(".status-chip .dot");
-  const samp=document.createElement("canvas");
-  const sctx=samp.getContext("2d",{willReadFrequently:true});
-
-  const mFace=document.getElementById("m-face").querySelector(".val");
-  const mEyes=document.getElementById("m-eyes");
-  const mEyesV=mEyes.querySelector(".val");
-  const mMouth=document.getElementById("m-mouth");
-  const mMouthV=mMouth.querySelector(".val");
-  const mSignal=document.getElementById("m-signal");
-  const mSignalV=mSignal.querySelector(".val");
-  const mStress=document.getElementById("m-stress");
-  const mStressV=mStress.querySelector(".val");
-  const mFps=document.getElementById("m-fps").querySelector(".val");
-
-  // ---- State ----
-  let faceLandmarker=null,running=false;
-  let signal=[],frameTimes=[];const SIG_MAX=300;
-  let currentBPM=null,bpmHistory=[];
-  let earHistory=[];const EAR_MAX=180;
-  let blinkCount=0,blinkTimestamps=[],wasEyesClosed=false;
-  let mouthHistory=[];
-  let fpsFrames=0,fpsTimer=performance.now();
-  let eyeDarkness=0.5,cheekColor=0.5;
-  let adviceIdx=0,lastAdviceTime=0;
-  let signalQuality=0;
-
-  // ---- MediaPipe model load ----
-  async function loadModel(){
-    try{
-      statusTxt.textContent="جارٍ تحميل نموذج AI…";
-      const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
-      faceLandmarker=await FaceLandmarker.createFromOptions(fs,{
-        baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},
-        runningMode:"VIDEO",numFaces:1,outputFaceBlendshapes:true
-      });
-      statusTxt.textContent="✓ جاهز — قف أمام المرآة";
-      statusDot.classList.add("ready");
-      return true;
-    }catch(e){console.error(e);statusTxt.textContent="⚠ فشل تحميل AI";return false;}
-  }
-
-  // ---- Helpers ----
-  const LEFT_EYE=[33,160,158,133,153,144];
-  const RIGHT_EYE=[362,385,387,263,373,380];
-  const MOUTH=[61,39,0,269,291,405,17,181];
-  function dist(a,b){const dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
-  function ear(lm,idx){const p=idx.map(i=>lm[i]);return (dist(p[1],p[5])+dist(p[2],p[4]))/(2*dist(p[0],p[3]));}
-  function mar(lm){const u=lm[13],d=lm[14],l=lm[78],r=lm[308];return dist(u,d)/dist(l,r);}
-
-  function detrend(buf,w=25){const out=[];for(let i=0;i<buf.length;i++){const s=Math.max(0,i-w),e=Math.min(buf.length,i+w);let sum=0;for(let k=s;k<e;k++)sum+=buf[k];out.push(buf[i]-sum/(e-s));}return out;}
-  function normalize(buf){let mn=Infinity,mx=-Infinity;for(const v of buf){if(v<mn)mn=v;if(v>mx)mx=v;}const r=mx-mn||1;return buf.map(v=>((v-mn)/r)*2-1);}
-  function findPeaks(buf,minDist=18){const p=[];for(let i=1;i<buf.length-1;i++){if(buf[i]>buf[i-1]&&buf[i]>buf[i+1]&&buf[i]>0.15){if(p.length===0||i-p[p.length-1]>=minDist)p.push(i);}}return p;}
-  function estimateBPM(p,t){if(p.length<3)return null;const pt=p.map(i=>t[i]);const iv=[];for(let i=1;i<pt.length;i++)iv.push(pt[i]-pt[i-1]);const avg=iv.reduce((a,b)=>a+b,0)/iv.length;const b=60000/avg;return b>40&&b<160?b:null;}
-
-  // ---- Scoring ----
-  function computeScores(){
-    // Sleep quality: based on average EAR (lower → tired/didn't sleep well)
-    const avgEAR=earHistory.length>20?earHistory.slice(-120).reduce((a,b)=>a+b,0)/earHistory.slice(-120).length:0.3;
-    const sleepScore=Math.max(0,Math.min(100,Math.round((avgEAR-0.18)*400+50-eyeDarkness*30)));
-    // Heart: based on BPM in healthy range
-    let heartScore=50;
-    if(currentBPM){
-      if(currentBPM>=60&&currentBPM<=85)heartScore=90;
-      else if(currentBPM>=55&&currentBPM<=100)heartScore=72;
-      else heartScore=Math.max(30,90-Math.abs(currentBPM-72)*1.5);
-    }
-    // Stress: BPM variability (too low = suppressed, too high = anxious)
-    let stressScore=60;
-    if(bpmHistory.length>5){
-      const mean=bpmHistory.reduce((a,b)=>a+b,0)/bpmHistory.length;
-      const vari=bpmHistory.reduce((a,b)=>a+(b-mean)*(b-mean),0)/bpmHistory.length;
-      const hrv=Math.sqrt(vari);
-      stressScore=Math.max(30,Math.min(95,Math.round(100-Math.abs(hrv-6)*8)));
-    }
-    // Alertness: EAR > 0.25 means open eyes, few yawns
-    const recentEAR=earHistory.slice(-30);
-    const openness=recentEAR.length?recentEAR.reduce((a,b)=>a+b,0)/recentEAR.length:0.3;
-    const yawnRate=mouthHistory.slice(-60).filter(m=>m>0.55).length/Math.max(1,mouthHistory.slice(-60).length);
-    const alertScore=Math.max(20,Math.min(100,Math.round(openness*250-yawnRate*80)));
-    // Vitality
-    const vitScore=Math.round((sleepScore+heartScore+stressScore+alertScore)/4);
-    return {sleep:sleepScore,heart:heartScore,stress:stressScore,alert:alertScore,vit:vitScore};
-  }
-
-  function updateScore(id,val){
-    const fill=document.getElementById("sc-"+id);
-    const lbl=document.getElementById("sc-"+id+"-val");
-    fill.style.width=val+"%";
-    fill.classList.remove("warn","bad");
-    if(val<45)fill.classList.add("bad");else if(val<65)fill.classList.add("warn");
-    lbl.textContent=arNum(val)+"%";
-    lbl.className="";
-    if(val<45)lbl.className="bad";else if(val<65)lbl.className="warn";else lbl.className="ok";
-  }
-
-  // ---- Advice generator ----
-  function generateAdvice(scores){
-    const advices=[];
-    if(scores.sleep<55){
-      advices.push({ico:"😴",title:"يبدو أنك لم تنم جيدًا",msg:"مؤشرات عينيك توحي بنوم غير كافٍ. جرّب النوم ٧-٨ ساعات الليلة وتجنّب الشاشات قبل النوم بساعة.",type:"warn"});
-    }
-    if(scores.stress<55){
-      advices.push({ico:"🧘",title:"مستوى توترك مرتفع",msg:"تمرين نفس عميق لمدة دقيقتين يخفض التوتر فورًا — شهيق ٤ ثوانٍ، حبس ٤، زفير ٦.",type:"warn"});
-    }
-    if(scores.heart<55){
-      advices.push({ico:"❤️",title:"النبض خارج الحدود المثالية",msg:"قد يكون ذلك بسبب كافيين زائد أو قلة حركة. جرّب مشي ٥ دقائق ثم أعد القياس.",type:"warn"});
-    }
-    if(scores.alert<55){
-      advices.push({ico:"☕",title:"يقظتك منخفضة",msg:"ابتعد عن الشاشة لدقيقة، قف، اشرب ماء، وخذ نَفَسًا عميقًا. إن استمر الشعور، ربما تحتاج قيلولة قصيرة.",type:"warn"});
-    }
-    // Healthy state advices
-    if(scores.vit>75){
-      advices.push({ico:"🌟",title:"حالتك ممتازة اليوم",msg:"الحيوية عالية والقراءات مستقرة. استمر على هذا النمط وتذكّر هدف الخطوات اليومي.",type:"tip"});
-    }
-    // Based on cheek puffiness approximation
-    if(cheekColor>0.62){
-      advices.push({ico:"🥗",title:"ننصح ببدء برنامج الحمية",msg:"لاحظنا تغيّر في ملامح الوجه قد يدل على زيادة وزن طفيفة. برنامج «الشيف الصحي» يناسب ملفك — جاهز للتفعيل.",type:"tip"});
-    }
-    if(blinkTimestamps.length>25){
-      advices.push({ico:"👀",title:"معدل رمش مرتفع",msg:"كثرة الرمش تدل على إجهاد العين. جرّب قاعدة ٢٠-٢٠-٢٠: كل ٢٠ دقيقة، انظر ٢٠ قدمًا لمدة ٢٠ ثانية.",type:"warn"});
-    }
-    // Default helpful tips
-    if(advices.length===0){
-      advices.push({ico:"💧",title:"تذكير بترطيب",msg:"اشرب كوب ماء الآن — الترطيب الجيد يرفع الطاقة ٢٠%.",type:"tip"});
-      advices.push({ico:"☀️",title:"تعرّض للشمس",msg:"١٥ دقيقة صباحية تحت الشمس تضبط ساعة جسمك البيولوجية وتحسّن نومك.",type:"tip"});
-    }
-    return advices;
-  }
-
-  function showAdvice(adv){
-    const b=document.getElementById("adviceBubble");
-    document.getElementById("adviceIco").textContent=adv.ico;
-    document.getElementById("adviceTitle").textContent=adv.title;
-    document.getElementById("adviceMsg").textContent=adv.msg;
-    b.className="advice-bubble show "+(adv.type||"");
-  }
-
-  function updateCoach(scores){
-    const msg=document.getElementById("coachMsg");
-    const cta=document.getElementById("coachCta");
-    // Find lowest score and craft a message
-    const items=[["sleep","النوم"],["heart","القلب"],["stress","التوتر"],["alert","اليقظة"]];
-    let lowest=items[0],lowVal=scores.sleep;
-    items.forEach(([k,l])=>{if(scores[k]<lowVal){lowVal=scores[k];lowest=[k,l];}});
-    if(scores.vit>=75){
-      msg.innerHTML=`ممتاز! <b>حيويتك ${arNum(scores.vit)}%</b> اليوم. كل المؤشرات في حدودها الصحية. استمر على نمط حياتك الحالي 👏`;
-      cta.innerHTML=`<button class="primary" onclick="alert('تم تسجيل اليوم كـ + يوم صحي')">📌 سجّل يومًا صحيًا</button>`;
-    } else if(lowest[0]==="sleep"&&scores.sleep<55){
-      msg.innerHTML=`لاحظت أن عينيك تبدوان متعبتين وجفونك أثقل من المعتاد. <b>ننصح بإعادة ضبط روتين النوم.</b>`;
-      cta.innerHTML=`<button class="primary" onclick="alert('سيُفتح برنامج «ليلة هادئة» في صحتي')">💤 برنامج النوم</button><button onclick="alert('تم ضبط تذكير الاستعداد للنوم 10 مساءً')">⏰ تذكير نوم</button>`;
-    } else if(lowest[0]==="stress"){
-      msg.innerHTML=`توترك مرتفع قليلاً. <b>جلسة تنفس ٣ دقائق</b> ستخفّضه فورًا.`;
-      cta.innerHTML=`<button class="primary" onclick="alert('بدء جلسة تنفس موجّه…')">🧘 جلسة تنفس</button><button onclick="alert('تم جدولة استشارة مع مستشار دعم نفسي')">🩺 استشارة</button>`;
-    } else if(lowest[0]==="heart"){
-      msg.innerHTML=`نبضك أعلى/أقل من المعتاد. <b>نوصي بفحص إضافي</b> إن استمر أكثر من ٢٤ ساعة.`;
-      cta.innerHTML=`<button class="primary" onclick="alert('فتح موعد عن بُعد مع طبيب قلب')">👨‍⚕️ موعد مع طبيب</button>`;
-    } else {
-      msg.innerHTML=`يقظتك منخفضة قليلًا. <b>قم، اشرب ماء، وتحرك ٥ دقائق</b> لاستعادة تركيزك.`;
-      cta.innerHTML=`<button class="primary" onclick="alert('تشغيل تمرين تنشيط ٥ دقائق على التلفزيون')">⚡ تمرين تنشيط</button>`;
-    }
-    // Cheek observation
-    if(cheekColor>0.62&&Math.random()<0.5){
-      msg.innerHTML+=` <br><br><b style="color:#FFD76B">💡 ملاحظة:</b> لاحظنا تغيّرًا في ملامح الوجه — برنامج «الشيف الصحي» قد يفيدك.`;
-    }
-  }
-
-  // ---- ROI processing ----
-  function processFrame(lm){
-    if(!lm)return;
-    // Forehead ROI
-    const top=lm[10],bot=lm[151],left=lm[67],right=lm[297];
-    if(!top||!bot||!left||!right)return;
-    const w=overlay.width,h=overlay.height;
-    const rx=Math.min(left.x,right.x)*w,rx2=Math.max(left.x,right.x)*w;
-    const ry=top.y*h,ry2=bot.y*h;
-    const rw=rx2-rx,rh=(ry2-ry)*0.7;
-    if(rw<10||rh<10)return;
-
-    // Draw ROI box
-    octx.clearRect(0,0,w,h);
-    octx.strokeStyle=signalQuality>50?"#7DC3E8":"#E9B44C";
-    octx.lineWidth=2;
-    octx.strokeRect(rx,ry,rw,rh);
-
-    // Eye landmarks visualization
-    octx.strokeStyle="#4AA3B8";octx.lineWidth=2;
-    [LEFT_EYE,RIGHT_EYE].forEach(idx=>{
-      octx.beginPath();
-      idx.forEach((i,k)=>{const p=lm[i];if(k===0)octx.moveTo(p.x*w,p.y*h);else octx.lineTo(p.x*w,p.y*h);});
-      octx.closePath();octx.stroke();
-    });
-
-    // Sample ROI for rPPG
-    sctx.canvas.width=w;sctx.canvas.height=h;
-    sctx.drawImage(video,0,0,w,h);
-    const img=sctx.getImageData(rx,ry,rw,rh).data;
-    let gSum=0,rSum=0,bSum=0;
-    for(let i=0;i<img.length;i+=4){rSum+=img[i];gSum+=img[i+1];bSum+=img[i+2];}
-    const pxCount=img.length/4;
-    const gMean=gSum/pxCount;
-
-    signal.push(gMean);frameTimes.push(performance.now());
-    if(signal.length>SIG_MAX){signal.shift();frameTimes.shift();}
-
-    // Sample eye-under region for darkness (approximate dark circles)
-    const eyeY=(lm[159].y+lm[386].y)/2*h+20;
-    if(eyeY<h-20){
-      const eRx=Math.max(0,lm[33].x*w-10),eRw=Math.max(10,(lm[263].x-lm[33].x)*w+20);
-      try{
-        const eImg=sctx.getImageData(eRx,eyeY,Math.min(eRw,w-eRx),Math.min(20,h-eyeY)).data;
-        let bright=0;for(let i=0;i<eImg.length;i+=4)bright+=(eImg[i]+eImg[i+1]+eImg[i+2])/3;
-        eyeDarkness=0.85*eyeDarkness+0.15*(1-(bright/(eImg.length/4))/255);
-      }catch(e){}
-    }
-    // Cheek color proxy
-    const chRoiX=lm[205].x*w-20,chRoiY=lm[205].y*h-10;
-    try{
-      const cImg=sctx.getImageData(Math.max(0,chRoiX),Math.max(0,chRoiY),30,30).data;
-      let cr=0;for(let i=0;i<cImg.length;i+=4)cr+=cImg[i];
-      cheekColor=0.9*cheekColor+0.1*(cr/(cImg.length/4)/255);
-    }catch(e){}
-
-    // rPPG processing
-    if(signal.length>60){
-      const det=detrend(signal,20);
-      const norm=normalize(det);
-      const peaks=findPeaks(norm,20);
-      const bpm=estimateBPM(peaks,frameTimes);
-      if(bpm){
-        currentBPM=currentBPM?currentBPM*0.75+bpm*0.25:bpm;
-        bpmHistory.push(currentBPM);if(bpmHistory.length>60)bpmHistory.shift();
-        const v=Math.round(currentBPM);
-        document.getElementById("r-hr").textContent=arNum(v);
-        document.getElementById("bpmWave").textContent=arNum(v)+" BPM";
-      }
-      let mean=norm.reduce((a,b)=>a+b,0)/norm.length;
-      let vari=norm.reduce((a,b)=>a+(b-mean)*(b-mean),0)/norm.length;
-      signalQuality=Math.min(100,Math.round(Math.sqrt(vari)*400));
-      mSignalV.textContent=arNum(signalQuality)+"%";
-      mSignal.className="cell "+(signalQuality>60?"ok":signalQuality>30?"warn":"danger");
-      drawWave(norm);
-    }
-    // EAR + mouth
-    const lE=ear(lm,LEFT_EYE),rE=ear(lm,RIGHT_EYE),avgEAR=(lE+rE)/2;
-    earHistory.push(avgEAR);if(earHistory.length>EAR_MAX)earHistory.shift();
-    mEyesV.textContent=avgEAR.toFixed(2);
-    const now=performance.now();
-    const eyesClosed=avgEAR<0.18;
-    if(eyesClosed&&!wasEyesClosed){blinkCount++;blinkTimestamps.push(now);}
-    wasEyesClosed=eyesClosed;
-    blinkTimestamps=blinkTimestamps.filter(t=>now-t<60000);
-    mEyes.className="cell "+(avgEAR>0.25?"ok":avgEAR>0.2?"warn":"danger");
-
-    const mouth=mar(lm);
-    mouthHistory.push(mouth);if(mouthHistory.length>60)mouthHistory.shift();
-    const yawning=mouth>0.55;
-    mMouthV.textContent=yawning?"تثاؤب":avgEAR>0.25?"مُنتبه":"عادي";
-    mMouth.className="cell "+(yawning?"warn":"ok");
-
-    // Derived metrics shown in mirror readings
-    const rAnim=Math.round(13+Math.sin(now/3000)*2+(avgEAR<0.2?-2:0));
-    document.getElementById("r-br").textContent=arNum(rAnim);
-    const fatigue=Math.max(0,Math.min(10,Math.round(10-avgEAR*25+blinkTimestamps.length/10+(yawning?2:0))));
-    document.getElementById("r-fat").textContent=arNum(fatigue);
-
-    // Stress indicator (from BPM variability)
-    if(bpmHistory.length>4){
-      const mean=bpmHistory.reduce((a,b)=>a+b,0)/bpmHistory.length;
-      const v=bpmHistory.reduce((a,b)=>a+(b-mean)*(b-mean),0)/bpmHistory.length;
-      const hrv=Math.sqrt(v);
-      const stressLvl=hrv<3?"مرتفع":hrv<6?"متوسط":"منخفض";
-      mStressV.textContent=stressLvl;
-      mStress.className="cell "+(hrv<3?"warn":"ok");
-    }
-
-    // Scores + UI every ~500ms
-    const sc=computeScores();
-    updateScore("sleep",sc.sleep);
-    updateScore("heart",sc.heart);
-    updateScore("stress",sc.stress);
-    updateScore("alert",sc.alert);
-    updateScore("vit",sc.vit);
-    document.getElementById("r-sleep").textContent=arNum(sc.sleep);
-
-    // Phone panel
-    if(currentBPM){
-      document.getElementById("p-hr").textContent=arNum(Math.round(currentBPM));
-      document.getElementById("t1").textContent="الآن";
-      document.getElementById("tr-hr").textContent=currentBPM>85?"▲ أعلى من الهدف":currentBPM<60?"▼ أقل من المعتاد":"طبيعي";
-      document.getElementById("tr-hr").className="trend "+(currentBPM>85||currentBPM<60?"warn":"");
-    }
-    document.getElementById("p-br").textContent=arNum(rAnim);document.getElementById("t2").textContent="الآن";
-    document.getElementById("p-sleep").textContent=arNum(sc.sleep);document.getElementById("t3").textContent="اليوم";
-    document.getElementById("syncStatus").textContent="✓ مُتزامن";
-
-    // Rotate advice + coach every 8s
-    if(now-lastAdviceTime>8000){
-      const list=generateAdvice(sc);
-      const adv=list[adviceIdx%list.length];
-      showAdvice(adv);
-      updateCoach(sc);
-      adviceIdx++;lastAdviceTime=now;
-    }
-  }
-
-  function drawWave(buf){
-    const w=waveCanvas.width,h=waveCanvas.height;
-    wctx.clearRect(0,0,w,h);
-    wctx.strokeStyle="rgba(125,195,232,0.06)";wctx.lineWidth=1;
-    for(let i=1;i<5;i++){const y=i*h/5;wctx.beginPath();wctx.moveTo(0,y);wctx.lineTo(w,y);wctx.stroke();}
-    wctx.strokeStyle="#7DC3E8";wctx.lineWidth=2.2;wctx.lineJoin="round";
-    wctx.beginPath();
-    buf.forEach((v,i)=>{const x=(i/buf.length)*w,y=h/2-v*(h/2-4);if(i===0)wctx.moveTo(x,y);else wctx.lineTo(x,y);});
-    wctx.stroke();
-  }
-
-  function loop(){
-    if(running && video.readyState>=2 && faceLandmarker){
-      const now=performance.now();
-      try{
-        const res=faceLandmarker.detectForVideo(video,now);
-        if(res.faceLandmarks && res.faceLandmarks.length){
-          mFace.textContent="مُكتشف";mFace.parentElement.classList.add("ok");
-          statusTxt.textContent="✓ تحليل نشط";statusDot.classList.add("ready");
-          processFrame(res.faceLandmarks[0]);
-        } else {
-          mFace.textContent="—";mFace.parentElement.classList.remove("ok");
-          octx.clearRect(0,0,overlay.width,overlay.height);
-          statusTxt.textContent="اقترب من المرآة";
-        }
-      }catch(e){console.error("detect error",e);}
-    }
-    fpsFrames++;
-    const tn=performance.now();
-    if(tn-fpsTimer>=1000){mFps.textContent=arNum(fpsFrames);fpsFrames=0;fpsTimer=tn;}
-    requestAnimationFrame(loop);
-  }
-
-  async function _initAI(){
-    if(!video.videoWidth){await new Promise(r=>setTimeout(r,150));}
-    samp.width=video.videoWidth||640;samp.height=video.videoHeight||480;
-    if(!FaceLandmarker){statusTxt.textContent="⚠ AI غير متاح";return;}
-    const ok=await loadModel();
-    if(ok){running=true;loop();}
-  }
-  window.addEventListener("sehhaty:cameraReady",_initAI);
-  if(window._sehhatyCamReady)_initAI();
-
-  window.addEventListener("beforeunload",()=>{if(video.srcObject)video.srcObject.getTracks().forEach(t=>t.stop());});
+let FaceLandmarker,FilesetResolver;
+try{const m=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");FaceLandmarker=m.FaceLandmarker;FilesetResolver=m.FilesetResolver;}catch(e){document.getElementById("statusTxt").textContent="⚠ AI غير متاح";}
+const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+function updateTime(){const d=new Date(),h=d.getHours(),m=d.getMinutes();document.getElementById("clock").textContent=arNum(String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"));const days=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];document.getElementById("dateLine").textContent=days[d.getDay()];let g,e,s;if(h>=5&&h<11){g="صباح الخير، نواف";e="☀️";s="يوم مليء بالنشاط";}else if(h>=11&&h<17){g="طاب نهارك، نواف";e="🌤️";s="استراحة قصيرة تنعش التركيز";}else if(h>=17&&h<20){g="مساء الخير، نواف";e="🌇";s="مشي خفيف يحسّن نومك";}else{g="مساء النور، نواف";e="🌙";s="جهّز نفسك للنوم";}document.getElementById("greet").textContent=g;document.getElementById("emoGreet").textContent=e;document.getElementById("subLine").textContent=s;}
+updateTime();setInterval(updateTime,30000);
+const video=document.getElementById("cam"),overlay=document.getElementById("overlay"),octx=overlay.getContext("2d");
+const wc=document.getElementById("waveCanvas"),wctx=wc.getContext("2d");
+const samp=document.createElement("canvas"),sctx=samp.getContext("2d",{willReadFrequently:true});
+let faceLandmarker=null,running=false,signal=[],frameTimes=[],bpm=null,bpmHist=[],earHist=[],greeted=false,lastAdv=0,advIdx=0;const SIG=300,EARMAX=180;
+async function loadModel(){try{const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numFaces:1,outputFaceBlendshapes:true});document.getElementById("statusTxt").textContent="✓ تحليل نشط";return true;}catch(e){return false;}}
+const LE=[33,160,158,133,153,144],RE=[362,385,387,263,373,380];
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function ear(lm,i){const p=i.map(x=>lm[x]);return(dist(p[1],p[5])+dist(p[2],p[4]))/(2*dist(p[0],p[3]));}
+function detrend(b,w=25){const o=[];for(let i=0;i<b.length;i++){const s=Math.max(0,i-w),e=Math.min(b.length,i+w);let sum=0;for(let k=s;k<e;k++)sum+=b[k];o.push(b[i]-sum/(e-s));}return o;}
+function norm(b){let mn=Infinity,mx=-Infinity;for(const v of b){if(v<mn)mn=v;if(v>mx)mx=v;}const r=mx-mn||1;return b.map(v=>((v-mn)/r)*2-1);}
+function peaks(b,md=20){const p=[];for(let i=1;i<b.length-1;i++)if(b[i]>b[i-1]&&b[i]>b[i+1]&&b[i]>0.15&&(p.length===0||i-p[p.length-1]>=md))p.push(i);return p;}
+function estBPM(p,t){if(p.length<3)return null;const pt=p.map(x=>t[x]);const iv=[];for(let i=1;i<pt.length;i++)iv.push(pt[i]-pt[i-1]);const a=iv.reduce((x,y)=>x+y,0)/iv.length;const b=60000/a;return b>40&&b<160?b:null;}
+function drawWave(b){wctx.clearRect(0,0,wc.width,wc.height);wctx.strokeStyle="#7DC3E8";wctx.lineWidth=2;wctx.beginPath();b.forEach((v,i)=>{const x=(i/b.length)*wc.width,y=wc.height/2-v*(wc.height/2-4);if(i===0)wctx.moveTo(x,y);else wctx.lineTo(x,y);});wctx.stroke();}
+function computeScores(){const avgE=earHist.length>20?earHist.slice(-120).reduce((a,b)=>a+b,0)/earHist.slice(-120).length:0.3;const sleep=Math.max(0,Math.min(100,Math.round((avgE-0.18)*400+50)));let heart=50;if(bpm){if(bpm>=60&&bpm<=85)heart=90;else if(bpm>=55&&bpm<=100)heart=72;else heart=Math.max(30,90-Math.abs(bpm-72)*1.5);}let stress=60;if(bpmHist.length>5){const mean=bpmHist.reduce((a,b)=>a+b,0)/bpmHist.length;const v=bpmHist.reduce((a,b)=>a+(b-mean)*(b-mean),0)/bpmHist.length;stress=Math.max(30,Math.min(95,Math.round(100-Math.abs(Math.sqrt(v)-6)*8)));}const vit=Math.round((sleep+heart+stress)/3);return{sleep,heart,stress,vit};}
+function updSc(id,v){const f=document.getElementById("sc-"+id),l=document.getElementById("sc-"+id+"-val");f.style.width=v+"%";f.classList.remove("warn","bad");if(v<45)f.classList.add("bad");else if(v<65)f.classList.add("warn");l.textContent=arNum(v)+"%";l.className=v<45?"bad":v<65?"warn":"ok";}
+function genAdvice(s){const a=[];if(s.sleep<55)a.push({ico:"😴",title:"يبدو أنك لم تنم جيدًا",msg:"مؤشرات عينيك توحي بنوم غير كافٍ. جرب ٧-٨ ساعات الليلة.",type:"warn"});if(s.stress<55)a.push({ico:"🧘",title:"توترك مرتفع",msg:"تنفس عميق دقيقتين يخفض التوتر.",type:"warn"});if(s.heart<55)a.push({ico:"❤️",title:"النبض خارج الحدود",msg:"قد يكون كافيين أو قلة حركة.",type:"warn"});if(s.vit>75)a.push({ico:"🌟",title:"حالتك ممتازة",msg:"استمر على نمطك.",type:"tip"});if(a.length===0){a.push({ico:"💧",title:"تذكير ترطيب",msg:"اشرب كوب ماء.",type:"tip"});}return a;}
+function showAdv(a){const b=document.getElementById("adviceBubble");document.getElementById("adviceIco").textContent=a.ico;document.getElementById("adviceTitle").textContent=a.title;document.getElementById("adviceMsg").textContent=a.msg;b.className="advice-bubble show "+(a.type||"");if(a.type==="warn")speak(a.title);}
+function updCoach(s){const m=document.getElementById("coachMsg");if(s.vit>=75)m.innerHTML="ممتاز! <b>حيويتك "+arNum(s.vit)+"%</b> اليوم.";else if(s.sleep<55)m.innerHTML="<b>عينيك متعبتين.</b> اضبط روتين النوم.";else if(s.stress<55)m.innerHTML="توترك مرتفع. <b>جلسة تنفس ٣ دقائق</b>.";else m.innerHTML="حالتك جيدة. استمر.";}
+function processFrame(lm){if(!lm)return;const t=lm[10],b=lm[151],l=lm[67],r=lm[297];if(!t||!b||!l||!r)return;const w=overlay.width,h=overlay.height;const rx=Math.min(l.x,r.x)*w,rx2=Math.max(l.x,r.x)*w,ry=t.y*h,ry2=b.y*h,rw=rx2-rx,rh=(ry2-ry)*0.7;if(rw<10||rh<10)return;octx.clearRect(0,0,w,h);octx.strokeStyle="#7DC3E8";octx.lineWidth=2;octx.strokeRect(rx,ry,rw,rh);sctx.canvas.width=w;sctx.canvas.height=h;sctx.drawImage(video,0,0,w,h);const img=sctx.getImageData(rx,ry,rw,rh).data;let g=0;for(let i=0;i<img.length;i+=4)g+=img[i+1];signal.push(g/(img.length/4));frameTimes.push(performance.now());if(signal.length>SIG){signal.shift();frameTimes.shift();}if(signal.length>60){const d=detrend(signal,20),n=norm(d),p=peaks(n,20),b2=estBPM(p,frameTimes);if(b2){bpm=bpm?bpm*0.75+b2*0.25:b2;bpmHist.push(bpm);if(bpmHist.length>60)bpmHist.shift();const v=Math.round(bpm);document.getElementById("r-hr").textContent=arNum(v);document.getElementById("bpmWave").textContent=arNum(v)+" BPM";}drawWave(n);}const lE=ear(lm,LE),rE=ear(lm,RE),avgE=(lE+rE)/2;earHist.push(avgE);if(earHist.length>EARMAX)earHist.shift();const now=performance.now();document.getElementById("r-br").textContent=arNum(Math.round(14+Math.sin(now/3000)*2));document.getElementById("r-fat").textContent=arNum(Math.max(0,Math.min(10,Math.round(10-avgE*25))));const sc=computeScores();updSc("sleep",sc.sleep);updSc("heart",sc.heart);updSc("stress",sc.stress);updSc("vit",sc.vit);document.getElementById("r-sleep").textContent=arNum(sc.sleep);if(now-lastAdv>8000){const a=genAdvice(sc);showAdv(a[advIdx%a.length]);updCoach(sc);advIdx++;lastAdv=now;}}
+function loop(){if(running&&video.readyState>=2&&faceLandmarker){const r=faceLandmarker.detectForVideo(video,performance.now());if(r.faceLandmarks&&r.faceLandmarks.length){processFrame(r.faceLandmarks[0]);if(!greeted){greeted=true;speak(document.getElementById("greet").textContent+". "+document.getElementById("subLine").textContent);}}else{octx.clearRect(0,0,overlay.width,overlay.height);}}requestAnimationFrame(loop);}
+async function initAI(){if(!FaceLandmarker)return;const ok=await loadModel();if(ok){running=true;loop();}}
+window.addEventListener("sehhaty:cameraReady",initAI);if(window._camReady)initAI();
 </script>
-
 </body>
 </html>
