@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script>
+/* Sehhaty Analytics */
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الشيف الصحي — صحتي 2.0</title>
@@ -100,6 +105,41 @@
   .kpi-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-top:1px dashed #E0E7FF;}
   .kpi-row:first-of-type{border-top:none;}
   .kpi-row b{color:var(--sky-dark);}
+
+  /* Food camera scanner */
+  .scan-wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start;}
+  .scan-cam{position:relative;background:#0A0826;border-radius:18px;overflow:hidden;aspect-ratio:4/3;border:3px solid #1a2520;}
+  .scan-cam video{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;}
+  .scan-cam video.on{opacity:.95;}
+  .scan-cam canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .scan-cam .gate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,8,38,.93);color:#fff;text-align:center;padding:18px;}
+  .scan-cam .gate.hidden{display:none;}
+  .scan-cam .gate h4{font-size:16px;margin-bottom:6px;}
+  .scan-cam .gate p{font-size:13px;opacity:.8;line-height:1.7;margin-bottom:14px;max-width:280px;}
+  .scan-cam .gate button{background:var(--sky);color:#fff;border:none;padding:11px 22px;border-radius:10px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;}
+  .scan-cam .gate button:disabled{opacity:.7;}
+  .scan-cam .err{background:rgba(209,107,92,.2);padding:8px 12px;border-radius:8px;font-size:11px;margin-top:10px;max-width:280px;display:none;}
+  .scan-cam .err.show{display:block;}
+  .scan-cam .badge{position:absolute;top:10px;inset-inline-start:10px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:4px 10px;border-radius:6px;display:flex;align-items:center;gap:6px;}
+  .scan-cam .badge .dot{width:7px;height:7px;border-radius:50%;background:#10B981;animation:pulse 1.2s infinite;}
+  @keyframes pulse{50%{opacity:.4;}}
+  .scan-cam .fps{position:absolute;top:10px;inset-inline-end:10px;background:rgba(0,0,0,.65);color:#fff;font-size:10px;padding:3px 8px;border-radius:5px;font-variant-numeric:tabular-nums;}
+
+  .detected-list{background:var(--sky-light);border-radius:16px;padding:16px;min-height:240px;}
+  .detected-list h4{font-size:14px;color:var(--sky-dark);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .detected-list .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 10px;line-height:1.7;}
+  .detected-item{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;animation:appearPop .25s;}
+  @keyframes appearPop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .detected-item .ico{font-size:24px;}
+  .detected-item .info{flex:1;}
+  .detected-item .info b{display:block;font-size:14px;color:var(--sky-dark);}
+  .detected-item .info span{font-size:11px;color:var(--muted);}
+  .detected-item .conf{font-size:11px;background:var(--sky-light);color:var(--sky-dark);padding:3px 8px;border-radius:99px;font-weight:600;}
+  .detected-total{margin-top:14px;padding-top:10px;border-top:2px solid rgba(255,255,255,.5);display:flex;justify-content:space-between;font-weight:700;color:var(--sky-dark);font-size:14px;}
+  .scan-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .scan-actions button{flex:1;padding:10px;border:1px solid var(--sky);background:#fff;color:var(--sky-dark);border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;font-size:13px;}
+  .scan-actions button.primary{background:var(--sky);color:#fff;border-color:var(--sky);}
+  @media(max-width:760px){.scan-wrap{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -113,41 +153,37 @@
 
 <div class="container">
 
-<!-- Step 1: Profile -->
+<!-- Step 1: Profile (linked to user's صحتي record) -->
 <div class="flow-step" data-step="١">
   <div class="step-title">قراءة ملفك الصحي</div>
-  <div class="step-sub">النظام يقرأ تلقائيًا من «صحتي» حالتك ومستهدفاتك</div>
+  <div class="step-sub">يُجلب من «صحتي» عبر الربط الموحّد — اضغط لتحديث الحقول</div>
   <div class="profile-grid">
-    <div class="profile-card"><div class="k">العمر</div><div class="v">٣٤</div></div>
-    <div class="profile-card"><div class="k">الحالة</div><div class="v">سكري ٢</div></div>
-    <div class="profile-card"><div class="k">الحساسية</div><div class="v">لا يوجد</div></div>
-    <div class="profile-card"><div class="k">الهدف</div><div class="v">خفض ٥ كغ</div></div>
+    <div class="profile-card"><div class="k">العمر</div><div class="v" id="pAge">—</div></div>
+    <div class="profile-card"><div class="k">الحالة الصحية</div><div class="v" id="pCond">—</div></div>
+    <div class="profile-card"><div class="k">الحساسية</div><div class="v" id="pAllergy">—</div></div>
+    <div class="profile-card"><div class="k">الهدف</div><div class="v" id="pGoal">—</div></div>
+  </div>
+  <div style="text-align:center;margin-top:14px;">
+    <button id="syncProfileBtn" style="background:var(--sky);color:#fff;border:none;padding:10px 22px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;">🔄 جلب ملفي من صحتي</button>
   </div>
 </div>
 
 <!-- Step 2: Day + Calories -->
 <div class="flow-step" data-step="٢">
   <div class="step-title">اختر اليوم</div>
-  <div class="step-sub">خطة أسبوعية مخصصة وفق ملفك الصحي</div>
+  <div class="step-sub">خطة أسبوعية تُولَّد بناءً على ملفك الصحي بعد الجلب</div>
   <div style="padding-inline-start:30px;">
-    <div class="day-tabs">
-      <div class="day-tab active"><b>أحد</b>اليوم</div>
-      <div class="day-tab"><b>إثنين</b>غدًا</div>
-      <div class="day-tab"><b>ثلاثاء</b>١٢</div>
-      <div class="day-tab"><b>أربعاء</b>١٣</div>
-      <div class="day-tab"><b>خميس</b>١٤</div>
-    </div>
-    <div class="cal-summary">
-      <div class="ring"><span>١٢٤٠</span></div>
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="cal-summary" id="calSummary" style="display:none;">
+      <div class="ring"><span id="ringNum">—</span></div>
       <div class="info">
-        <b>١٢٤٠ / ٢٠٥٠ كيلو كالوري</b>
-        <p>متبقي ٨١٠ لإكمال اليوم</p>
-        <div class="macros">
-          <span>🥩 بروتين ٣٨%</span>
-          <span>🍞 كارب ٤٢%</span>
-          <span>🥑 دهون ٢٠%</span>
-        </div>
+        <b id="calLabel">— كيلو كالوري</b>
+        <p id="calRemaining">—</p>
+        <div class="macros" id="macros"></div>
       </div>
+    </div>
+    <div id="calEmpty" style="background:var(--sky-light);padding:20px;border-radius:14px;text-align:center;color:var(--muted);font-size:14px;">
+      اضغط «جلب ملفي من صحتي» في الخطوة الأولى لتوليد الخطة بناءً على بياناتك الفعلية.
     </div>
   </div>
 </div>
@@ -155,26 +191,12 @@
 <!-- Step 3: Meals -->
 <div class="flow-step" data-step="٣">
   <div class="step-title">وجباتك اليومية</div>
-  <div class="step-sub">اضغط على أي وجبة لعرض التفاصيل والمكونات</div>
+  <div class="step-sub">تُحدَّد بعد جلب الملف الصحي وفق سعراتك ومحدداتك الطبية</div>
   <div style="padding-inline-start:30px;">
-    <div class="meals-grid">
-      <div class="meal" data-meal="0">
-        <div class="meal-img meal-m1">🥣<span class="meal-time">٠٦:٠٠</span><span class="meal-cal">٣٨٠</span></div>
-        <div class="meal-body"><h4>شوفان بالتمر واللوز</h4><div class="tags"><span>منخفض كارب</span><span>بروتين عالي</span></div></div>
-      </div>
-      <div class="meal" data-meal="1">
-        <div class="meal-img meal-m2">🥗<span class="meal-time">١٣:٠٠</span><span class="meal-cal">٥٢٠</span></div>
-        <div class="meal-body"><h4>كبسة دجاج بالأرز البني</h4><div class="tags"><span>سعودي</span><span>مناسب السكري</span></div></div>
-      </div>
-      <div class="meal" data-meal="2">
-        <div class="meal-img meal-m3">🍎<span class="meal-time">١٦:٣٠</span><span class="meal-cal">١٥٠</span></div>
-        <div class="meal-body"><h4>تفاحة + جوز</h4><div class="tags"><span>سريع</span></div></div>
-      </div>
-      <div class="meal" data-meal="3">
-        <div class="meal-img meal-m4">🐟<span class="meal-time">٢٠:٠٠</span><span class="meal-cal">٤٨٠</span></div>
-        <div class="meal-body"><h4>هامور مشوي مع تبولة</h4><div class="tags"><span>أوميقا ٣</span><span>خفيف</span></div></div>
-      </div>
+    <div id="mealsEmpty" style="background:var(--sky-light);padding:20px;border-radius:14px;text-align:center;color:var(--muted);font-size:14px;">
+      ستظهر وجبات اليوم هنا بعد جلب ملفك الصحي.
     </div>
+    <div class="meals-grid" id="mealsGrid" style="display:none;"></div>
   </div>
 </div>
 
@@ -203,6 +225,41 @@
   </div>
 </div>
 
+<!-- Step 5: Camera food scanner -->
+<div class="flow-step" data-step="📷">
+  <div class="step-title">صوّر وجبتك — تعرّف فوري بالـ AI</div>
+  <div class="step-sub">وجّه الكاميرا للطبق وسيتعرف الذكاء الاصطناعي على الأطعمة ويقدّر السعرات تلقائيًا</div>
+  <div style="padding-inline-start:30px;">
+    <div class="scan-wrap">
+      <div class="scan-cam" id="scanCam">
+        <video id="foodVideo" autoplay playsinline muted></video>
+        <canvas id="foodOverlay"></canvas>
+        <div class="badge"><span class="dot"></span><span id="scanState">EfficientDet · 80 صنف</span></div>
+        <div class="fps" id="scanFps">— FPS</div>
+        <div class="gate" id="scanGate">
+          <h4>📷 ابدأ التصوير</h4>
+          <p>وجّه الكاميرا للطبق. الذكاء الاصطناعي يكتشف الفواكه والخضار والأطباق ويقدّر السعرات.</p>
+          <button id="scanBtn">تفعيل الكاميرا</button>
+          <div class="err" id="scanErr"></div>
+        </div>
+      </div>
+      <div class="detected-list" id="detList">
+        <h4>🍽 الأطعمة المرصودة <span style="font-size:11px;color:var(--muted);font-weight:400;">حيّ</span></h4>
+        <div class="empty" id="detEmpty">وجّه الكاميرا للطعام<br>وسيظهر التعرف هنا</div>
+        <div id="detItems"></div>
+        <div class="detected-total" id="detTotal" style="display:none;">
+          <span>إجمالي السعرات التقديرية</span>
+          <span id="detCal">٠ كالوري</span>
+        </div>
+        <div class="scan-actions" id="detActions" style="display:none;">
+          <button class="primary" id="logMealBtn">💾 سجّل في صحتي</button>
+          <button id="clearScanBtn">🔄 مسح</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Smart AI Chef -->
 <div class="flow-step" data-step="✨">
   <div class="step-title">اسأل الشيف الذكي</div>
@@ -225,12 +282,6 @@
   </div>
 </div>
 
-<div class="kpi">
-  <h4>📊 الأثر المتوقع</h4>
-  <div class="kpi-row"><span>التزام مرضى السكري بالحمية</span><b>+٤٨%</b></div>
-  <div class="kpi-row"><span>خفض HbA1c المتوقع</span><b>−٠.٩%</b></div>
-  <div class="kpi-row"><span>شراكات: جاهز، هنقرستيشن، بنده</span><b>✓</b></div>
-</div>
 
 </div>
 
@@ -241,55 +292,450 @@
     <div id="cartList"></div>
     <div style="padding:14px 0 6px;display:flex;justify-content:space-between;font-weight:700;color:var(--sky-dark);border-top:2px solid var(--sky-light);margin-top:8px;"><span>الإجمالي التقديري</span><span id="cartTotal">٢٠٥ ر.س</span></div>
     <div class="providers">
-      <button class="provider-btn jahez" onclick="alert('تم إرسال الطلب لجاهز · ' + Date.now().toString().slice(-5))">🍱 جاهز</button>
-      <button class="provider-btn hunger" onclick="alert('تم إرسال الطلب لهنقرستيشن · ' + Date.now().toString().slice(-5))">🛵 هنقرستيشن</button>
+      <button class="provider-btn jahez" onclick="orderJahez()">🍱 جاهز</button>
+      <button class="provider-btn hunger" onclick="orderHunger()">🛵 هنقرستيشن</button>
     </div>
   </div>
 </div>
 
 <script>
 function arNum(n){return String(n).replace(/[0-9]/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d];});}
-const meals=[
-  {n:"شوفان بالتمر واللوز",ings:[["شوفان","٥٠غ","٨ ر.س"],["حليب قليل الدسم","١٥٠مل","٩ ر.س"],["تمر","٣ حبات","١٥ ر.س"],["لوز","١٠غ","١٨ ر.س"]]},
-  {n:"كبسة دجاج بالأرز البني",ings:[["صدر دجاج","٣٠٠غ","٣٠ ر.س"],["أرز بني","١ كوب","١٨ ر.س"],["بصل","١","٤ ر.س"],["بهارات","٢ ملعقة","١٢ ر.س"]]},
-  {n:"تفاحة + جوز",ings:[["تفاحة","١","٣ ر.س"],["جوز","٢٥غ","٢٢ ر.س"]]},
-  {n:"هامور مشوي مع تبولة",ings:[["هامور","٢٥٠غ","٥٥ ر.س"],["برغل","٣ ملاعق","١٠ ر.س"],["بقدونس","حزمة","٣ ر.س"]]}
-];
-let currentMeal=1;
-document.querySelectorAll(".meal").forEach(m=>m.addEventListener("click",function(){currentMeal=+m.dataset.meal;alert("تفاصيل الوجبة: "+meals[currentMeal].n+"\n\nاضغط «قائمة بقالة» أدناه لإضافة المكونات.");}));
-document.querySelectorAll(".day-tab").forEach(t=>t.addEventListener("click",function(){document.querySelectorAll(".day-tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");}));
+
+// State holders — populated only after the user explicitly fetches their profile
+let userProfile=null;
+let mealPlan=null;     // { dailyTarget, days:[{day, meals:[...]}] }
+let currentMeal=null;
+let currentDayIdx=0;
+
+// === DEMO DATA (used when no live SehhatyHostApi is attached) ===
+const DEMO_PROFILE={
+  age:34,
+  condition:"سكري ٢",
+  allergies:[],
+  goal:"خفض ٥ كغ خلال ٣ أشهر",
+  height:178,
+  weight:88,
+  activityLevel:"معتدل",
+  dailyCalorieTarget:2050
+};
+function dayLabel(offsetDays){
+  const days=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+  const d=new Date();d.setDate(d.getDate()+offsetDays);
+  return {dayName:days[d.getDay()],dateLabel:offsetDays===0?"اليوم":offsetDays===1?"غدًا":String(d.getDate()),date:d.toISOString().slice(0,10)};
+}
+const DEMO_MEAL_PLAN={
+  dailyTarget:2050,
+  days:[
+    {...dayLabel(0),
+      macros:{"🥩 بروتين":35,"🍞 كارب":40,"🥑 دهون":25},
+      meals:[
+        {time:"٠٦:٣٠",name:"شوفان بالتمر واللوز",ico:"🥣",cal:380,tags:["منخفض GI","بروتين عالي"],consumed:true,
+          ingredients:[{name:"شوفان",qty:"٥٠غ",price:"٨ ر.س"},{name:"حليب قليل الدسم",qty:"١٥٠مل",price:"٩ ر.س"},{name:"تمر",qty:"٣ حبات",price:"١٥ ر.س"},{name:"لوز",qty:"١٠غ",price:"١٨ ر.س"}]},
+        {time:"١٣:٠٠",name:"كبسة دجاج بالأرز البني",ico:"🥗",cal:560,tags:["سعودي","مناسب السكري"],consumed:true,
+          ingredients:[{name:"صدر دجاج",qty:"٣٠٠غ",price:"٣٠ ر.س"},{name:"أرز بني",qty:"١ كوب",price:"١٨ ر.س"},{name:"بصل + خضار",qty:"حصة",price:"٨ ر.س"},{name:"بهارات كبسة",qty:"٢ ملعقة",price:"١٢ ر.س"}]},
+        {time:"١٦:٣٠",name:"تفاحة + جوز",ico:"🍎",cal:160,tags:["سناك ذكي"],consumed:true,
+          ingredients:[{name:"تفاحة",qty:"١",price:"٣ ر.س"},{name:"جوز",qty:"٢٥غ",price:"٢٢ ر.س"}]},
+        {time:"٢٠:٠٠",name:"هامور مشوي مع تبولة",ico:"🐟",cal:480,tags:["أوميقا ٣","خفيف"],consumed:false,
+          ingredients:[{name:"هامور",qty:"٢٥٠غ",price:"٥٥ ر.س"},{name:"برغل",qty:"٣ ملاعق",price:"١٠ ر.س"},{name:"بقدونس",qty:"حزمة",price:"٣ ر.س"},{name:"طماطم وخيار",qty:"حصة",price:"٧ ر.س"}]}
+      ]},
+    {...dayLabel(1),
+      macros:{"🥩 بروتين":38,"🍞 كارب":38,"🥑 دهون":24},
+      meals:[
+        {time:"٠٧:٠٠",name:"بيض مع أفوكادو وخبز أسمر",ico:"🍳",cal:420,tags:["دسم صحي"],consumed:false,
+          ingredients:[{name:"بيض",qty:"٢ حبة",price:"٤ ر.س"},{name:"أفوكادو",qty:"نصف",price:"٦ ر.س"},{name:"خبز أسمر",qty:"شريحة",price:"٢ ر.س"}]},
+        {time:"١٣:٠٠",name:"سلطة دجاج بالكينوا",ico:"🥗",cal:520,tags:["بروتين","ألياف"],consumed:false,
+          ingredients:[{name:"دجاج مشوي",qty:"٢٠٠غ",price:"٢٢ ر.س"},{name:"كينوا",qty:"نصف كوب",price:"١٤ ر.س"},{name:"خضار ورقية",qty:"حصة",price:"٧ ر.س"}]},
+        {time:"١٦:٠٠",name:"زبادي يوناني بالعسل",ico:"🥛",cal:180,tags:["بروبيوتيك"],consumed:false,
+          ingredients:[{name:"زبادي يوناني",qty:"١٧٠غ",price:"٧ ر.س"},{name:"عسل",qty:"ملعقة",price:"٣ ر.س"}]},
+        {time:"٢٠:٠٠",name:"شوربة عدس مع توست",ico:"🍲",cal:430,tags:["مشبع","قليل دهن"],consumed:false,
+          ingredients:[{name:"عدس",qty:"كوب",price:"٦ ر.س"},{name:"بصل وجزر",qty:"حصة",price:"٤ ر.س"},{name:"توست أسمر",qty:"شريحة",price:"٢ ر.س"}]}
+      ]},
+    {...dayLabel(2),
+      macros:{"🥩 بروتين":36,"🍞 كارب":40,"🥑 دهون":24},
+      meals:[
+        {time:"٠٧:٠٠",name:"عجة بالخضار وجبن قريش",ico:"🍳",cal:340,tags:["بروتين عالي"],consumed:false,
+          ingredients:[{name:"بيض",qty:"٢",price:"٤ ر.س"},{name:"جبن قريش",qty:"٤٠غ",price:"٥ ر.س"},{name:"سبانخ وفلفل",qty:"حصة",price:"٤ ر.س"}]},
+        {time:"١٣:٠٠",name:"مضغوط لحم بالبرغل",ico:"🍛",cal:580,tags:["سعودي","حديد"],consumed:false,
+          ingredients:[{name:"لحم بقري",qty:"٢٠٠غ",price:"٣٥ ر.س"},{name:"برغل",qty:"كوب",price:"٦ ر.س"},{name:"بهارات",qty:"٢ ملعقة",price:"٨ ر.س"}]},
+        {time:"١٦:٠٠",name:"موزة + لوز",ico:"🍌",cal:200,tags:["طاقة سريعة"],consumed:false,
+          ingredients:[{name:"موزة",qty:"١",price:"٢ ر.س"},{name:"لوز نيء",qty:"٢٥غ",price:"١٧ ر.س"}]},
+        {time:"٢٠:٠٠",name:"سمك سلمون مع خضار سوتيه",ico:"🐟",cal:460,tags:["أوميقا ٣"],consumed:false,
+          ingredients:[{name:"سلمون",qty:"٢٠٠غ",price:"٤٨ ر.س"},{name:"بروكلي + جزر",qty:"حصة",price:"٩ ر.س"},{name:"زيت زيتون",qty:"ملعقة",price:"٢ ر.س"}]}
+      ]},
+    {...dayLabel(3),
+      macros:{"🥩 بروتين":34,"🍞 كارب":42,"🥑 دهون":24},
+      meals:[
+        {time:"٠٧:٠٠",name:"فول مدمس مع خبز أسمر",ico:"🫘",cal:380,tags:["تقليدي","ألياف"],consumed:false,
+          ingredients:[{name:"فول",qty:"كوب",price:"٥ ر.س"},{name:"ليمون وزيت",qty:"حصة",price:"٣ ر.س"},{name:"خبز أسمر",qty:"رغيف",price:"٢ ر.س"}]},
+        {time:"١٣:٠٠",name:"دجاج بالليمون والأرز البني",ico:"🍗",cal:540,tags:["مناسب السكري"],consumed:false,
+          ingredients:[{name:"صدر دجاج",qty:"٢٥٠غ",price:"٢٥ ر.س"},{name:"أرز بني",qty:"كوب",price:"١٠ ر.س"},{name:"ليمون وثوم",qty:"حصة",price:"٤ ر.س"}]},
+        {time:"١٦:٠٠",name:"حمص بزيت الزيتون",ico:"🥙",cal:220,tags:["بروتين نباتي"],consumed:false,
+          ingredients:[{name:"حمص",qty:"كوب",price:"٤ ر.س"},{name:"زيت زيتون",qty:"ملعقة",price:"٢ ر.س"}]},
+        {time:"٢٠:٠٠",name:"شيش طاووق مع سلطة فتوش",ico:"🍢",cal:470,tags:["شامي","قليل دهن"],consumed:false,
+          ingredients:[{name:"دجاج",qty:"٢٥٠غ",price:"٢٤ ر.س"},{name:"خضار سلطة",qty:"حصة",price:"٨ ر.س"},{name:"خبز محمص",qty:"رغيف",price:"٢ ر.س"}]}
+      ]},
+    {...dayLabel(4),
+      macros:{"🥩 بروتين":36,"🍞 كارب":40,"🥑 دهون":24},
+      meals:[
+        {time:"٠٧:٠٠",name:"بانكيك شوفان بالموز",ico:"🥞",cal:360,tags:["كارب صحي"],consumed:false,
+          ingredients:[{name:"شوفان",qty:"٥٠غ",price:"٨ ر.س"},{name:"موزة",qty:"١",price:"٢ ر.س"},{name:"بيض",qty:"١",price:"٢ ر.س"}]},
+        {time:"١٣:٠٠",name:"برغر دجاج صحي بخبز كامل",ico:"🍔",cal:550,tags:["شبع طويل"],consumed:false,
+          ingredients:[{name:"دجاج مفروم",qty:"١٨٠غ",price:"١٨ ر.س"},{name:"خبز كامل",qty:"رغيف",price:"٣ ر.س"},{name:"خس وطماطم",qty:"حصة",price:"٤ ر.س"}]},
+        {time:"١٦:٠٠",name:"كوكتيل توت بالحليب",ico:"🫐",cal:190,tags:["مضادات أكسدة"],consumed:false,
+          ingredients:[{name:"توت مشكل",qty:"١٠٠غ",price:"١٢ ر.س"},{name:"حليب",qty:"٢٠٠مل",price:"٤ ر.س"}]},
+        {time:"٢٠:٠٠",name:"روبيان مشوي مع كينوا",ico:"🍤",cal:440,tags:["خفيف","بروتين"],consumed:false,
+          ingredients:[{name:"روبيان",qty:"٢٠٠غ",price:"٣٢ ر.س"},{name:"كينوا",qty:"نصف كوب",price:"١٤ ر.س"},{name:"خضار",qty:"حصة",price:"٦ ر.س"}]}
+      ]}
+  ]
+};
+const DEMO_AI_RESPONSES={
+  "بدون غلوتين":"بناءً على ملفك (سكري ٢): استبدل البرغل بـ <b>كينوا</b> مع <b>هامور مشوي</b> — ٤٤٠ كالوري، صفر غلوتين، GI منخفض.",
+  "عشاء أسرع":"<b>سلطة دجاج جاهزة + جبن قريش</b> — تجهز خلال ٥ دقائق، ٣٢٠ كالوري ومناسبة لمستهدف خفض الوزن.",
+  "أعلى بروتين":"<b>عجة ٣ بيضات بالحمص + جبن قريش</b> ترفع البروتين إلى ٤٨غ مع كارب أقل بـ٢٠%.",
+  "نباتي":"<b>كينوا بعدس وخضار سوتيه</b> — ٢٢غ بروتين نباتي، ٤٥٠ كالوري. آمنة لمرضى السكري.",
+  "أقل سعرات":"<b>القرنبيط المفروم بدل الأرز</b> + دجاج مشوي يوفر ٢٢٠ كالوري ويحافظ على الشبع."
+};
+
+async function fetchSehhatyProfile(){
+  if(window.SehhatyHostApi&&typeof window.SehhatyHostApi.getProfile==="function"){
+    return await window.SehhatyHostApi.getProfile();
+  }
+  // Demo mode — short network-like delay then deliver the sample profile
+  await new Promise(r=>setTimeout(r,650));
+  return DEMO_PROFILE;
+}
+
+async function fetchMealPlan(profile){
+  if(window.SehhatyHostApi&&typeof window.SehhatyHostApi.getMealPlan==="function"){
+    return await window.SehhatyHostApi.getMealPlan(profile);
+  }
+  await new Promise(r=>setTimeout(r,500));
+  return DEMO_MEAL_PLAN;
+}
+
+function renderProfile(p){
+  document.getElementById("pAge").textContent=p.age?arNum(p.age):"—";
+  document.getElementById("pCond").textContent=p.condition||"لا يوجد";
+  document.getElementById("pAllergy").textContent=p.allergies&&p.allergies.length?p.allergies.join("، "):"لا يوجد";
+  document.getElementById("pGoal").textContent=p.goal||"—";
+}
+
+function renderDays(){
+  const tabs=document.getElementById("dayTabs");tabs.innerHTML="";
+  if(!mealPlan||!mealPlan.days)return;
+  mealPlan.days.forEach((d,i)=>{
+    const t=document.createElement("div");
+    t.className="day-tab"+(i===currentDayIdx?" active":"");
+    t.innerHTML="<b>"+d.dayName+"</b>"+(d.dateLabel||"");
+    t.addEventListener("click",function(){currentDayIdx=i;renderDays();renderDay();});
+    tabs.appendChild(t);
+  });
+}
+
+function renderDay(){
+  if(!mealPlan)return;
+  const d=mealPlan.days[currentDayIdx];
+  const consumed=d.meals.reduce((a,m)=>a+(m.consumed?m.cal:0),0);
+  const total=d.meals.reduce((a,m)=>a+m.cal,0);
+  const target=mealPlan.dailyTarget||total;
+  document.getElementById("calSummary").style.display="flex";
+  document.getElementById("calEmpty").style.display="none";
+  document.getElementById("ringNum").textContent=arNum(consumed);
+  document.getElementById("calLabel").textContent=arNum(consumed)+" / "+arNum(target)+" كيلو كالوري";
+  document.getElementById("calRemaining").textContent="متبقي "+arNum(Math.max(0,target-consumed))+" لإكمال اليوم";
+  const macros=document.getElementById("macros");macros.innerHTML="";
+  if(d.macros){
+    Object.entries(d.macros).forEach(([k,v])=>{
+      const s=document.createElement("span");s.textContent=k+" "+arNum(v)+"%";macros.appendChild(s);
+    });
+  }
+  // Meals
+  const grid=document.getElementById("mealsGrid");
+  document.getElementById("mealsEmpty").style.display="none";
+  grid.style.display="grid";grid.innerHTML="";
+  const themes=["meal-m1","meal-m2","meal-m3","meal-m4"];
+  d.meals.forEach((m,i)=>{
+    const card=document.createElement("div");card.className="meal";card.dataset.meal=i;
+    const tags=(m.tags||[]).map(x=>"<span>"+x+"</span>").join("");
+    card.innerHTML='<div class="meal-img '+themes[i%themes.length]+'">'+(m.ico||"🍽")+
+      '<span class="meal-time">'+(m.time||"")+'</span>'+
+      '<span class="meal-cal">'+arNum(m.cal)+'</span></div>'+
+      '<div class="meal-body"><h4>'+m.name+'</h4><div class="tags">'+tags+'</div></div>';
+    card.addEventListener("click",function(){currentMeal=i;openCart();});
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById("syncProfileBtn").addEventListener("click",async function(){
+  const btn=this;btn.disabled=true;btn.textContent="⏳ جارٍ الاتصال…";
+  try{
+    userProfile=await fetchSehhatyProfile();
+    renderProfile(userProfile);
+    btn.textContent="🔄 تحديث ملفي";
+    mealPlan=await fetchMealPlan(userProfile);
+    renderDays();renderDay();
+    btn.disabled=false;
+  }catch(e){
+    btn.disabled=false;btn.textContent="🔄 إعادة المحاولة";
+    alert("⚠ "+(e.message||"تعذّر الاتصال بصحتي"));
+  }
+});
 function openCart(){
+  if(!mealPlan||currentMeal===null){alert("⚠ يجب اختيار وجبة أولًا.");return;}
   const list=document.getElementById("cartList");
-  const m=meals[currentMeal];
-  list.innerHTML=m.ings.map(i=>`<div class="cart-item"><span><b>${i[0]}</b> · ${i[1]}</span><b>${i[2]}</b></div>`).join("");
-  const total=m.ings.reduce((a,b)=>a+parseInt(b[2]),0);
-  document.getElementById("cartTotal").textContent=arNum(total)+" ر.س";
+  const m=mealPlan.days[currentDayIdx].meals[currentMeal];
+  if(!m||!m.ingredients||!m.ingredients.length){alert("⚠ لا توجد مكونات مفصّلة لهذه الوجبة من المصدر.");return;}
+  list.innerHTML=m.ingredients.map(i=>`<div class="cart-item"><span><b>${i.name}</b> · ${i.qty}</span><b>${i.price}</b></div>`).join("");
+  const total=m.ingredients.reduce((a,b)=>a+(parseFloat(String(b.price).replace(/[^\d.]/g,""))||0),0);
+  document.getElementById("cartTotal").textContent=arNum(Math.round(total))+" ر.س";
   document.getElementById("cartModal").classList.add("show");
 }
 function closeCart(){document.getElementById("cartModal").classList.remove("show");}
-function orderJahez(){alert("🍱 تم تحويلك لـ جاهز\n\nسيتم عرض الوجبات الصحية المتاحة التي تطابق ملفك الصحي.");}
-function orderHunger(){alert("🛵 تم تحويلك لـ هنقرستيشن\n\nسيتم إضافة المكونات تلقائيًا لسلتك.");}
+function orderJahez(){
+  if(!mealPlan){alert("⚠ يجب جلب الخطة الغذائية أولًا.");return;}
+  if(window.SehhatyHostApi&&window.SehhatyHostApi.orderJahez){window.SehhatyHostApi.orderJahez(mealPlan.days[currentDayIdx]);return;}
+  closeCart();
+  alert("✓ تم تحويل قائمة اليوم إلى تطبيق جاهز.\nرقم الطلب التجريبي: SHTY-"+Date.now().toString().slice(-6)+"\nسيتم التوصيل خلال ٤٠-٥٥ دقيقة.");
+}
+function orderHunger(){
+  if(!mealPlan){alert("⚠ يجب جلب الخطة الغذائية أولًا.");return;}
+  if(window.SehhatyHostApi&&window.SehhatyHostApi.orderHungerstation){window.SehhatyHostApi.orderHungerstation(mealPlan.days[currentDayIdx]);return;}
+  closeCart();
+  alert("✓ تم تحويل قائمة اليوم إلى تطبيق هنقرستيشن.\nرقم الطلب التجريبي: SHTY-"+Date.now().toString().slice(-6)+"\nسيتم التوصيل خلال ٣٥-٥٠ دقيقة.");
+}
 
-const aiResp={
-  "بدون غلوتين":"اقتراحي: <b>سمك هامور مع كينوا</b> بدلاً من البرغل — ٤٤٠ كالوري، بدون غلوتين.",
-  "عشاء أسرع":"<b>تفاحة + جوز + دجاج مطبوخ مسبقًا</b> — ٥ دقائق، ٣٢٠ كالوري.",
-  "أعلى بروتين":"<b>عجة بيض بالحمص</b> بدلاً من الشوفان — ٤٨غ بروتين.",
-  "نباتي":"<b>كينوا بعدس وخضار</b> — ٢٢غ بروتين نباتي، ٤٥٠ كالوري.",
-  "أقل سعرات":"<b>الشعير أو القرنبيط المفروم</b> بدلًا من الأرز — نصف الكارب."
-};
+async function askAIChef(q){
+  const r=document.getElementById("aiReply");
+  r.classList.add("show");
+  if(!userProfile){r.innerHTML="<b>⚠</b> اجلب ملفك الصحي أولًا حتى أعتمد عليه في التوصيات.";return;}
+  if(window.SehhatyHostApi&&typeof window.SehhatyHostApi.askChef==="function"){
+    r.innerHTML="<b>🤖 جارٍ التحليل…</b>";
+    try{
+      const resp=await window.SehhatyHostApi.askChef({query:q,profile:userProfile,plan:mealPlan});
+      r.innerHTML="<b>🤖 اقتراح:</b> "+resp;
+    }catch(e){r.innerHTML="<b>⚠</b> "+(e.message||"تعذّر الاتصال بمحرك التوصيات.");}
+  } else {
+    // Demo fallback
+    r.innerHTML="<b>🤖 جارٍ التحليل…</b>";
+    await new Promise(res=>setTimeout(res,600));
+    const known=DEMO_AI_RESPONSES[q];
+    if(known){r.innerHTML="<b>🤖 اقتراح بناءً على ملفك:</b> "+known;}
+    else {r.innerHTML="<b>🤖 حللت طلبك «"+q+"»:</b> سأرسل لك ٣ خيارات مخصصة بناءً على ملفك (عمر "+arNum(userProfile.age)+"، "+userProfile.condition+"، هدف "+userProfile.goal+"). تظهر في الخطة بعد لحظات.";}
+  }
+}
 document.querySelectorAll(".quick-filters button").forEach(b=>b.addEventListener("click",function(){
   const q=b.dataset.q;
   document.getElementById("aiInput").value=q;
-  const r=document.getElementById("aiReply");
-  r.innerHTML=`<b>🤖 اقتراح:</b> ${aiResp[q]}`;
-  r.classList.add("show");
+  askAIChef(q);
 }));
 document.getElementById("aiSend").addEventListener("click",function(){
   const q=document.getElementById("aiInput").value.trim();if(!q)return;
-  const r=document.getElementById("aiReply");
-  r.innerHTML=`<b>🤖 حللت طلبك «${q}»:</b> سأعدّ لك ٣ خيارات مخصصة بناءً على ملفك الصحي. ستصلك خلال ثوانٍ.`;
-  r.classList.add("show");
+  askAIChef(q);
 });
 </script>
+
+<!-- ========== FOOD CAMERA SCANNER ========== -->
+<script>
+(function(){
+  var video=document.getElementById("foodVideo");
+  var overlay=document.getElementById("foodOverlay");
+  var gate=document.getElementById("scanGate");
+  var btn=document.getElementById("scanBtn");
+  var err=document.getElementById("scanErr");
+  if(!btn)return;
+  btn.addEventListener("click",function(){
+    err.classList.remove("show");btn.disabled=true;btn.textContent="⏳ طلب الإذن…";
+    navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false})
+      .then(function(s){
+        video.srcObject=s;video.classList.add("on");
+        video.onloadedmetadata=function(){
+          overlay.width=video.videoWidth||640;overlay.height=video.videoHeight||480;
+          gate.classList.add("hidden");
+          window._foodCamReady=true;window.dispatchEvent(new CustomEvent("chef:foodCamReady"));
+        };
+        if(video.readyState>=1)video.onloadedmetadata();
+      })
+      .catch(function(e){
+        btn.disabled=false;btn.textContent="أعد المحاولة";
+        err.classList.add("show");
+        var hint=e.name==="NotAllowedError"?"امنح إذن الكاميرا من شريط العنوان":e.name==="NotFoundError"?"لا توجد كاميرا متصلة":(e.message||"");
+        err.innerHTML="<b>خطأ:</b> "+hint;
+      });
+  });
+})();
+</script>
+
+<script type="module">
+let ObjectDetector,FilesetResolver;
+try{
+  const m=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");
+  ObjectDetector=m.ObjectDetector;FilesetResolver=m.FilesetResolver;
+}catch(e){document.getElementById("scanState").textContent="AI غير متاح";}
+
+const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const video=document.getElementById("foodVideo");
+const overlay=document.getElementById("foodOverlay");
+const ctx=overlay&&overlay.getContext?overlay.getContext("2d"):null;
+const stateEl=document.getElementById("scanState");
+const fpsEl=document.getElementById("scanFps");
+const detItems=document.getElementById("detItems");
+const detEmpty=document.getElementById("detEmpty");
+const detTotal=document.getElementById("detTotal");
+const detCal=document.getElementById("detCal");
+const detActions=document.getElementById("detActions");
+
+let detector=null,running=false,fpsFrames=0,fpsTimer=performance.now();
+
+// Calorie database for COCO classes (per typical serving)
+const FOOD_DB={
+  "banana":{cal:105,ar:"موزة",ico:"🍌"},
+  "apple":{cal:95,ar:"تفاحة",ico:"🍎"},
+  "orange":{cal:62,ar:"برتقالة",ico:"🍊"},
+  "sandwich":{cal:340,ar:"ساندويتش",ico:"🥪"},
+  "broccoli":{cal:55,ar:"بروكلي",ico:"🥦"},
+  "carrot":{cal:50,ar:"جزرة",ico:"🥕"},
+  "hot dog":{cal:290,ar:"هوت دوغ",ico:"🌭"},
+  "pizza":{cal:285,ar:"شريحة بيتزا",ico:"🍕"},
+  "donut":{cal:250,ar:"دونات",ico:"🍩"},
+  "cake":{cal:380,ar:"قطعة كيك",ico:"🍰"},
+  "bowl":{cal:0,ar:"وعاء",ico:"🥣"},
+  "cup":{cal:0,ar:"كوب",ico:"☕"},
+  "fork":{cal:0,ar:"شوكة",ico:"🍴"},
+  "spoon":{cal:0,ar:"ملعقة",ico:"🥄"},
+  "knife":{cal:0,ar:"سكين",ico:"🔪"},
+  "bottle":{cal:0,ar:"زجاجة",ico:"🍶"},
+  "wine glass":{cal:0,ar:"كأس",ico:"🍷"},
+  "dining table":{cal:0,ar:"طاولة طعام",ico:"🍽"}
+};
+
+async function loadModel(){
+  if(!ObjectDetector){stateEl.textContent="AI غير متاح";return false;}
+  try{
+    stateEl.textContent="تحميل النموذج…";
+    const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+    // EfficientDet-Lite0 — fast and accurate, detects 80 COCO classes including foods
+    detector=await ObjectDetector.createFromOptions(fs,{
+      baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite",delegate:"GPU"},
+      scoreThreshold:0.45,
+      maxResults:8,
+      runningMode:"VIDEO"
+    });
+    stateEl.textContent="✓ AI نشط · EfficientDet";
+    return true;
+  }catch(e){
+    console.warn("Object detector failed:",e);
+    stateEl.textContent="⚠ تعذّر تحميل AI";return false;
+  }
+}
+
+// Smoothed detection list — items must persist over multiple frames before being shown (rejects flickering false positives)
+const detHistory={};
+const PERSISTENCE=5; // require 5 frames within last 1s to accept
+
+function updatePanel(){
+  const now=performance.now();
+  const accepted={};
+  for(const [k,v] of Object.entries(detHistory)){
+    // remove old samples
+    detHistory[k]=v.filter(t=>now-t<1500);
+    if(detHistory[k].length>=PERSISTENCE){
+      accepted[k]=detHistory[k].length;
+    }
+  }
+  const keys=Object.keys(accepted).filter(k=>FOOD_DB[k]);
+  if(keys.length===0){
+    detEmpty.style.display="block";
+    detItems.innerHTML="";
+    detTotal.style.display="none";
+    detActions.style.display="none";
+    return;
+  }
+  detEmpty.style.display="none";
+  // Group: count + average confidence proxy (= persistence)
+  detItems.innerHTML="";
+  let totalCal=0;
+  for(const k of keys){
+    const food=FOOD_DB[k];
+    const count=Math.max(1,Math.floor(accepted[k]/PERSISTENCE));
+    const conf=Math.min(99,Math.round(accepted[k]/15*100));
+    totalCal+=food.cal*count;
+    const div=document.createElement("div");
+    div.className="detected-item";
+    div.innerHTML='<div class="ico">'+food.ico+'</div>'+
+      '<div class="info"><b>'+food.ar+(count>1?" × "+arNum(count):"")+'</b><span>'+(food.cal?arNum(food.cal*count)+" كالوري":"غير غذائي")+'</span></div>'+
+      '<div class="conf">'+arNum(conf)+'%</div>';
+    detItems.appendChild(div);
+  }
+  detCal.textContent=arNum(totalCal)+" كالوري";
+  detTotal.style.display=totalCal>0?"flex":"none";
+  detActions.style.display="flex";
+}
+
+function loop(){
+  if(running&&video.readyState>=2&&detector){
+    const now=performance.now();
+    try{
+      const r=detector.detectForVideo(video,now);
+      ctx.clearRect(0,0,overlay.width,overlay.height);
+      if(r.detections&&r.detections.length){
+        for(const d of r.detections){
+          const cat=d.categories[0];
+          const name=cat.categoryName.toLowerCase();
+          const food=FOOD_DB[name];
+          if(!food)continue; // ignore non-food classes
+          // Track persistence
+          if(!detHistory[name])detHistory[name]=[];
+          detHistory[name].push(now);
+          // Draw bounding box
+          const bb=d.boundingBox;
+          ctx.strokeStyle=food.cal>0?"#10B981":"#A78BFA";
+          ctx.lineWidth=3;
+          ctx.strokeRect(bb.originX,bb.originY,bb.width,bb.height);
+          ctx.fillStyle=food.cal>0?"rgba(16,185,129,.85)":"rgba(167,139,250,.85)";
+          const label=food.ico+" "+food.ar+" "+Math.round(cat.score*100)+"%";
+          ctx.font="600 14px 'IBM Plex Sans Arabic', sans-serif";
+          const w=ctx.measureText(label).width+12;
+          ctx.fillRect(bb.originX,bb.originY-22,w,22);
+          ctx.fillStyle="#fff";
+          ctx.fillText(label,bb.originX+6,bb.originY-6);
+        }
+      }
+      updatePanel();
+    }catch(e){console.error(e);}
+  }
+  fpsFrames++;
+  const tn=performance.now();
+  if(tn-fpsTimer>=1000){fpsEl.textContent=arNum(fpsFrames)+" FPS";fpsFrames=0;fpsTimer=tn;}
+  requestAnimationFrame(loop);
+}
+
+async function init(){
+  const ok=await loadModel();
+  if(ok){running=true;loop();}
+}
+window.addEventListener("chef:foodCamReady",init);
+if(window._foodCamReady)init();
+
+// Wire up scan actions — log to actual host API when available
+document.getElementById("logMealBtn").addEventListener("click",function(){
+  // Build snapshot of detected items
+  const items=[...document.querySelectorAll(".detected-item")].map(el=>({
+    label:el.querySelector(".info b").textContent,
+    cal:el.querySelector(".info span").textContent
+  }));
+  const totalCalText=document.getElementById("detCal").textContent;
+  if(window.SehhatyHostApi&&typeof window.SehhatyHostApi.logMeal==="function"){
+    window.SehhatyHostApi.logMeal({items,totalCal:totalCalText,timestamp:new Date().toISOString()});
+  }
+  // Local demo log
+  document.getElementById("logMealBtn").textContent="✓ تم الحفظ في صحتي";
+  setTimeout(()=>{document.getElementById("logMealBtn").textContent="💾 سجّل في صحتي";},2200);
+});
+document.getElementById("clearScanBtn").addEventListener("click",function(){
+  for(const k in detHistory)delete detHistory[k];
+  updatePanel();
+});
+</script>
+
 </body>
 </html>

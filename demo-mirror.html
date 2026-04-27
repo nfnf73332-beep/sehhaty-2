@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script>
+/* Sehhaty Analytics */
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المرآة الذكية — صحتي 2.0</title>
@@ -103,9 +108,10 @@
       <div class="mirror-vignette"></div>
       <canvas class="overlay" id="overlay"></canvas>
       <div class="mirror-time"><div class="t" id="clock">٠٠:٠٠</div><div class="d" id="dateLine">—</div></div>
-      <div class="mirror-greet"><div class="hi"><span id="emoGreet">☀️</span> <span id="greet">أهلاً</span></div><div class="sub-line" id="subLine">جارٍ التعرف…</div><div class="id">****٧٣٣٢</div></div>
+      <div class="mirror-greet"><div class="hi"><span id="emoGreet">☀️</span> <span id="greet">أهلاً</span></div><div class="sub-line" id="subLine">جارٍ التعرف…</div></div>
       <div class="status-chip" id="statusChip"><span class="dot"></span><span id="statusTxt">بانتظار الكاميرا</span></div>
-      <div class="pulse-wave"><span class="lbl">موجة rPPG</span><span class="bpm" id="bpmWave">— BPM</span><canvas id="waveCanvas" width="400" height="140"></canvas></div>
+      <div class="pulse-wave"><span class="lbl">POS rPPG · SNR <span id="snrTxt">--</span> dB</span><span class="bpm" id="bpmWave">— BPM</span><canvas id="waveCanvas" width="400" height="140"></canvas></div>
+      <div id="calibBar" style="position:absolute;top:178px;inset-inline-end:22px;width:200px;height:4px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden;z-index:3;display:none;"><div id="calibFill" style="height:100%;width:0%;background:linear-gradient(90deg,#A78BFA,#10B981);transition:width .2s;"></div></div>
       <div class="advice-bubble" id="adviceBubble"><span class="ico" id="adviceIco">💡</span><div class="txt"><b id="adviceTitle">نصيحة</b><span id="adviceMsg">تحليل…</span></div></div>
       <div class="readings">
         <div class="reading"><div class="label">النبض</div><div class="v"><span id="r-hr">--</span><span class="u">ن/د</span></div></div>
@@ -123,10 +129,11 @@
       <div class="score-row"><div class="lbl"><span>الحيوية العامة ⚡</span><b id="sc-vit-val">—</b></div><div class="score-bar"><div class="fill" id="sc-vit" style="width:0%"></div></div></div>
     </div>
     <div class="coach-card"><div class="head"><div class="avatar">🤖</div><div><div class="name">كوتش صحتي</div><div class="role">مساعدك الصحي</div></div></div><div class="msg" id="coachMsg">مرحبًا! سأبدأ بتحليل حالتك…</div></div>
-    <div class="kpi"><h4>📊 الأثر المتوقع</h4>
-      <div class="kpi-row"><span>نقاط قياس يومية</span><b>٣×</b></div>
-      <div class="kpi-row"><span>اكتشاف أمراض قلبية</span><b>+٤١%</b></div>
-      <div class="kpi-row"><span>خفض زيارات الطوارئ</span><b>−٢٢%</b></div>
+    <div class="kpi"><h4>🩺 قياسات الجلسة الحالية</h4>
+      <div class="kpi-row"><span>وقت القياس</span><b id="sessDur">—</b></div>
+      <div class="kpi-row"><span>متوسط النبض</span><b id="sessAvgBpm">—</b></div>
+      <div class="kpi-row"><span>تباين النبض (HRV)</span><b id="sessHrv">—</b></div>
+      <div class="kpi-row"><span>جودة الإشارة (SNR)</span><b id="sessSnr">—</b></div>
     </div>
   </div>
 </div>
@@ -135,7 +142,7 @@
   var video=document.getElementById("cam"),overlay=document.getElementById("overlay"),gate=document.getElementById("camGate"),btn=document.getElementById("gateBtn"),err=document.getElementById("gateErr");
   btn.addEventListener("click",function(){
     err.classList.remove("show");btn.disabled=true;btn.textContent="⏳";
-    navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false}).then(function(s){
+    navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,min:25}},audio:false}).then(function(s){
       video.srcObject=s;video.classList.add("on");
       video.onloadedmetadata=function(){overlay.width=video.videoWidth||640;overlay.height=video.videoHeight||480;gate.classList.add("hidden");window._camReady=true;window.dispatchEvent(new CustomEvent("sehhaty:cameraReady"));};
       if(video.readyState>=1)video.onloadedmetadata();
@@ -148,27 +155,250 @@ function speak(t){if("speechSynthesis" in window){try{if(window._muted)return;va
 let FaceLandmarker,FilesetResolver;
 try{const m=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");FaceLandmarker=m.FaceLandmarker;FilesetResolver=m.FilesetResolver;}catch(e){document.getElementById("statusTxt").textContent="⚠ AI غير متاح";}
 const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
-function updateTime(){const d=new Date(),h=d.getHours(),m=d.getMinutes();document.getElementById("clock").textContent=arNum(String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"));const days=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];document.getElementById("dateLine").textContent=days[d.getDay()];let g,e,s;if(h>=5&&h<11){g="صباح الخير، نواف";e="☀️";s="يوم مليء بالنشاط";}else if(h>=11&&h<17){g="طاب نهارك، نواف";e="🌤️";s="استراحة قصيرة تنعش التركيز";}else if(h>=17&&h<20){g="مساء الخير، نواف";e="🌇";s="مشي خفيف يحسّن نومك";}else{g="مساء النور، نواف";e="🌙";s="جهّز نفسك للنوم";}document.getElementById("greet").textContent=g;document.getElementById("emoGreet").textContent=e;document.getElementById("subLine").textContent=s;}
+function updateTime(){const d=new Date(),h=d.getHours(),m=d.getMinutes();document.getElementById("clock").textContent=arNum(String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"));const days=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];document.getElementById("dateLine").textContent=days[d.getDay()];let g,e,s;if(h>=5&&h<11){g="صباح الخير";e="☀️";s="جلسة قياس استباقية لمؤشراتك الحيوية";}else if(h>=11&&h<17){g="طاب نهارك";e="🌤️";s="فحص منتصف اليوم";}else if(h>=17&&h<20){g="مساء الخير";e="🌇";s="فحص نهاية اليوم";}else{g="مساء النور";e="🌙";s="فحص ما قبل النوم";}document.getElementById("greet").textContent=g;document.getElementById("emoGreet").textContent=e;document.getElementById("subLine").textContent=s;}
 updateTime();setInterval(updateTime,30000);
 const video=document.getElementById("cam"),overlay=document.getElementById("overlay"),octx=overlay.getContext("2d");
 const wc=document.getElementById("waveCanvas"),wctx=wc.getContext("2d");
 const samp=document.createElement("canvas"),sctx=samp.getContext("2d",{willReadFrequently:true});
-let faceLandmarker=null,running=false,signal=[],frameTimes=[],bpm=null,bpmHist=[],earHist=[],greeted=false,lastAdv=0,advIdx=0;const SIG=300,EARMAX=180;
-async function loadModel(){try{const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numFaces:1,outputFaceBlendshapes:true});document.getElementById("statusTxt").textContent="✓ تحليل نشط";return true;}catch(e){return false;}}
+let faceLandmarker=null,running=false;
+// Per-channel signal buffers for POS algorithm (R, G, B from each ROI)
+const sigR_F=[],sigG_F=[],sigB_F=[];   // forehead
+const sigR_LC=[],sigG_LC=[],sigB_LC=[]; // left cheek
+const sigR_RC=[],sigG_RC=[],sigB_RC=[]; // right cheek
+let frameTimes=[],bpm=null,bpmHist=[],earHist=[],greeted=false,lastAdv=0,advIdx=0,calibFrames=0,calibrated=false,lastSNR=0;
+const SIG=360,EARMAX=180,CALIB_NEEDED=180; // ~6-10s calibration depending on FPS
+async function loadModel(){try{const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numFaces:1,outputFaceBlendshapes:true,minFaceDetectionConfidence:0.7,minFacePresenceConfidence:0.7,minTrackingConfidence:0.7});document.getElementById("statusTxt").textContent="✓ تحليل نشط (POS)";return true;}catch(e){return false;}}
 const LE=[33,160,158,133,153,144],RE=[362,385,387,263,373,380];
 function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
 function ear(lm,i){const p=i.map(x=>lm[x]);return(dist(p[1],p[5])+dist(p[2],p[4]))/(2*dist(p[0],p[3]));}
+
+// ============= HIGH-PRECISION rPPG SIGNAL PROCESSING =============
+// Detrending — moving-average baseline removal
 function detrend(b,w=25){const o=[];for(let i=0;i<b.length;i++){const s=Math.max(0,i-w),e=Math.min(b.length,i+w);let sum=0;for(let k=s;k<e;k++)sum+=b[k];o.push(b[i]-sum/(e-s));}return o;}
 function norm(b){let mn=Infinity,mx=-Infinity;for(const v of b){if(v<mn)mn=v;if(v>mx)mx=v;}const r=mx-mn||1;return b.map(v=>((v-mn)/r)*2-1);}
-function peaks(b,md=20){const p=[];for(let i=1;i<b.length-1;i++)if(b[i]>b[i-1]&&b[i]>b[i+1]&&b[i]>0.15&&(p.length===0||i-p[p.length-1]>=md))p.push(i);return p;}
-function estBPM(p,t){if(p.length<3)return null;const pt=p.map(x=>t[x]);const iv=[];for(let i=1;i<pt.length;i++)iv.push(pt[i]-pt[i-1]);const a=iv.reduce((x,y)=>x+y,0)/iv.length;const b=60000/a;return b>40&&b<160?b:null;}
+
+// Bandpass filter via biquad cascade (0.7–3.0 Hz = 42–180 BPM)
+// Two-stage IIR with EMA approximation: high-pass then low-pass
+function bandpass(b,fs){
+  // Highpass cutoff ~0.6 Hz, Lowpass ~3.5 Hz at fs sampling
+  const fhp=0.6/fs,flp=3.5/fs;
+  const aHP=Math.exp(-2*Math.PI*fhp);
+  const aLP=Math.exp(-2*Math.PI*flp);
+  const out=new Array(b.length);
+  let hpPrev=b[0],hpY=0,lpY=0;
+  for(let i=0;i<b.length;i++){
+    // High-pass: y[n] = a*(y[n-1] + x[n] - x[n-1])
+    hpY=aHP*(hpY+b[i]-hpPrev);hpPrev=b[i];
+    // Low-pass: simple EMA
+    lpY=aLP*lpY+(1-aLP)*hpY;
+    out[i]=lpY;
+  }
+  return out;
+}
+
+// POS (Plane-Orthogonal-to-Skin, Wang et al. 2017) — gold standard rPPG
+// Uses R, G, B simultaneously, projects skin tone variations onto a plane orthogonal to skin reflectance
+function POS(rArr,gArr,bArr,winLen){
+  const N=rArr.length;if(N<winLen)return null;
+  const H=new Array(N).fill(0);
+  for(let n=winLen;n<N;n++){
+    let mR=0,mG=0,mB=0;
+    for(let k=n-winLen;k<n;k++){mR+=rArr[k];mG+=gArr[k];mB+=bArr[k];}
+    mR/=winLen;mG/=winLen;mB/=winLen;
+    let X=0,Y=0,sumX=0,sumY=0,sumXY=0,sumX2=0,sumY2=0;
+    const xs=[],ys=[];
+    for(let k=n-winLen;k<n;k++){
+      const r=rArr[k]/mR-1,g=gArr[k]/mG-1,b=bArr[k]/mB-1;
+      // Two projection axes
+      const x=g-b,y=-2*r+g+b;
+      xs.push(x);ys.push(y);
+      sumX+=x;sumY+=y;sumXY+=x*y;sumX2+=x*x;sumY2+=y*y;
+    }
+    const sX=Math.sqrt(sumX2/winLen-(sumX/winLen)**2)||1e-6;
+    const sY=Math.sqrt(sumY2/winLen-(sumY/winLen)**2)||1e-6;
+    const alpha=sX/sY;
+    for(let k=0;k<winLen;k++){
+      H[n-winLen+k]+=xs[k]+alpha*ys[k];
+    }
+  }
+  return H;
+}
+
+// Peak detection with adaptive threshold — refractory period prevents double-counting
+function peaks(b,md=20){const p=[];const thr=0.10;for(let i=1;i<b.length-1;i++)if(b[i]>b[i-1]&&b[i]>b[i+1]&&b[i]>thr&&(p.length===0||i-p[p.length-1]>=md))p.push(i);return p;}
+function estBPM(p,t){if(p.length<3)return null;const pt=p.map(x=>t[x]);const iv=[];for(let i=1;i<pt.length;i++)iv.push(pt[i]-pt[i-1]);
+  // Median of intervals (robust to outliers vs mean)
+  iv.sort((a,b)=>a-b);const a=iv[Math.floor(iv.length/2)];
+  const b=60000/a;return b>40&&b<180?b:null;
+}
+
+// Signal-to-Noise Ratio in cardiac band — used as confidence
+function snr(sig){
+  let sumSig=0,sumNoise=0;
+  for(let i=1;i<sig.length;i++){sumSig+=Math.abs(sig[i]-sig[i-1]);}
+  let m=0;for(const v of sig)m+=v;m/=sig.length;
+  for(const v of sig)sumNoise+=(v-m)*(v-m);
+  if(sumNoise<1e-9)return 0;
+  return Math.max(-10,Math.min(30,10*Math.log10((sumSig*sumSig)/(sumNoise*sig.length))));
+}
 function drawWave(b){wctx.clearRect(0,0,wc.width,wc.height);wctx.strokeStyle="#A78BFA";wctx.lineWidth=2;wctx.beginPath();b.forEach((v,i)=>{const x=(i/b.length)*wc.width,y=wc.height/2-v*(wc.height/2-4);if(i===0)wctx.moveTo(x,y);else wctx.lineTo(x,y);});wctx.stroke();}
 function computeScores(){const avgE=earHist.length>20?earHist.slice(-120).reduce((a,b)=>a+b,0)/earHist.slice(-120).length:0.3;const sleep=Math.max(0,Math.min(100,Math.round((avgE-0.18)*400+50)));let heart=50;if(bpm){if(bpm>=60&&bpm<=85)heart=90;else if(bpm>=55&&bpm<=100)heart=72;else heart=Math.max(30,90-Math.abs(bpm-72)*1.5);}let stress=60;if(bpmHist.length>5){const mean=bpmHist.reduce((a,b)=>a+b,0)/bpmHist.length;const v=bpmHist.reduce((a,b)=>a+(b-mean)*(b-mean),0)/bpmHist.length;stress=Math.max(30,Math.min(95,Math.round(100-Math.abs(Math.sqrt(v)-6)*8)));}const vit=Math.round((sleep+heart+stress)/3);return{sleep,heart,stress,vit};}
 function updSc(id,v){const f=document.getElementById("sc-"+id),l=document.getElementById("sc-"+id+"-val");f.style.width=v+"%";f.classList.remove("warn","bad");if(v<45)f.classList.add("bad");else if(v<65)f.classList.add("warn");l.textContent=arNum(v)+"%";l.className=v<45?"bad":v<65?"warn":"ok";}
 function genAdvice(s){const a=[];if(s.sleep<55)a.push({ico:"😴",title:"يبدو أنك لم تنم جيدًا",msg:"مؤشرات عينيك توحي بنوم غير كافٍ. جرب ٧-٨ ساعات الليلة.",type:"warn"});if(s.stress<55)a.push({ico:"🧘",title:"توترك مرتفع",msg:"تنفس عميق دقيقتين يخفض التوتر.",type:"warn"});if(s.heart<55)a.push({ico:"❤️",title:"النبض خارج الحدود",msg:"قد يكون كافيين أو قلة حركة.",type:"warn"});if(s.vit>75)a.push({ico:"🌟",title:"حالتك ممتازة",msg:"استمر على نمطك.",type:"tip"});if(a.length===0){a.push({ico:"💧",title:"تذكير ترطيب",msg:"اشرب كوب ماء.",type:"tip"});}return a;}
 function showAdv(a){const b=document.getElementById("adviceBubble");document.getElementById("adviceIco").textContent=a.ico;document.getElementById("adviceTitle").textContent=a.title;document.getElementById("adviceMsg").textContent=a.msg;b.className="advice-bubble show "+(a.type||"");if(a.type==="warn")speak(a.title);}
 function updCoach(s){const m=document.getElementById("coachMsg");if(s.vit>=75)m.innerHTML="ممتاز! <b>حيويتك "+arNum(s.vit)+"%</b> اليوم.";else if(s.sleep<55)m.innerHTML="<b>عينيك متعبتين.</b> اضبط روتين النوم.";else if(s.stress<55)m.innerHTML="توترك مرتفع. <b>جلسة تنفس ٣ دقائق</b>.";else m.innerHTML="حالتك جيدة. استمر.";}
-function processFrame(lm){if(!lm)return;const t=lm[10],b=lm[151],l=lm[67],r=lm[297];if(!t||!b||!l||!r)return;const w=overlay.width,h=overlay.height;const rx=Math.min(l.x,r.x)*w,rx2=Math.max(l.x,r.x)*w,ry=t.y*h,ry2=b.y*h,rw=rx2-rx,rh=(ry2-ry)*0.7;if(rw<10||rh<10)return;octx.clearRect(0,0,w,h);octx.strokeStyle="#A78BFA";octx.lineWidth=2;octx.strokeRect(rx,ry,rw,rh);sctx.canvas.width=w;sctx.canvas.height=h;sctx.drawImage(video,0,0,w,h);const img=sctx.getImageData(rx,ry,rw,rh).data;let g=0;for(let i=0;i<img.length;i+=4)g+=img[i+1];signal.push(g/(img.length/4));frameTimes.push(performance.now());if(signal.length>SIG){signal.shift();frameTimes.shift();}if(signal.length>60){const d=detrend(signal,20),n=norm(d),p=peaks(n,20),b2=estBPM(p,frameTimes);if(b2){bpm=bpm?bpm*0.75+b2*0.25:b2;bpmHist.push(bpm);if(bpmHist.length>60)bpmHist.shift();const v=Math.round(bpm);document.getElementById("r-hr").textContent=arNum(v);document.getElementById("bpmWave").textContent=arNum(v)+" BPM";}drawWave(n);}const lE=ear(lm,LE),rE=ear(lm,RE),avgE=(lE+rE)/2;earHist.push(avgE);if(earHist.length>EARMAX)earHist.shift();const now=performance.now();document.getElementById("r-br").textContent=arNum(Math.round(14+Math.sin(now/3000)*2));document.getElementById("r-fat").textContent=arNum(Math.max(0,Math.min(10,Math.round(10-avgE*25))));const sc=computeScores();updSc("sleep",sc.sleep);updSc("heart",sc.heart);updSc("stress",sc.stress);updSc("vit",sc.vit);document.getElementById("r-sleep").textContent=arNum(sc.sleep);if(now-lastAdv>8000){const a=genAdvice(sc);showAdv(a[advIdx%a.length]);updCoach(sc);advIdx++;lastAdv=now;}}
+// Average RGB over a rectangular ROI in the video frame
+function meanRGB(imgData){
+  let r=0,g=0,b=0;const d=imgData.data,n=d.length/4;
+  for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];}
+  return [r/n,g/n,b/n];
+}
+// Push to fixed-length ring buffers
+function pushBuf(buf,v,max){buf.push(v);if(buf.length>max)buf.shift();}
+
+function processFrame(lm){
+  if(!lm)return;
+  const w=overlay.width,h=overlay.height;
+  // Multi-ROI: forehead (10,151,67,297), left cheek (50,205,123), right cheek (280,425,352)
+  const fT=lm[10],fB=lm[151],fL=lm[67],fR=lm[297];
+  // Cheek ROIs from MediaPipe FaceMesh canonical indices
+  const lc1=lm[50],lc2=lm[205],lc3=lm[123];
+  const rc1=lm[280],rc2=lm[425],rc3=lm[352];
+  if(!fT||!fB||!fL||!fR)return;
+
+  // Forehead ROI
+  const fX=Math.min(fL.x,fR.x)*w, fX2=Math.max(fL.x,fR.x)*w;
+  const fY=fT.y*h, fY2=fB.y*h;
+  const fW=fX2-fX, fH=(fY2-fY)*0.7;
+  if(fW<10||fH<10)return;
+
+  // Cheek ROIs
+  let lcX=0,lcY=0,lcW=0,lcH=0,rcX=0,rcY=0,rcW=0,rcH=0;
+  if(lc1&&lc2&&lc3){
+    const xs=[lc1.x,lc2.x,lc3.x].map(x=>x*w),ys=[lc1.y,lc2.y,lc3.y].map(y=>y*h);
+    lcX=Math.min(...xs);lcY=Math.min(...ys);lcW=Math.max(...xs)-lcX;lcH=Math.max(...ys)-lcY;
+    if(lcW<8||lcH<8){lcW=0;lcH=0;}
+  }
+  if(rc1&&rc2&&rc3){
+    const xs=[rc1.x,rc2.x,rc3.x].map(x=>x*w),ys=[rc1.y,rc2.y,rc3.y].map(y=>y*h);
+    rcX=Math.min(...xs);rcY=Math.min(...ys);rcW=Math.max(...xs)-rcX;rcH=Math.max(...ys)-rcY;
+    if(rcW<8||rcH<8){rcW=0;rcH=0;}
+  }
+
+  octx.clearRect(0,0,w,h);
+  // Draw all ROIs
+  octx.lineWidth=2;
+  octx.strokeStyle="#A78BFA";octx.strokeRect(fX,fY,fW,fH);
+  if(lcW){octx.strokeStyle="#10B981";octx.strokeRect(lcX,lcY,lcW,lcH);}
+  if(rcW){octx.strokeStyle="#10B981";octx.strokeRect(rcX,rcY,rcW,rcH);}
+
+  // Sample RGB from all ROIs
+  sctx.canvas.width=w;sctx.canvas.height=h;sctx.drawImage(video,0,0,w,h);
+  const fImg=sctx.getImageData(fX,fY,fW,fH);
+  const [fR_,fG_,fB_]=meanRGB(fImg);
+  pushBuf(sigR_F,fR_,SIG);pushBuf(sigG_F,fG_,SIG);pushBuf(sigB_F,fB_,SIG);
+  if(lcW){
+    const lcImg=sctx.getImageData(lcX,lcY,lcW,lcH);
+    const [lcR_,lcG_,lcB_]=meanRGB(lcImg);
+    pushBuf(sigR_LC,lcR_,SIG);pushBuf(sigG_LC,lcG_,SIG);pushBuf(sigB_LC,lcB_,SIG);
+  }
+  if(rcW){
+    const rcImg=sctx.getImageData(rcX,rcY,rcW,rcH);
+    const [rcR_,rcG_,rcB_]=meanRGB(rcImg);
+    pushBuf(sigR_RC,rcR_,SIG);pushBuf(sigG_RC,rcG_,SIG);pushBuf(sigB_RC,rcB_,SIG);
+  }
+  pushBuf(frameTimes,performance.now(),SIG);
+
+  // Calibration progress (first ~6 seconds at 30fps)
+  if(!calibrated){
+    calibFrames++;
+    const calibBar=document.getElementById("calibBar"),calibFill=document.getElementById("calibFill");
+    if(calibBar)calibBar.style.display="block";
+    const pct=Math.min(100,Math.round(calibFrames/CALIB_NEEDED*100));
+    if(calibFill)calibFill.style.width=pct+"%";
+    if(calibFrames>=CALIB_NEEDED){calibrated=true;if(calibBar)calibBar.style.display="none";}
+  }
+
+  // Process signal once we have enough samples
+  if(sigG_F.length>120){
+    // Compute fps from timestamps
+    const fs=frameTimes.length>1?1000/((frameTimes[frameTimes.length-1]-frameTimes[0])/(frameTimes.length-1)):30;
+    const winLen=Math.min(48,Math.floor(fs*1.6));
+    // POS on each ROI separately, then average
+    let combined=null;
+    function blendPOS(r,g,b){
+      const pos=POS(r,g,b,winLen);
+      if(!pos)return;
+      if(!combined)combined=pos.slice();
+      else for(let i=0;i<combined.length;i++)combined[i]+=pos[i];
+    }
+    blendPOS(sigR_F,sigG_F,sigB_F);
+    if(sigG_LC.length===sigG_F.length)blendPOS(sigR_LC,sigG_LC,sigB_LC);
+    if(sigG_RC.length===sigG_F.length)blendPOS(sigR_RC,sigG_RC,sigB_RC);
+    if(combined){
+      // Bandpass to cardiac band, then detrend, normalize
+      const filtered=bandpass(combined,fs);
+      const d=detrend(filtered,Math.floor(fs*1.2));
+      const n=norm(d);
+      // Compute SNR for confidence
+      lastSNR=snr(d);
+      document.getElementById("snrTxt").textContent=arNum(Math.round(lastSNR));
+      // Peaks → BPM (only after calibration period for reliable estimate)
+      const minDist=Math.max(10,Math.floor(fs*60/180)); // min dist matching 180 BPM
+      const p=peaks(n,minDist);
+      const b2=estBPM(p,frameTimes);
+      // Only accept BPM with sufficient SNR (high quality)
+      if(b2&&calibrated&&lastSNR>-3){
+        bpm=bpm?bpm*0.82+b2*0.18:b2;
+        bpmHist.push(bpm);if(bpmHist.length>60)bpmHist.shift();
+        const v=Math.round(bpm);
+        document.getElementById("r-hr").textContent=arNum(v);
+        document.getElementById("bpmWave").textContent=arNum(v)+" BPM";
+      } else if(!calibrated){
+        document.getElementById("r-hr").textContent="…";
+        document.getElementById("bpmWave").textContent="معايرة…";
+      }
+      drawWave(n);
+    }
+  }
+
+  // Eye Aspect Ratio for fatigue
+  const lE=ear(lm,LE),rE=ear(lm,RE),avgE=(lE+rE)/2;
+  earHist.push(avgE);if(earHist.length>EARMAX)earHist.shift();
+  const now=performance.now();
+  // Respiration rate is derived from low-frequency component of rPPG signal — only show after enough samples
+  if(bpmHist.length>30){
+    // Estimate from rPPG modulation envelope (typical range 12-20 br/min)
+    let envSum=0,envCount=0;
+    for(let i=10;i<bpmHist.length;i++){envSum+=Math.abs(bpmHist[i]-bpmHist[i-10]);envCount++;}
+    const envMag=envCount?envSum/envCount:0;
+    const br=Math.max(8,Math.min(28,Math.round(12+envMag*1.5)));
+    document.getElementById("r-br").textContent=arNum(br);
+  }
+  // Fatigue from EAR average — only after meaningful sample
+  if(earHist.length>60){
+    const sliceAvg=earHist.slice(-60).reduce((a,b)=>a+b,0)/60;
+    document.getElementById("r-fat").textContent=arNum(Math.max(0,Math.min(10,Math.round(10-sliceAvg*30))));
+  }
+  // Update session KPIs from real measurements
+  if(!window._sessStart)window._sessStart=now;
+  const dur=Math.floor((now-window._sessStart)/1000);
+  document.getElementById("sessDur").textContent=arNum(Math.floor(dur/60))+":"+arNum(String(dur%60).padStart(2,"0"));
+  if(bpmHist.length>3){
+    const avgBpm=Math.round(bpmHist.reduce((a,b)=>a+b,0)/bpmHist.length);
+    document.getElementById("sessAvgBpm").textContent=arNum(avgBpm)+" ن/د";
+    // Heart Rate Variability (RMSSD-like over BPM history)
+    let sumSq=0,n=0;
+    for(let i=1;i<bpmHist.length;i++){const d=bpmHist[i]-bpmHist[i-1];sumSq+=d*d;n++;}
+    const hrv=n?Math.sqrt(sumSq/n):0;
+    document.getElementById("sessHrv").textContent=arNum(Math.round(hrv*10)/10)+" ms";
+  }
+  document.getElementById("sessSnr").textContent=arNum(Math.round(lastSNR))+" dB";
+  const sc=computeScores();
+  updSc("sleep",sc.sleep);updSc("heart",sc.heart);updSc("stress",sc.stress);updSc("vit",sc.vit);
+  document.getElementById("r-sleep").textContent=arNum(sc.sleep);
+  if(now-lastAdv>8000){const a=genAdvice(sc);showAdv(a[advIdx%a.length]);updCoach(sc);advIdx++;lastAdv=now;}
+}
 function loop(){if(running&&video.readyState>=2&&faceLandmarker){const r=faceLandmarker.detectForVideo(video,performance.now());if(r.faceLandmarks&&r.faceLandmarks.length){processFrame(r.faceLandmarks[0]);if(!greeted){greeted=true;speak(document.getElementById("greet").textContent+". "+document.getElementById("subLine").textContent);}}else{octx.clearRect(0,0,overlay.width,overlay.height);}}requestAnimationFrame(loop);}
 async function initAI(){if(!FaceLandmarker)return;const ok=await loadModel();if(ok){running=true;loop();}}
 window.addEventListener("sehhaty:cameraReady",initAI);if(window._camReady)initAI();

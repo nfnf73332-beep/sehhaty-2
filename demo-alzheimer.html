@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script>
+/* Sehhaty Analytics */
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الفحص الاستباقي للزهايمر — صحتي 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#4F46E5;--sky-dark:#312E81;--sky-light:#EEF2FF;--sky-accent:#A78BFA;
+    --ink:#0E1E2E;--muted:#5C6F82;--bg:#F8FAFC;
+    --ok:#10B981;--warn:#E9B44C;--danger:#D16B5C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+  body{background:linear-gradient(180deg,#F8FAFC 0%,#EDE9FE 100%);color:var(--ink);min-height:100vh;}
+  .topbar{background:linear-gradient(135deg,#4338CA,#7C3AED);color:#fff;padding:14px 0;}
+  .container{max-width:1100px;margin:0 auto;padding:0 24px;}
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+  .brand-mark{width:40px;height:40px;background:#fff;border-radius:12px;display:grid;place-items:center;color:var(--sky-dark);font-weight:800;}
+  .back{color:#fff;text-decoration:none;font-size:14px;opacity:.9;}
+
+  .page-head{padding:30px 0 14px;}
+  .eyebrow{display:inline-block;background:#FCE7F3;color:#9D174D;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:10px;}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.5px;}
+  .sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:760px;line-height:1.8;}
+
+  .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;margin:14px 0 60px;align-items:start;}
+
+  /* Stage container */
+  .stage{background:#fff;border:1px solid #E0E7FF;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px -30px rgba(49,46,129,.2);}
+  .stage-head{background:linear-gradient(135deg,#312E81,#7C3AED);color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;}
+  .stage-head .title{font-size:18px;font-weight:700;}
+  .stage-head .sub{color:rgba(255,255,255,.78);font-size:13px;margin-top:3px;}
+  .progress-pills{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid #E0E7FF;flex-wrap:wrap;}
+  .pill{flex:1;min-width:60px;height:6px;background:#E0E7FF;border-radius:99px;position:relative;overflow:hidden;}
+  .pill.active{background:linear-gradient(90deg,#7C3AED,#A78BFA);}
+  .pill.done{background:#10B981;}
+
+  .body{padding:30px 28px;min-height:380px;}
+
+  .welcome{text-align:center;padding:20px 0;}
+  .welcome h2{font-size:24px;color:var(--sky-dark);margin-bottom:10px;}
+  .welcome p{color:var(--muted);max-width:540px;margin:0 auto 20px;line-height:1.85;font-size:14px;}
+  .welcome .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:560px;margin:18px auto;}
+  .info-card{background:var(--sky-light);border-radius:12px;padding:14px;text-align:center;}
+  .info-card .ico{font-size:24px;margin-bottom:4px;}
+  .info-card .k{font-size:11px;color:var(--muted);}
+  .info-card .v{font-size:14px;font-weight:700;color:var(--sky-dark);margin-top:2px;}
+
+  .form-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0;}
+  .form-row label{font-size:13px;display:flex;flex-direction:column;gap:4px;color:var(--muted);}
+  .form-row input,.form-row select{padding:10px 14px;border:1px solid #E0E7FF;border-radius:10px;font-family:inherit;font-size:14px;min-width:140px;}
+
+  .btn{background:linear-gradient(135deg,#4338CA,#7C3AED);color:#fff;border:none;padding:13px 32px;border-radius:12px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 12px 28px -10px rgba(124,58,237,.5);transition:transform .15s;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn.secondary{background:#fff;color:var(--sky-dark);border:2px solid #E0E7FF;box-shadow:none;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* Test-specific styles */
+  .test-prompt{text-align:center;padding:6px 0 18px;}
+  .test-prompt h3{font-size:20px;color:var(--sky-dark);margin-bottom:8px;}
+  .test-prompt p{font-size:14px;color:var(--muted);max-width:560px;margin:0 auto;line-height:1.8;}
+  .test-timer{display:inline-block;background:var(--sky-light);color:var(--sky-dark);padding:6px 16px;border-radius:99px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:10px;}
+
+  /* Pattern separation */
+  .ps-image-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:520px;margin:14px auto;}
+  .ps-image{aspect-ratio:1;background:linear-gradient(135deg,#EDE9FE,#DDD6FE);border:2px solid #E0E7FF;border-radius:14px;display:grid;place-items:center;font-size:42px;cursor:pointer;transition:all .15s;}
+  .ps-image:hover{border-color:var(--sky);transform:scale(1.03);}
+  .ps-image.shown{background:linear-gradient(135deg,#A78BFA,#7C3AED);}
+  .ps-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:520px;margin:14px auto;}
+  .ps-choice button{background:#fff;border:2px solid #E0E7FF;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;cursor:pointer;transition:all .15s;}
+  .ps-choice button:hover{border-color:var(--sky);}
+  .ps-choice button.selected{border-color:var(--sky);background:var(--sky-light);}
+
+  /* Word recall */
+  .recall-word-display{font-size:64px;font-weight:800;color:var(--sky-dark);text-align:center;height:140px;display:grid;place-items:center;text-shadow:0 4px 18px rgba(124,58,237,.15);}
+  .recall-input-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0;max-width:520px;margin-inline:auto;}
+  .recall-input-row input{padding:10px 14px;border:1px solid #E0E7FF;border-radius:10px;font-family:inherit;font-size:15px;min-width:130px;text-align:center;}
+  .recall-collected{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0;}
+  .recall-chip{background:var(--sky-light);color:var(--sky-dark);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:600;}
+
+  /* Verbal fluency */
+  .vf-area{max-width:560px;margin:0 auto;}
+  .vf-input{display:flex;gap:8px;}
+  .vf-input input{flex:1;padding:12px 16px;border:1px solid #E0E7FF;border-radius:10px;font-family:inherit;font-size:15px;}
+  .vf-input button{background:var(--sky);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;}
+  .vf-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;min-height:120px;padding:14px;background:var(--sky-light);border-radius:14px;}
+  .vf-item{background:#fff;color:var(--sky-dark);padding:6px 12px;border-radius:99px;font-size:13px;border:1px solid #E0E7FF;font-weight:600;}
+  .vf-item.dup{background:#FEF3C7;color:#92400E;border-color:#FBBF24;}
+  .vf-counter{text-align:center;font-size:14px;color:var(--muted);margin-top:8px;}
+
+  /* Trail B */
+  .trailb-wrap{position:relative;width:100%;max-width:560px;aspect-ratio:1.05/1;margin:6px auto;background:#fff;border:1px solid #E0E7FF;border-radius:18px;}
+  .trailb-node{position:absolute;width:48px;height:48px;border-radius:50%;background:#fff;color:var(--sky-dark);display:grid;place-items:center;font-weight:800;cursor:pointer;transform:translate(-50%,-50%);border:3px solid #E0E7FF;font-size:16px;transition:all .15s;}
+  .trailb-node:hover{transform:translate(-50%,-50%) scale(1.06);}
+  .trailb-node.done{background:#10B981;color:#fff;border-color:#10B981;}
+  .trailb-node.next{border-color:#FBBF24;box-shadow:0 0 22px rgba(251,191,36,.5);}
+  .trailb-node.wrong{background:#DC2626;color:#fff;border-color:#DC2626;}
+  .trailb-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+  /* Clock drawing */
+  .clock-canvas-wrap{position:relative;width:380px;height:380px;margin:6px auto;border-radius:50%;background:#fff;border:2px solid #E0E7FF;overflow:hidden;cursor:crosshair;}
+  .clock-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .clock-toolbar{display:flex;gap:8px;justify-content:center;margin-top:10px;}
+  .clock-toolbar button{background:#fff;border:1px solid #E0E7FF;color:var(--sky-dark);padding:8px 16px;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;}
+
+  /* Risk report */
+  .risk-card{background:linear-gradient(135deg,#312E81,#7C3AED);color:#fff;border-radius:20px;padding:24px;margin-top:6px;}
+  .risk-card .score-big{font-size:72px;font-weight:800;text-align:center;line-height:1;background:linear-gradient(135deg,#FCD34D,#34D399);-webkit-background-clip:text;color:transparent;}
+  .risk-card .score-label{text-align:center;font-size:18px;font-weight:700;margin-top:10px;}
+  .risk-card .score-sub{text-align:center;font-size:13px;opacity:.85;margin-top:4px;}
+  .risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px;}
+  .risk-item{background:rgba(255,255,255,.1);border-radius:12px;padding:12px;text-align:center;}
+  .risk-item .k{font-size:11px;opacity:.75;}
+  .risk-item .v{font-size:18px;font-weight:700;margin-top:3px;color:#FCD34D;}
+  .risk-item .v.ok{color:#34D399;}
+  .risk-item .v.warn{color:#FCD34D;}
+  .risk-item .v.danger{color:#FCA5A5;}
+  .risk-meaning{background:#fff;border-radius:14px;padding:18px;margin-top:14px;line-height:1.85;font-size:13.5px;color:var(--ink);}
+  .risk-meaning b{color:var(--sky-dark);}
+  .risk-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+
+  /* Side */
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
+  .side-card{background:#fff;border:1px solid #E0E7FF;border-radius:16px;padding:18px;}
+  .side-card h3{font-size:14px;color:var(--sky-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .side-card .row{font-size:13px;line-height:1.85;color:var(--muted);}
+  .side-card .row b{color:var(--ink);}
+  .why-card{background:linear-gradient(135deg,#FFF8E6,#FEF3C7);border:1px solid #F7D774;border-radius:16px;padding:16px 18px;}
+  .why-card h3{color:#8A5A00;font-size:14px;margin-bottom:6px;}
+  .why-card p{font-size:12.5px;color:#6B4C00;line-height:1.7;}
+  .tech-card{background:linear-gradient(135deg,#0F0C29,#1E1B4B);color:#E9F3EE;border-radius:16px;padding:18px;}
+  .tech-card h3{color:#fff;font-size:14px;margin-bottom:10px;}
+  .tech-row{background:rgba(255,255,255,.07);padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.7;margin-bottom:8px;}
+  .tech-row b{display:block;color:#C4B5FD;font-size:11px;margin-bottom:2px;}
+
+  @media(max-width:960px){.layout{grid-template-columns:1fr;}.side{position:static;}.ps-image-grid{grid-template-columns:repeat(3,1fr);}.clock-canvas-wrap{width:300px;height:300px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand"><div class="brand-mark">ص</div><div style="font-size:14px;">صحتي 2.0 — الفحص الاستباقي للزهايمر</div></div>
+    <a href="index.html" class="back">→ العودة</a>
+  </div>
+</div>
+
+<div class="container page-head">
+  <span class="eyebrow">منتج جديد · صحة دماغية وقائية</span>
+  <h1>🧠 الفحص الاستباقي للزهايمر <span style="color:#7C3AED;">— ٧ دقائق تكفي</span></h1>
+  <p class="sub">جلسة فحص رقمية مبنية على ٦ اختبارات معتمدة سريريًا (Pattern Separation، Verbal Fluency، Delayed Recall، Trail Making B، Digital Clock، Sequence Span). تنتج درجة خطر مع توصية إحالة عند الحاجة.</p>
+</div>
+
+<div class="container layout">
+  <div>
+    <div class="stage">
+      <div class="stage-head">
+        <div>
+          <div class="title" id="phaseTitle">جلسة الفحص</div>
+          <div class="sub" id="phaseSub">جاهز للبدء</div>
+        </div>
+        <div class="test-timer" id="phaseTimer" style="display:none;">٠٠:٠٠</div>
+      </div>
+
+      <div class="progress-pills" id="pills">
+        <div class="pill" data-step="0"></div>
+        <div class="pill" data-step="1"></div>
+        <div class="pill" data-step="2"></div>
+        <div class="pill" data-step="3"></div>
+        <div class="pill" data-step="4"></div>
+        <div class="pill" data-step="5"></div>
+        <div class="pill" data-step="6"></div>
+        <div class="pill" data-step="7"></div>
+      </div>
+
+      <div class="body" id="body"></div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="side-card">
+      <h3>🩺 ما الذي يقيسه هذا الفحص؟</h3>
+      <div class="row">
+        فحص استباقي مبكّر (٥-١٥ سنة قبل الأعراض) يقيّم: <b>الذاكرة العاملة</b>، <b>التمييز النمطي للحُصين</b>، <b>الطلاقة اللفظية</b>، <b>المرونة التنفيذية</b>، و<b>التخطيط البصري-الحركي</b>.
+      </div>
+    </div>
+    <div class="why-card">
+      <h3>💡 لماذا الكشف المبكّر؟</h3>
+      <p>التدخل المبكر (تغيير نمط الحياة + علاج موجَّه) يبطئ تطوّر الزهايمر بنسبة <b>٤٠-٦٠%</b> حسب دراسات FINGER 2015. التغيرات في الحُصين تبدأ <b>قبل ١٥ سنة</b> من الأعراض السريرية.</p>
+    </div>
+    <div class="tech-card">
+      <h3>🔬 الأساس العلمي</h3>
+      <div class="tech-row"><b>Pattern Separation (MST)</b>Stark et al. 2013 — تختلّ وظائف الحُصين قبل سنوات من الأعراض</div>
+      <div class="tech-row"><b>Verbal Fluency</b>Monsch et al. 1992 — انخفاض الطلاقة اللفظية مؤشر مبكر للتدهور</div>
+      <div class="tech-row"><b>Delayed Recall</b>RAVLT — اختبار ذهبي للاسترجاع التلقائي (Lezak)</div>
+      <div class="tech-row"><b>Trail Making B</b>Reitan 1958 — يكشف ضعف المرونة المعرفية (Set-shifting)</div>
+      <div class="tech-row"><b>Clock Drawing</b>Sunderland 1989 — يقيس التخطيط البصري والإدراك المكاني</div>
+      <div class="tech-row"><b>Sequence Span</b>Wechsler — مدى الذاكرة العاملة الفورية</div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const $=id=>document.getElementById(id);
+const body=$("body"),phaseTitle=$("phaseTitle"),phaseSub=$("phaseSub"),phaseTimer=$("phaseTimer");
+
+const phases=[
+  {key:"welcome",title:"المرحلة ١ من ٧ — التحضير"},
+  {key:"recall_encode",title:"المرحلة ٢ من ٧ — حفظ الكلمات"},
+  {key:"pattern",title:"المرحلة ٣ من ٧ — Pattern Separation"},
+  {key:"fluency",title:"المرحلة ٤ من ٧ — الطلاقة اللفظية"},
+  {key:"trailb",title:"المرحلة ٥ من ٧ — Trail Making B"},
+  {key:"clock",title:"المرحلة ٦ من ٧ — رسم الساعة"},
+  {key:"recall_retrieve",title:"المرحلة ٧ من ٧ — استرجاع الكلمات"},
+  {key:"report",title:"النتيجة"}
+];
+let currentPhase=0;
+const session={
+  age:null,sex:null,family:false,
+  startTime:null,
+  recallWords:["شجرة","قمر","ساعة","وردة","قطة"],
+  recallEncoded:false,
+  recallRetrieved:[],
+  patternHits:0,patternFalseAlarms:0,patternMisses:0,
+  fluencyWords:new Set(),
+  trailbTimeMs:null,trailbErrors:0,
+  clockScore:null,clockData:null,
+  scores:{}
+};
+
+function highlightPills(){
+  document.querySelectorAll(".pill").forEach((p,i)=>{
+    p.classList.remove("active","done");
+    if(i<currentPhase)p.classList.add("done");
+    else if(i===currentPhase)p.classList.add("active");
+  });
+}
+function setPhase(i){
+  currentPhase=i;highlightPills();
+  phaseTitle.textContent=phases[i].title;
+  phaseSub.textContent=phases[i].sub||"";
+  phaseTimer.style.display="none";
+  body.innerHTML="";
+  ({welcome:renderWelcome,
+    recall_encode:renderRecallEncode,
+    pattern:renderPatternSeparation,
+    fluency:renderVerbalFluency,
+    trailb:renderTrailB,
+    clock:renderClockDraw,
+    recall_retrieve:renderRecallRetrieve,
+    report:renderReport
+  })[phases[i].key]();
+}
+function startTimer(secs,onEnd){
+  phaseTimer.style.display="inline-block";
+  let r=secs;phaseTimer.textContent=arNum(String(Math.floor(r/60)).padStart(2,"0")+":"+String(r%60).padStart(2,"0"));
+  const it=setInterval(()=>{r--;phaseTimer.textContent=arNum(String(Math.floor(r/60)).padStart(2,"0")+":"+String(r%60).padStart(2,"0"));if(r<=0){clearInterval(it);onEnd&&onEnd();}},1000);
+  return ()=>clearInterval(it);
+}
+
+// ============== PHASE 1: Welcome + demographics ==============
+function renderWelcome(){
+  body.innerHTML=`
+    <div class="welcome">
+      <h2>مرحبًا بك في الفحص الاستباقي</h2>
+      <p>هذا فحص خصوصي تمامًا. كل البيانات تُعالج على جهازك ولا تُرسل إلا إذا وافقت على إضافتها لملفك الصحي. المدة الإجمالية حوالي <b>٧ دقائق</b>. اختر مكانًا هادئًا وتأكد من راحتك قبل البدء.</p>
+      <div class="info-grid">
+        <div class="info-card"><div class="ico">⏱</div><div class="k">المدة</div><div class="v">٧ دقائق</div></div>
+        <div class="info-card"><div class="ico">🔒</div><div class="k">الخصوصية</div><div class="v">معالجة محلية</div></div>
+        <div class="info-card"><div class="ico">📋</div><div class="k">الاختبارات</div><div class="v">٦ معتمدة</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);">للحصول على دقة قصوى، نحتاج بعض المعلومات:</p>
+      <div class="form-row">
+        <label>العمر<input type="number" id="dAge" min="40" max="100" placeholder="مثال: ٥٨"></label>
+        <label>الجنس<select id="dSex"><option value="">اختر…</option><option value="m">ذكر</option><option value="f">أنثى</option></select></label>
+        <label>تاريخ عائلي للزهايمر؟<select id="dFam"><option value="">اختر…</option><option value="0">لا</option><option value="1">نعم</option></select></label>
+      </div>
+      <button class="btn" id="startBtn">ابدأ الجلسة ▶</button>
+    </div>
+  `;
+  $("startBtn").addEventListener("click",()=>{
+    const age=parseInt($("dAge").value,10);
+    const sex=$("dSex").value;
+    const fam=$("dFam").value;
+    if(!age||age<18||age>120){alert("الرجاء إدخال عمر صحيح.");return;}
+    if(!sex){alert("الرجاء اختيار الجنس.");return;}
+    if(fam===""){alert("الرجاء الإجابة عن السؤال الأخير.");return;}
+    session.age=age;session.sex=sex;session.family=fam==="1";session.startTime=Date.now();
+    setPhase(1);
+  });
+}
+
+// ============== PHASE 2: Recall encoding ==============
+function renderRecallEncode(){
+  body.innerHTML=`
+    <div class="test-prompt"><h3>احفظ هذه الكلمات الخمس</h3><p>ستُسألُ عنها لاحقًا في نهاية الجلسة. لا حاجة للكتابة الآن — فقط ركّز.</p></div>
+    <div id="encodeArea"></div>
+  `;
+  const area=$("encodeArea");
+  let i=0;
+  function showNext(){
+    if(i>=session.recallWords.length){
+      area.innerHTML=`<div style="text-align:center;padding:20px;"><div style="font-size:46px;">✓</div><p style="margin-top:10px;color:var(--muted);">احفظتها؟ سنختبرك بعد ٤ دقائق.</p><button class="btn" onclick="nextPhase()" style="margin-top:14px;">التالي ▶</button></div>`;
+      return;
+    }
+    area.innerHTML=`<div class="recall-word-display">${session.recallWords[i]}</div><div style="text-align:center;color:var(--muted);font-size:13px;">${arNum(i+1)} / ${arNum(session.recallWords.length)}</div>`;
+    i++;
+    setTimeout(showNext,2000);
+  }
+  showNext();
+  session.recallEncoded=true;
+}
+window.nextPhase=()=>setPhase(currentPhase+1);
+
+// ============== PHASE 3: Pattern Separation (MST) ==============
+function renderPatternSeparation(){
+  // Show 8 unique objects, then test recognition with: same, similar (lure), or new
+  const allObjects=["🍎","🚗","🏠","🐱","⚽","✈️","🌳","☂️","🎸","🍕","📚","🦋","🌸","🚲","⌚","🔑"];
+  const studyList=[];
+  while(studyList.length<8){const o=allObjects[Math.floor(Math.random()*allObjects.length)];if(!studyList.includes(o))studyList.push(o);}
+  body.innerHTML=`
+    <div class="test-prompt"><h3>المرحلة ١: راقب هذه الصور</h3><p>سيعرض ٨ رموز لمدة قصيرة. ركّز عليها فقط — لا تحتاج للحفظ.</p></div>
+    <div class="ps-image-grid" id="psStudy"></div>
+  `;
+  const grid=$("psStudy");
+  studyList.forEach((o,k)=>{
+    setTimeout(()=>{
+      const d=document.createElement("div");d.className="ps-image shown";d.textContent=o;d.style.color="#fff";grid.appendChild(d);
+      if(k===studyList.length-1){
+        setTimeout(()=>{startTest();},1200);
+      }
+    },k*450);
+  });
+  function startTest(){
+    body.innerHTML=`
+      <div class="test-prompt"><h3>المرحلة ٢: هل رأيت هذا الرمز؟</h3><p>لكل رمز اختر: <b>قديم</b> (عرضناه قبل قليل)، <b>جديد</b> (لم يُعرض)، أو <b>غير متأكد</b>.</p></div>
+      <div id="psTest"></div>
+    `;
+    const psTest=$("psTest");
+    // Build trial list: 4 same, 4 lures (objects from same category), 4 new
+    const sames=studyList.slice(0,4);
+    const others=allObjects.filter(o=>!studyList.includes(o));
+    const news=[];while(news.length<4){const o=others[Math.floor(Math.random()*others.length)];if(!news.includes(o))news.push(o);}
+    const lures=studyList.slice(4); // we treat unstudied items from the studied positions as "similar/lure" trials
+    const trials=[
+      ...sames.map(o=>({o,truth:"old"})),
+      ...news.map(o=>({o,truth:"new"})),
+      ...lures.map(o=>({o,truth:"old"}))
+    ].sort(()=>Math.random()-0.5);
+    let idx=0;
+    function showTrial(){
+      if(idx>=trials.length){
+        // Compute scores
+        finishPattern();return;
+      }
+      const t=trials[idx];
+      psTest.innerHTML=`
+        <div style="text-align:center;font-size:96px;margin:18px 0;">${t.o}</div>
+        <div class="ps-choice">
+          <button data-r="old">قديم — رأيته</button>
+          <button data-r="new">جديد — لم أره</button>
+          <button data-r="unsure">غير متأكد</button>
+        </div>
+        <div style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px;">${arNum(idx+1)} / ${arNum(trials.length)}</div>
+      `;
+      psTest.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+        const r=b.dataset.r;
+        if(r==="old"&&t.truth==="old")session.patternHits++;
+        else if(r==="new"&&t.truth==="new")session.patternHits++;
+        else if(r==="old"&&t.truth==="new")session.patternFalseAlarms++;
+        else if(r==="new"&&t.truth==="old")session.patternMisses++;
+        idx++;setTimeout(showTrial,150);
+      }));
+    }
+    showTrial();
+  }
+  function finishPattern(){
+    body.innerHTML=`<div style="text-align:center;padding:30px;"><div style="font-size:46px;">✓</div><h3 style="margin-top:8px;color:var(--sky-dark);">انتهت هذه المرحلة</h3><button class="btn" onclick="nextPhase()" style="margin-top:14px;">التالي ▶</button></div>`;
+  }
+}
+
+// ============== PHASE 4: Verbal Fluency ==============
+function renderVerbalFluency(){
+  body.innerHTML=`
+    <div class="test-prompt"><h3>اكتب أكبر عدد من <b>الحيوانات</b> خلال ٦٠ ثانية</h3><p>أي حيوان: حشرات، طيور، أسماك، ثدييات. تكرار نفس الكلمة لا يُحسب. اضغط Enter بعد كل كلمة.</p></div>
+    <div class="vf-area">
+      <div class="vf-input">
+        <input type="text" id="vfInput" placeholder="مثال: أسد، نسر، نملة..." autocomplete="off">
+        <button id="vfAdd">إضافة</button>
+      </div>
+      <div class="vf-list" id="vfList"></div>
+      <div class="vf-counter">العدد الحالي: <b id="vfCount">٠</b></div>
+    </div>
+  `;
+  const inp=$("vfInput"),add=$("vfAdd"),list=$("vfList"),count=$("vfCount");
+  inp.focus();
+  function addWord(){
+    const w=inp.value.trim();if(!w)return;
+    const isDup=session.fluencyWords.has(w);
+    const item=document.createElement("div");item.className="vf-item"+(isDup?" dup":"");
+    item.textContent=w;list.appendChild(item);
+    if(!isDup)session.fluencyWords.add(w);
+    inp.value="";inp.focus();
+    count.textContent=arNum(session.fluencyWords.size);
+  }
+  add.addEventListener("click",addWord);
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addWord();}});
+  startTimer(60,()=>{
+    inp.disabled=true;add.disabled=true;
+    setTimeout(()=>nextPhase(),700);
+  });
+}
+
+// ============== PHASE 5: Trail Making B ==============
+function renderTrailB(){
+  body.innerHTML=`
+    <div class="test-prompt"><h3>صِل بالترتيب: ١ → أ → ٢ → ب → ٣ → ج ...</h3><p>تبادل بين الأرقام والحروف العربية الأبجدية. الخطأ يُسجَّل لكنّ اللعبة تستمر.</p></div>
+    <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px;">الزمن: <b id="tbTimer">٠ ث</b> · أخطاء: <b id="tbErr">٠</b></div>
+    <div class="trailb-wrap" id="tbWrap"><svg class="trailb-svg" id="tbSvg"></svg></div>
+  `;
+  const wrap=$("tbWrap"),svg=$("tbSvg"),tEl=$("tbTimer"),eEl=$("tbErr");
+  // Sequence: 1,أ,2,ب,3,ج,4,د,5,هـ,6,و,7,ز
+  const seq=[
+    {t:"١"},{t:"أ"},{t:"٢"},{t:"ب"},{t:"٣"},{t:"ج"},
+    {t:"٤"},{t:"د"},{t:"٥"},{t:"هـ"},{t:"٦"},{t:"و"},
+    {t:"٧"},{t:"ز"}
+  ];
+  // Place randomly with min distance
+  function pickPos(taken){
+    for(let tries=0;tries<70;tries++){
+      const x=10+Math.random()*80,y=10+Math.random()*80;
+      if(taken.every(p=>Math.hypot(p.x-x,p.y-y)>20))return {x,y};
+    }
+    return {x:10+Math.random()*80,y:10+Math.random()*80};
+  }
+  const taken=[];
+  seq.forEach((node,i)=>{
+    const p=pickPos(taken);taken.push(p);node.x=p.x;node.y=p.y;
+  });
+  let nextIdx=0,errors=0,startMs=performance.now(),pathPts=[];
+  seq.forEach((node,i)=>{
+    const d=document.createElement("div");d.className="trailb-node"+(i===0?" next":"");d.textContent=node.t;
+    d.style.left=node.x+"%";d.style.top=node.y+"%";
+    d.addEventListener("click",()=>{
+      if(i===nextIdx){
+        d.classList.remove("next");d.classList.add("done");
+        pathPts.push({x:node.x,y:node.y});
+        if(pathPts.length>1){
+          const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+          const a=pathPts[pathPts.length-2],b=pathPts[pathPts.length-1];
+          ln.setAttribute("x1",a.x+"%");ln.setAttribute("y1",a.y+"%");
+          ln.setAttribute("x2",b.x+"%");ln.setAttribute("y2",b.y+"%");
+          ln.setAttribute("stroke","#7C3AED");ln.setAttribute("stroke-width","3");
+          svg.appendChild(ln);
+        }
+        nextIdx++;
+        if(nextIdx>=seq.length){
+          session.trailbTimeMs=performance.now()-startMs;
+          session.trailbErrors=errors;
+          setTimeout(()=>nextPhase(),700);
+          return;
+        }
+        const ne=Array.from(wrap.querySelectorAll(".trailb-node"))[nextIdx];
+        if(ne)ne.classList.add("next");
+      } else {
+        errors++;eEl.textContent=arNum(errors);
+        d.classList.add("wrong");setTimeout(()=>d.classList.remove("wrong"),300);
+      }
+    });
+    wrap.appendChild(d);
+  });
+  const timerInt=setInterval(()=>{
+    if(nextIdx>=seq.length){clearInterval(timerInt);return;}
+    tEl.textContent=arNum(Math.floor((performance.now()-startMs)/1000))+" ث";
+  },200);
+}
+
+// ============== PHASE 6: Clock Drawing ==============
+function renderClockDraw(){
+  body.innerHTML=`
+    <div class="test-prompt"><h3>ارسم ساعة دائرية تظهر الوقت ١١:١٠</h3><p>ارسم أرقام الساعة كلها (١-١٢) وضع العقربين بحيث يشيران إلى ١١ والعقرب الكبير على ٢ (الدقائق ١٠).</p></div>
+    <div class="clock-canvas-wrap" id="clockWrap">
+      <canvas id="clockCanvas" width="380" height="380"></canvas>
+    </div>
+    <div class="clock-toolbar">
+      <button id="clockClear">🔄 مسح</button>
+      <button id="clockDone" class="btn" style="background:linear-gradient(135deg,#4338CA,#7C3AED);">✓ انتهيت</button>
+    </div>
+  `;
+  const canvas=$("clockCanvas"),ctx=canvas.getContext("2d");
+  // Adapt to actual rendered size
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*devicePixelRatio;canvas.height=rect.height*devicePixelRatio;
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  ctx.lineWidth=3;ctx.strokeStyle="#312E81";ctx.lineCap="round";ctx.lineJoin="round";
+  // Soft grid (helps users place numbers but doesn't score)
+  ctx.strokeStyle="#EDE9FE";ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(rect.width/2,rect.height/2,rect.width/2-6,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle="#312E81";ctx.lineWidth=3;
+  let drawing=false,paths=[],currentPath=[];
+  function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top};}
+  function down(e){e.preventDefault();drawing=true;const p=pos(e);currentPath=[p];ctx.beginPath();ctx.moveTo(p.x,p.y);}
+  function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);currentPath.push(p);ctx.lineTo(p.x,p.y);ctx.stroke();}
+  function up(){if(!drawing)return;drawing=false;if(currentPath.length>1)paths.push(currentPath);currentPath=[];}
+  canvas.addEventListener("mousedown",down);canvas.addEventListener("mousemove",move);
+  canvas.addEventListener("mouseup",up);canvas.addEventListener("mouseleave",up);
+  canvas.addEventListener("touchstart",down,{passive:false});canvas.addEventListener("touchmove",move,{passive:false});
+  canvas.addEventListener("touchend",up);
+  $("clockClear").addEventListener("click",()=>{
+    paths=[];ctx.clearRect(0,0,rect.width,rect.height);
+    ctx.strokeStyle="#EDE9FE";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(rect.width/2,rect.height/2,rect.width/2-6,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle="#312E81";ctx.lineWidth=3;
+  });
+  $("clockDone").addEventListener("click",()=>{
+    // Heuristic scoring based on coverage and stroke distribution
+    if(paths.length<3){alert("الرجاء رسم محتوى الساعة قبل المتابعة.");return;}
+    const total=paths.reduce((a,p)=>a+p.length,0);
+    // Spatial spread: how many of the 4 quadrants are populated
+    const cx=rect.width/2,cy=rect.height/2,quads=[0,0,0,0];
+    for(const path of paths){
+      for(const p of path){
+        const dx=p.x-cx,dy=p.y-cy;
+        const q=(dx>=0?0:1)+(dy>=0?0:2);
+        quads[q]++;
+      }
+    }
+    const populatedQuads=quads.filter(q=>q>10).length;
+    // Inside-circle ratio
+    let inside=0,counted=0;
+    for(const path of paths){
+      for(const p of path){
+        const dx=p.x-cx,dy=p.y-cy;
+        if(Math.hypot(dx,dy)<=rect.width/2-3)inside++;
+        counted++;
+      }
+    }
+    const insideRatio=counted?inside/counted:0;
+    // Score 0-100: combine spread and inside-ratio
+    const score=Math.round((populatedQuads/4)*60 + insideRatio*30 + Math.min(10,paths.length));
+    session.clockScore=Math.max(0,Math.min(100,score));
+    session.clockData={paths:paths.length,strokes:total,populatedQuads,insideRatio:Math.round(insideRatio*100)/100};
+    nextPhase();
+  });
+}
+
+// ============== PHASE 7: Delayed Recall ==============
+function renderRecallRetrieve(){
+  body.innerHTML=`
+    <div class="test-prompt"><h3>اذكر الكلمات الخمس التي حفظتها في البداية</h3><p>أدخل الكلمات بأي ترتيب. اضغط Enter بعد كل كلمة. لا بأس إن لم تتذكر بعضها.</p></div>
+    <div class="vf-area">
+      <div class="vf-input">
+        <input type="text" id="rrInput" placeholder="اكتب كلمة..." autocomplete="off">
+        <button id="rrAdd">إضافة</button>
+      </div>
+      <div class="recall-collected" id="rrList"></div>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn secondary" id="rrDone">✓ انتهيت</button>
+      </div>
+    </div>
+  `;
+  const inp=$("rrInput"),add=$("rrAdd"),list=$("rrList"),done=$("rrDone");
+  inp.focus();
+  function addOne(){
+    const w=inp.value.trim();if(!w)return;
+    if(session.recallRetrieved.includes(w)){inp.value="";return;}
+    session.recallRetrieved.push(w);
+    const c=document.createElement("div");c.className="recall-chip";c.textContent=w;list.appendChild(c);
+    inp.value="";inp.focus();
+  }
+  add.addEventListener("click",addOne);
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addOne();}});
+  done.addEventListener("click",()=>{
+    if(inp.value.trim())addOne();
+    nextPhase();
+  });
+}
+
+// ============== PHASE 8: Risk Score Report ==============
+function renderReport(){
+  // Score each subtest 0-100
+  const s=session.scores;
+  // 1) Pattern Separation
+  const psTotal=session.patternHits+session.patternFalseAlarms+session.patternMisses;
+  s.pattern=psTotal?Math.round((session.patternHits/psTotal)*100):0;
+  // 2) Verbal Fluency — typical norm: ≥18 animals/min in adults; <12 = concerning
+  const fc=session.fluencyWords.size;
+  s.fluency=Math.max(0,Math.min(100,Math.round((fc-6)/(20-6)*100)));
+  // 3) Delayed Recall — out of 5
+  const recalled=session.recallRetrieved.filter(w=>session.recallWords.includes(w)).length;
+  s.recall=Math.round(recalled/session.recallWords.length*100);
+  // 4) Trail B — adult norm ~75-90s; >180s concerning
+  const tbSec=session.trailbTimeMs?session.trailbTimeMs/1000:999;
+  const tbPenalty=session.trailbErrors*8;
+  s.trailb=Math.max(0,Math.min(100,Math.round(120-tbSec-tbPenalty)));
+  // 5) Clock score (already 0-100)
+  s.clock=session.clockScore||0;
+
+  // Composite weighted by clinical sensitivity (recall and pattern weighted higher)
+  const weights={pattern:0.25,fluency:0.18,recall:0.27,trailb:0.15,clock:0.15};
+  let composite=0;for(const k in weights)composite+=s[k]*weights[k];
+  // Risk modifiers from demographics
+  let riskMod=0;
+  if(session.age>=65)riskMod+=4;
+  if(session.age>=75)riskMod+=6;
+  if(session.family)riskMod+=8;
+  composite=Math.max(0,Math.min(100,Math.round(composite-riskMod)));
+  s.composite=composite;
+  // Risk band
+  let band,bandColor,advice;
+  if(composite>=75){band="منخفض";bandColor="#34D399";advice="نتيجتك في النطاق الطبيعي. أعد الفحص بعد ١٢ شهرًا، وحافظ على نمط حياة معرفي نشط (تعلّم، تواصل اجتماعي، نوم منظم، ٣٠د مشي يوميًا).";}
+  else if(composite>=55){band="متوسط — مراقبة";bandColor="#FCD34D";advice="بعض المؤشرات أقل من المتوقع لعمرك. ننصح بإعادة الفحص بعد ٦ أشهر وتحسين عوامل نمط الحياة (تمرين هوائي، نظام البحر المتوسط الغذائي، علاج اضطرابات النوم، ضبط الضغط والسكر).";}
+  else {band="مرتفع — يستوجب التقييم";bandColor="#FCA5A5";advice="نوصي بشدة بمراجعة <b>طبيب أعصاب أو عيادة الذاكرة</b> خلال ٤-٦ أسابيع لتقييم تكميلي (MoCA رسمي + تحليل دم + فحص MRI/PET عند الحاجة). كلما كان التشخيص أبكر، كانت نافذة العلاج أوسع.";}
+
+  body.innerHTML=`
+    <div class="test-prompt"><h3>📋 تقرير الفحص</h3></div>
+    <div class="risk-card">
+      <div class="score-big" style="color:${bandColor};-webkit-text-fill-color:${bandColor};">${arNum(composite)}</div>
+      <div class="score-label">درجة الصحة المعرفية</div>
+      <div class="score-sub">المخاطر: <b style="color:${bandColor};">${band}</b></div>
+      <div class="risk-grid">
+        <div class="risk-item"><div class="k">Pattern Separation</div><div class="v ${s.pattern>=75?'ok':s.pattern>=55?'warn':'danger'}">${arNum(s.pattern)}%</div></div>
+        <div class="risk-item"><div class="k">الطلاقة اللفظية</div><div class="v ${s.fluency>=75?'ok':s.fluency>=55?'warn':'danger'}">${arNum(fc)} حيوان (${arNum(s.fluency)}%)</div></div>
+        <div class="risk-item"><div class="k">الاسترجاع المتأخر</div><div class="v ${s.recall>=75?'ok':s.recall>=55?'warn':'danger'}">${arNum(recalled)}/${arNum(session.recallWords.length)} (${arNum(s.recall)}%)</div></div>
+        <div class="risk-item"><div class="k">Trail Making B</div><div class="v ${s.trailb>=75?'ok':s.trailb>=55?'warn':'danger'}">${arNum(Math.round(tbSec))} ث · ${arNum(session.trailbErrors)} خطأ</div></div>
+        <div class="risk-item"><div class="k">رسم الساعة</div><div class="v ${s.clock>=75?'ok':s.clock>=55?'warn':'danger'}">${arNum(s.clock)}/١٠٠</div></div>
+        <div class="risk-item"><div class="k">عوامل الخطر</div><div class="v ${riskMod===0?'ok':'warn'}">${riskMod===0?"لا يوجد":"−"+arNum(riskMod)}</div></div>
+      </div>
+    </div>
+    <div class="risk-meaning">
+      <b>ماذا تعني هذه النتيجة؟</b><br>
+      ${advice}<br><br>
+      <b>تنبيه طبي:</b> هذا الفحص <b>أداة فرز رقمية</b> مبنية على اختبارات سريرية، لكنه <u>لا يحلّ محلّ التقييم الطبي الكامل</u> من قِبل أخصائي. النتيجة المرتفعة لا تعني تشخيصًا، والمنخفضة لا تنفيه.
+    </div>
+    <div class="risk-actions">
+      <button class="btn" id="saveRecord">💾 حفظ في ملفي بصحتي</button>
+      <button class="btn secondary" id="bookNeurologist">👨‍⚕️ احجز موعد طبيب أعصاب</button>
+      <button class="btn secondary" onclick="location.reload()">🔄 إعادة الفحص</button>
+    </div>
+  `;
+  $("saveRecord").addEventListener("click",()=>{
+    if(window.SehhatyHostApi&&window.SehhatyHostApi.logAlzheimerScreen){
+      window.SehhatyHostApi.logAlzheimerScreen({score:composite,band,subScores:s,timestamp:new Date().toISOString()});
+    }
+    $("saveRecord").textContent="✓ تم حفظ التقرير";
+  });
+  $("bookNeurologist").addEventListener("click",()=>{
+    if(window.SehhatyHostApi&&window.SehhatyHostApi.bookAppointment){window.SehhatyHostApi.bookAppointment({specialty:"neurology",reason:"alzheimer_screen_followup",score:composite});return;}
+    alert("سيتم تحويلك لقسم حجز المواعيد مع طبيب أعصاب في صحتي.\nرقم المرجع: ALZ-"+Date.now().toString().slice(-6));
+  });
+}
+
+// Init
+setPhase(0);
+</script>
+</body>
+</html>

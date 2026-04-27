@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>صحتي 2.0 — صحتي في كل مكان</title>
+<script>
+/* Sehhaty Analytics — tracks page views */
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -319,6 +323,7 @@
     </div>
     <div class="top-actions">
       <a href="diagnostic.html" class="pill ghost">🔧 تشخيص</a>
+      <a href="register.html" class="pill ghost">📝 التسجيل</a>
       <a href="#demos" class="pill primary">استكشف الديموهات</a>
     </div>
   </div>
@@ -335,7 +340,7 @@
       </p>
       <div class="hero-cta">
         <a href="#demos" class="btn-primary">جرّب الديموهات الحيّة</a>
-        <a href="diagnostic.html" class="btn-secondary">🎥 اختبار الكاميرا</a>
+        <a href="register.html" class="btn-secondary">📝 سجّل للتجربة</a>
       </div>
     </div>
 
@@ -486,13 +491,22 @@
         <span class="cta">افتح الديمو</span>
       </div>
     </a>
-    <a href="demo-focus.html" class="card card-5" style="grid-column:1/-1;">
+    <a href="demo-focus.html" class="card card-5">
       <div class="card-hero"><span class="card-tag">جديد · صحة دماغك</span><div class="card-icon">🧠</div></div>
       <div class="card-body">
-        <h3>دورة علاج «تعفن الدماغ» — ألعاب معرفية</h3>
-        <p>جلسة يومية ٥ دقائق من الألعاب المعرفية: سرعة البديهة، ستروب، الذاكرة التسلسلية — علاج فعّال لتدهور التركيز من الإفراط في Reels.</p>
-        <div class="chips"><span class="chip">٣ ألعاب</span><span class="chip">قياس Corsi</span><span class="chip">تقرير يومي</span><span class="chip">العائلة كاملة</span></div>
-        <span class="cta">افتح الديمو</span>
+        <h3>دورة علاج «تعفن الدماغ» — ٨ ألعاب معرفية</h3>
+        <p>جلسة يومية من الألعاب المعرفية المثبتة علميًا: سرعة بديهة، ستروب، ذاكرة، N-Back، Trail Making، Digit Span، Go/No-Go، Visual Search + مراقب انتباه بالكاميرا.</p>
+        <div class="chips"><span class="chip">٨ ألعاب</span><span class="chip">N-Back</span><span class="chip">Trail Making</span><span class="chip">مراقب انتباه</span></div>
+        <span class="cta">افتح التجربة</span>
+      </div>
+    </a>
+    <a href="demo-alzheimer.html" class="card card-5" style="grid-column:1/-1;background:linear-gradient(135deg,#312E81,#7C3AED);color:#fff;">
+      <div class="card-hero"><span class="card-tag" style="background:#FCE7F3;color:#9D174D;">منتج جديد · فحص استباقي</span><div class="card-icon">🧠</div></div>
+      <div class="card-body" style="color:#fff;">
+        <h3 style="color:#fff;">الفحص الاستباقي للزهايمر — ٧ دقائق</h3>
+        <p style="color:rgba(255,255,255,.85);">٦ اختبارات معتمدة سريريًا (Pattern Separation، Verbal Fluency، Delayed Recall، Trail Making B، Clock Drawing، Sequence Span) → درجة خطر مع توصية إحالة مبكرة. كشف الزهايمر قبل ١٠-١٥ سنة من الأعراض.</p>
+        <div class="chips"><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">MST</span><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">RAVLT</span><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">Trail B</span><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">Clock Drawing</span></div>
+        <span class="cta" style="color:#FCD34D;">افتح الفحص</span>
       </div>
     </a>
   </div>
@@ -608,7 +622,7 @@
 
 <footer>
   <div class="container footer-inner">
-    <div>© منصة صحتي — مقترح داخلي توضيحي</div>
+    <div>© منصة صحتي — مقترح داخلي توضيحي · <a href="admin.html" style="color:rgba(255,255,255,.4);text-decoration:none;font-size:11px;">🔒 admin</a></div>
     <div class="vision">🇸🇦 متوافق مع رؤية المملكة ٢٠٣٠</div>
   </div>
 </footer>

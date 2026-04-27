@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script>
+/* Sehhaty Analytics */
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>داش كام السلامة — صحتي 2.0</title>
@@ -135,7 +140,7 @@
       <div class="road"><div class="lane l"></div><div class="lane r"></div></div>
       <div class="cam-top">
         <div class="cam-badge"><span class="rec-dot"></span> REC · صحتي Dash</div>
-        <div class="cam-speed"><div class="n" id="speed">١١٠</div><div class="u">كم/س</div></div>
+        <div class="cam-speed" id="speedBox" style="display:none;"><div class="n" id="speed">—</div><div class="u">كم/س</div></div>
       </div>
       <div class="pip" id="pip">
         <video id="cam" autoplay playsinline muted></video>
@@ -145,6 +150,16 @@
       </div>
       <div class="health">
         <div class="t">🩺 مؤشرات السلامة</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div style="background:rgba(16,185,129,.18);border:1px solid rgba(16,185,129,.4);padding:8px 10px;border-radius:8px;text-align:center;">
+            <div style="font-size:10px;opacity:.85;">🎯 التركيز</div>
+            <div id="focusPct" style="font-size:22px;font-weight:800;color:#34D399;font-variant-numeric:tabular-nums;">—</div>
+          </div>
+          <div style="background:rgba(209,107,92,.18);border:1px solid rgba(209,107,92,.4);padding:8px 10px;border-radius:8px;text-align:center;">
+            <div style="font-size:10px;opacity:.85;">🌀 التشتت</div>
+            <div id="distractPct" style="font-size:22px;font-weight:800;color:#FCA5A5;font-variant-numeric:tabular-nums;">—</div>
+          </div>
+        </div>
         <div class="row"><span>مستوى النعاس</span><b id="sleepLvl">—</b></div>
         <div class="bar"><div class="bar-fill" id="sleepBar" style="width:5%"></div></div>
         <div class="row" style="margin-top:8px;"><span>📱 استخدام الجوال</span><b id="phoneLvl">—</b></div>
@@ -153,69 +168,84 @@
         <div class="bar"><div class="bar-fill" id="distractBar" style="width:0%"></div></div>
       </div>
       <div class="alert-banner" id="alertBanner"></div>
+      <!-- Syncope/deep-sleep override panel — appears when driver appears unconscious -->
+      <div id="syncopePanel" style="position:absolute;inset:0;background:rgba(120,20,30,.96);display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;z-index:9;animation:shake 0.6s infinite;">
+        <div style="font-size:64px;margin-bottom:10px;">🆘</div>
+        <h2 style="font-size:26px;margin-bottom:8px;">السائق غير مستجيب — احتمال إغماء</h2>
+        <p style="font-size:14px;opacity:.92;margin-bottom:14px;">عينان مغمضتان <span id="syncopeSec">٠</span> ثانية متواصلة بدون حركة رأس</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+          <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">🚑 ٩٣٧ — اتصال آلي خلال <span id="syncopeCountdown">٥</span> ث</div>
+          <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">📍 GPS مُفعّل</div>
+        </div>
+        <button id="syncopeCancel" style="margin-top:14px;background:#fff;color:#7a141e;border:none;padding:10px 22px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;">أنا بخير — إلغاء</button>
+      </div>
       <div class="emerg" id="emerg">
         <div class="ico">📞</div>
         <h2>اتصال طوارئ تلقائي</h2>
         <p>لم تتم الاستجابة — تفعّل البروتوكول</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
           <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">🚑 ٩٣٧</div>
-          <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">📍 طريق الملك فهد</div>
-          <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">👤 نواف الحسين</div>
+          <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">📍 الموقع الحالي عبر GPS</div>
+          <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">👤 ملف صحتي</div>
         </div>
       </div>
     </div></div>
-    <div class="live-bar">
+    <div class="live-bar" style="grid-template-columns:repeat(8,1fr);">
       <div class="cell" id="m-face"><div class="lbl">الوجه</div><div class="val">—</div></div>
       <div class="cell" id="m-eyes"><div class="lbl">العين</div><div class="val">—</div></div>
       <div class="cell" id="m-phone"><div class="lbl">جوال</div><div class="val">لا</div></div>
-      <div class="cell" id="m-yaw"><div class="lbl">دوران رأس</div><div class="val">٠°</div></div>
+      <div class="cell" id="m-yaw"><div class="lbl">Yaw</div><div class="val">٠°</div></div>
+      <div class="cell" id="m-pitch"><div class="lbl">Pitch</div><div class="val">٠°</div></div>
+      <div class="cell" id="m-yawn"><div class="lbl">تثاؤب</div><div class="val">لا</div></div>
       <div class="cell" id="m-blink"><div class="lbl">رمش/د</div><div class="val">٠</div></div>
       <div class="cell" id="m-fps"><div class="lbl">إطار/ث</div><div class="val">٠</div></div>
     </div>
     <div class="ctrl">
-      <div style="font-size:13px;opacity:.8;">🧠 <b style="color:#C4B5FD;">FaceLandmarker</b> + EAR + Head Pose</div>
-      <div class="scenario">
-        <button data-s="live" class="active">وضع حيّ</button>
-        <button data-s="drowsy">نعاس</button>
-        <button data-s="phone">استخدام جوال</button>
-        <button data-s="distract">شرود ذهن</button>
-        <button data-s="emergency">طوارئ ٩٣٧</button>
-      </div>
-      <button class="btn ghost" id="endTripBtn">🏁 إنهاء الرحلة</button>
+      <div style="font-size:13px;opacity:.8;">🧠 <b style="color:#C4B5FD;">FaceLandmarker</b> + EAR + 3D Head Pose + Yawn + معايرة شخصية</div>
+      <button class="btn ghost" id="endTripBtn">🏁 إنهاء الرحلة وإصدار التقرير</button>
     </div>
 
     <!-- Trip Report -->
     <div class="report-panel" id="report" style="display:none;">
       <h3>📋 تقرير الرحلة <button class="btn ghost" onclick="document.getElementById('report').style.display='none'">×</button></h3>
-      <div class="score-big"><div class="big" id="repScore">٨٥%</div><div style="font-size:13px;color:var(--muted);">درجة السلامة</div></div>
+      <div class="score-big"><div class="big" id="repScore">—</div><div style="font-size:13px;color:var(--muted);">درجة السلامة</div></div>
       <div class="report-grid">
-        <div class="report-metric"><div class="k">المسافة</div><div class="v">١١٢ كم</div></div>
-        <div class="report-metric"><div class="k">المدة</div><div class="v">١س ٤٢د</div></div>
-        <div class="report-metric warn"><div class="k">تنبيهات نعاس</div><div class="v" id="rDrowsy">٢</div></div>
-        <div class="report-metric warn"><div class="k">استخدام جوال</div><div class="v" id="rPhone">٣ مرات</div></div>
-        <div class="report-metric danger"><div class="k">شرود ذهن</div><div class="v" id="rDistract">٥</div></div>
-        <div class="report-metric"><div class="k">متوسط السرعة</div><div class="v">٦٥ كم/س</div></div>
+        <div class="report-metric"><div class="k">مدة المراقبة</div><div class="v" id="rDur">—</div></div>
+        <div class="report-metric"><div class="k">إجمالي الإطارات</div><div class="v" id="rFrames">—</div></div>
+        <div class="report-metric"><div class="k">تنبيهات نعاس</div><div class="v" id="rDrowsy">٠</div></div>
+        <div class="report-metric"><div class="k">استخدام جوال</div><div class="v" id="rPhone">٠</div></div>
+        <div class="report-metric"><div class="k">شرود ذهن</div><div class="v" id="rDistract">٠</div></div>
+        <div class="report-metric"><div class="k">تثاؤب</div><div class="v" id="rYawn">٠</div></div>
       </div>
-      <div style="background:var(--sky-light);padding:12px 14px;border-radius:10px;margin-top:14px;font-size:13px;line-height:1.7;"><b style="color:var(--sky-dark);">💡 توصيات:</b><br>- استخدام الجوال مرتفع — فعّل وضع «لا تزعج» أثناء القيادة<br>- استراحة قصيرة كل ساعتين تقلل النعاس<br>- التحقق من حالتك الصحية اليومية في صحتي</div>
+      <div id="repAdvice" style="background:var(--sky-light);padding:12px 14px;border-radius:10px;margin-top:14px;font-size:13px;line-height:1.7;"></div>
     </div>
   </div>
   <div class="side">
     <div class="phone"><div class="phone-screen">
-      <div class="ph-head"><div><div style="font-size:14px;font-weight:700;">صحتي</div><div style="font-size:11px;opacity:.8;">أسعفني · Drive Safe</div></div><div style="font-size:12px;">🚗 نشط</div></div>
+      <div class="ph-head"><div><div style="font-size:14px;font-weight:700;">صحتي</div><div style="font-size:11px;opacity:.8;">أسعفني · Drive Safe</div></div></div>
       <div class="ph-body">
         <div class="ph-card" id="phStatus"><div class="title">الحالة الآن</div><div class="value" id="phState">قيادة آمنة ✓</div></div>
-        <div class="ph-card"><div class="title">رحلة اليوم</div><div class="value">١١٢ كم · ١س ٤٢د</div></div>
+        <div class="ph-card"><div class="title">مدة الرحلة</div><div class="value" id="phTripDur">٠٠:٠٠</div></div>
         <div id="notifList" style="display:flex;flex-direction:column;gap:8px;">
-          <div class="ph-notify"><b>🟢 مراقبة نشطة</b>AI يرصد النعاس والجوال والشرود.</div>
+          <div class="ph-notify"><b>🟢 مراقبة نشطة</b>AI يرصد النعاس والجوال والشرود والتثاؤب.</div>
         </div>
       </div>
     </div></div>
     <div class="kpi">
-      <h4>📊 الأثر المتوقع</h4>
-      <div class="kpi-row"><span>حوادث النعاس</span><b>−٣٤%</b></div>
-      <div class="kpi-row"><span>حوادث الجوال</span><b>−٤٢%</b></div>
-      <div class="kpi-row"><span>زمن استجابة الطوارئ</span><b>−٤٨%</b></div>
-      <div class="kpi-row"><span>أرواح/سنة</span><b>٣٠٠+</b></div>
+      <h4>📋 ملخص الرحلة الحالية</h4>
+      <div class="kpi-row"><span>المدة</span><b id="kpiDur">٠٠:٠٠</b></div>
+      <div class="kpi-row"><span>نسبة التركيز</span><b id="kpiFocus">—</b></div>
+      <div class="kpi-row"><span>نسبة التشتت</span><b id="kpiDistractPct">—</b></div>
+      <div class="kpi-row"><span>تنبيهات النعاس</span><b id="kpiDrowsy">٠</b></div>
+      <div class="kpi-row"><span>استخدام الجوال</span><b id="kpiPhone">٠</b></div>
+      <div class="kpi-row"><span>أحداث الشرود</span><b id="kpiDistract">٠</b></div>
+      <div class="kpi-row"><span>التثاؤب</span><b id="kpiYawn">٠</b></div>
+    </div>
+    <div class="kpi" id="recoBox">
+      <h4>💡 توصيات تحسين القيادة</h4>
+      <div id="recoList" style="font-size:13px;line-height:1.85;color:var(--ink);">
+        <div style="color:var(--muted);font-size:12px;">ستظهر التوصيات هنا حسب ملاحظات السلوك المرصود لحظيًا.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -225,7 +255,7 @@
   var video=document.getElementById("cam"),overlay=document.getElementById("overlay"),pip=document.getElementById("pip"),gate=document.getElementById("camGate"),btn=document.getElementById("gateBtn"),err=document.getElementById("gateErr");
   btn.addEventListener("click",function(){
     err.classList.remove("show");btn.disabled=true;btn.textContent="⏳";
-    navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280}},audio:false}).then(function(s){
+    navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,min:25}},audio:false}).then(function(s){
       video.srcObject=s;video.classList.add("on");pip.classList.add("live");
       video.onloadedmetadata=function(){overlay.width=video.videoWidth||640;overlay.height=video.videoHeight||480;gate.classList.add("hidden");window._camReady=true;window.dispatchEvent(new CustomEvent("sehhaty:cameraReady"));};
       if(video.readyState>=1)video.onloadedmetadata();
@@ -247,23 +277,123 @@ const mFace=document.getElementById("m-face"),mFaceV=mFace.querySelector(".val")
 const mEyes=document.getElementById("m-eyes"),mEyesV=mEyes.querySelector(".val");
 const mPhone=document.getElementById("m-phone"),mPhoneV=mPhone.querySelector(".val");
 const mYawV=document.getElementById("m-yaw").querySelector(".val");
+const mPitchV=document.getElementById("m-pitch").querySelector(".val");
+const mYawnV=document.getElementById("m-yawn").querySelector(".val");
 const mBlinkV=document.getElementById("m-blink").querySelector(".val");
 const mFpsV=document.getElementById("m-fps").querySelector(".val");
 const notifList=document.getElementById("notifList"),phStatus=document.getElementById("phStatus"),phState=document.getElementById("phState");
-let faceLandmarker=null,running=false,scenario="live",drowsyStart=null,drowsyLvl=0,phoneLvl_=0,distractLvl_=0;
+let faceLandmarker=null,running=false,drowsyStart=null,drowsyLvl=0,phoneLvl_=0,distractLvl_=0;
 let blinkCount=0,blinkTimes=[],wasClosed=false,emergTriggered=false,lastLvl=0;
 let fpsFrames=0,fpsTimer=performance.now();
-let tripStats={drowsy:0,phone:0,distract:0};
+let tripStats={drowsy:0,phone:0,distract:0,yawn:0};
 const LE=[33,160,158,133,153,144],RE=[362,385,387,263,373,380];
+
+// ===== HIGH-PRECISION ENHANCEMENTS =====
+// EAR smoothing window (5-frame moving average rejects single-frame noise)
+const earWindow=[];
+function smoothEAR(v){earWindow.push(v);if(earWindow.length>5)earWindow.shift();let s=0;for(const x of earWindow)s+=x;return s/earWindow.length;}
+// Personal EAR baseline calibration (first 4 sec of stable open eyes)
+let earBaseline=null,calibSamples=[],calibrated=false;
+const EAR_CALIB_FRAMES=120;
+function calibrateEAR(v){
+  if(calibrated)return;
+  calibSamples.push(v);
+  if(calibSamples.length>=EAR_CALIB_FRAMES){
+    // Use 80th percentile as baseline (robust to occasional blinks during calib)
+    const sorted=calibSamples.slice().sort((a,b)=>a-b);
+    earBaseline=sorted[Math.floor(sorted.length*0.8)];
+    calibrated=true;
+    addNotif("","✓ معايرة","تم تعيين خط الأساس الشخصي للعين: "+earBaseline.toFixed(2));
+  }
+}
+// Multi-frame validation: a closed-eye state must persist N frames before we count it as drowsy
+const closedFrameCount={count:0,threshold:6};
+// Yawn detection via jawOpen blendshape
+let yawnFrames=0,lastYawnTime=0,yawnsPerMin=[];
+// Smoothed yaw and pitch (4-frame avg)
+const yawWin=[],pitchWin=[];
+function smoothAngle(win,v){win.push(v);if(win.length>4)win.shift();let s=0;for(const x of win)s+=x;return s/win.length;}
+
+// Focus/distraction running counters (updated every frame)
+let focusFrames=0,distractedFrames=0;
+// Syncope detection: closed eyes >2s + head completely still (yaw and pitch variance near 0)
+const headHistory=[];
+let syncopeStart=null,syncopeTriggered=false,syncopeTimerId=null;
+function checkSyncope(closed,yaw,pitch){
+  // Track head pose history (last 60 frames ~= 2s @ 30fps)
+  headHistory.push({y:yaw,p:pitch,t:performance.now()});
+  while(headHistory.length>60)headHistory.shift();
+  if(headHistory.length<30)return false;
+  // Compute variance of head pose over the window
+  let mY=0,mP=0;for(const h of headHistory){mY+=h.y;mP+=h.p;}mY/=headHistory.length;mP/=headHistory.length;
+  let vY=0,vP=0;for(const h of headHistory){vY+=(h.y-mY)**2;vP+=(h.p-mP)**2;}vY/=headHistory.length;vP/=headHistory.length;
+  // Stillness threshold (degrees of variance) and eyes-closed condition
+  const stillHead=vY<2.5&&vP<2.5;
+  return closed&&stillHead;
+}
+function showSyncope(){
+  if(syncopeTriggered)return;syncopeTriggered=true;
+  const panel=document.getElementById("syncopePanel");
+  panel.style.display="flex";
+  let cd=5;document.getElementById("syncopeCountdown").textContent=arNum(cd);
+  syncopeTimerId=setInterval(()=>{
+    cd--;document.getElementById("syncopeCountdown").textContent=arNum(cd);
+    if(cd<=0){
+      clearInterval(syncopeTimerId);
+      addNotif("danger","🚨 ٩٣٧","تم إصدار طلب طوارئ آلي — الإغماء المُكتشف");
+      // Hand off to emergency screen
+      panel.style.display="none";emerg.classList.add("show");
+    }
+  },1000);
+  try{if("speechSynthesis" in window){const u=new SpeechSynthesisUtterance("احتمال إغماء — اتصال طوارئ خلال خمس ثوان");u.lang="ar-SA";u.rate=1.05;window.speechSynthesis.speak(u);}}catch(e){}
+}
+function hideSyncope(){
+  syncopeTriggered=false;syncopeStart=null;
+  document.getElementById("syncopePanel").style.display="none";
+  if(syncopeTimerId){clearInterval(syncopeTimerId);syncopeTimerId=null;}
+}
+document.getElementById("syncopeCancel").addEventListener("click",hideSyncope);
+
+// Live recommendations engine — updated based on observed event rates
+let lastRecoUpdate=0;
+function updateRecommendations(){
+  const now=performance.now();
+  if(now-lastRecoUpdate<1500)return; // throttle
+  lastRecoUpdate=now;
+  const minutes=Math.max(0.5,(tripDurationMs())/60000);
+  const recs=[];
+  // Threshold-based, observed-event-driven
+  const drowsyRate=tripStats.drowsy/minutes;
+  const phoneRate=tripStats.phone/minutes;
+  const distractRate=tripStats.distract/minutes;
+  const yawnRate=(tripStats.yawn||0)/minutes;
+  if(drowsyLvl>30)recs.push({i:"😴",t:"مؤشرات نعاس مرتفعة",m:"خذ استراحة فورية، لا تكمل القيادة وأنت مرهق."});
+  else if(yawnRate>0.2)recs.push({i:"🥱",t:"تثاؤب متكرر",m:"ابدأ التخطيط لاستراحة قهوة خلال ١٥ دقيقة."});
+  if(phoneLvl_>30)recs.push({i:"📱",t:"استخدام جوال مرصود",m:"فعّل وضع «لا تزعج أثناء القيادة» من إعدادات الجوال."});
+  else if(phoneRate>0.5)recs.push({i:"📵",t:"تذكير: تكرّر استخدامك للجوال",m:"ضع الجوال خارج متناول اليد لتقليل الإغراء."});
+  if(distractLvl_>30)recs.push({i:"🎯",t:"التشتت أعلى من الطبيعي",m:"ركّز نظرك على الطريق — تجنّب الالتفات للأطراف."});
+  if(blinkTimes.length>0&&blinkTimes.length<7&&minutes>1)recs.push({i:"👁",t:"معدل الرمش منخفض",m:"معدل أقل من ١٠/د قد يدل على تركيز شديد جدًا أو جفاف عين — ارمش بانتظام."});
+  if(recs.length===0&&minutes>1)recs.push({i:"✅",t:"قيادة آمنة",m:"استمر — كل المؤشرات ضمن النطاق الصحي."});
+  if(recs.length===0)return;
+  const list=document.getElementById("recoList");
+  list.innerHTML=recs.slice(0,4).map(r=>
+    '<div style="display:flex;gap:10px;padding:10px 0;border-top:1px dashed #E0E7FF;">'+
+    '<div style="font-size:20px;">'+r.i+'</div>'+
+    '<div><b style="display:block;color:var(--sky-dark);margin-bottom:2px;">'+r.t+'</b><span style="font-size:12px;color:var(--muted);">'+r.m+'</span></div>'+
+    '</div>'
+  ).join("");
+}
+
 function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
 function ear(lm,i){const p=i.map(x=>lm[x]);return(dist(p[1],p[5])+dist(p[2],p[4]))/(2*dist(p[0],p[3]));}
-async function loadModel(){try{const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true,runningMode:"VIDEO",numFaces:1});return true;}catch(e){return false;}}
+async function loadModel(){try{const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true,runningMode:"VIDEO",numFaces:1,minFaceDetectionConfidence:0.7,minFacePresenceConfidence:0.7,minTrackingConfidence:0.7});return true;}catch(e){return false;}}
 function showBanner(t,m){banner.className="alert-banner show "+t;banner.textContent=m;}
 function hideBanner(){banner.className="alert-banner";}
 function addNotif(t,title,m){const d=document.createElement("div");d.className="ph-notify "+(t||"");d.innerHTML="<b>"+title+"</b>"+m;notifList.prepend(d);while(notifList.children.length>5)notifList.removeChild(notifList.lastChild);}
 
 function renderLoop(){
-  if(running&&video.readyState>=2&&faceLandmarker&&scenario==="live"){
+  if(running&&video.readyState>=2&&faceLandmarker){
+    startTripIfNeeded();tripFrames++;
     const now=performance.now();
     try{
       const r=faceLandmarker.detectForVideo(video,now);
@@ -271,33 +401,99 @@ function renderLoop(){
       if(r.faceLandmarks&&r.faceLandmarks.length){
         const lm=r.faceLandmarks[0];
         mFaceV.textContent="مُكتشف";mFace.className="cell ok";
-        const lE=ear(lm,LE),rE=ear(lm,RE),avgE=(lE+rE)/2;
-        let blinkL=0,blinkR=0;
+        const lE=ear(lm,LE),rE=ear(lm,RE),rawAvgE=(lE+rE)/2;
+        const avgE=smoothEAR(rawAvgE); // 5-frame smoothing eliminates jitter
+
+        // Personal calibration phase
+        if(!calibrated){
+          calibrateEAR(rawAvgE);
+          mFaceV.textContent="معايرة "+arNum(Math.round(calibSamples.length/EAR_CALIB_FRAMES*100))+"%";
+        }
+
+        let blinkL=0,blinkR=0,jawOpen=0;
         if(r.faceBlendshapes&&r.faceBlendshapes.length){
           const c=r.faceBlendshapes[0].categories;
           const l=c.find(x=>x.categoryName==="eyeBlinkLeft"),rr=c.find(x=>x.categoryName==="eyeBlinkRight");
+          const j=c.find(x=>x.categoryName==="jawOpen");
           if(l)blinkL=l.score;if(rr)blinkR=rr.score;
+          if(j)jawOpen=j.score;
         }
-        const closed=((blinkL+blinkR)/2>0.5)||avgE<0.18;
-        if(closed&&!wasClosed){blinkCount++;blinkTimes.push(now);}
-        wasClosed=closed;
+        // Personalized closed-eye threshold: 65% of personal baseline (or 0.18 if not calibrated)
+        const earThr=earBaseline?earBaseline*0.65:0.18;
+        const closedRaw=((blinkL+blinkR)/2>0.5)||avgE<earThr;
+
+        // Multi-frame validation: must be closed for N frames before counting as actually closed
+        if(closedRaw)closedFrameCount.count++;else closedFrameCount.count=Math.max(0,closedFrameCount.count-1);
+        const closed=closedFrameCount.count>=closedFrameCount.threshold;
+
+        if(closedRaw&&!wasClosed){blinkCount++;blinkTimes.push(now);}
+        wasClosed=closedRaw;
         blinkTimes=blinkTimes.filter(t=>now-t<60000);
 
-        // Head yaw
-        let yaw=0;
+        // Yawn detection (jawOpen > 0.55 sustained ~12 frames = ~0.4s)
+        if(jawOpen>0.55)yawnFrames++;else{
+          if(yawnFrames>=12&&now-lastYawnTime>3000){
+            yawnsPerMin.push(now);lastYawnTime=now;
+            tripStats.yawn=(tripStats.yawn||0)+1;
+            // Yawning increases drowsiness score
+            drowsyLvl=Math.min(100,drowsyLvl+15);
+            addNotif("warn","🥱 تثاؤب","تم رصد تثاؤب — خذ استراحة قريبة");
+          }
+          yawnFrames=0;
+        }
+        yawnsPerMin=yawnsPerMin.filter(t=>now-t<60000);
+        mYawnV.textContent=jawOpen>0.55?"نعم":(yawnsPerMin.length?arNum(yawnsPerMin.length)+"/د":"لا");
+        mYawnV.parentElement.className="cell"+(jawOpen>0.55?" danger":yawnsPerMin.length>0?" warn":"");
+
+        // Full 3D head pose (Yaw + Pitch + Roll) from transformation matrix
+        let yaw=0,pitch=0,roll=0;
         if(r.facialTransformationMatrixes&&r.facialTransformationMatrixes.length){
           const m=r.facialTransformationMatrixes[0].data;
+          // Standard rotation extraction from 4x4 column-major matrix
           yaw=Math.atan2(m[8],m[10])*(180/Math.PI);
+          pitch=Math.atan2(-m[9],Math.sqrt(m[8]*m[8]+m[10]*m[10]))*(180/Math.PI);
+          roll=Math.atan2(m[1],m[5])*(180/Math.PI);
         }
+        yaw=smoothAngle(yawWin,yaw);
+        pitch=smoothAngle(pitchWin,pitch);
 
-        // Drowsiness
+        // Drowsiness: requires multi-frame closed eyes confirmation
         if(closed){if(!drowsyStart)drowsyStart=now;drowsyLvl=Math.min(100,(now-drowsyStart)/30);}
         else{drowsyStart=null;drowsyLvl=Math.max(0,drowsyLvl-2);}
 
-        // Phone usage — approximated by sustained looking down (head pitch would be ideal, but yaw extremes + eyes closed suggest looking down at phone)
-        const lookingDown=Math.abs(yaw)<15 && avgE<0.23;
-        if(lookingDown && !closed) phoneLvl_=Math.min(100,phoneLvl_+1.5);
-        else phoneLvl_=Math.max(0,phoneLvl_-1);
+        // ===== SYNCOPE / DEEP UNCONSCIOUSNESS DETECTION =====
+        // Eyes closed continuously for >2s AND head completely still → potential syncope
+        const looksUnconscious=checkSyncope(closed,yaw,pitch);
+        if(looksUnconscious){
+          if(!syncopeStart)syncopeStart=now;
+          const sec=(now-syncopeStart)/1000;
+          if(sec>2.0){
+            document.getElementById("syncopeSec").textContent=arNum(Math.floor(sec));
+            if(!syncopeTriggered)showSyncope();
+          }
+        } else {
+          // Reset on any movement or eye opening
+          if(syncopeStart&&!syncopeTriggered)syncopeStart=null;
+        }
+
+        // Focus / distraction percentage tracking — frame by frame
+        const isFocused=!closed&&Math.abs(yaw)<20&&Math.abs(pitch)<15&&phoneLvl_<30&&distractLvl_<30;
+        if(isFocused)focusFrames++;else distractedFrames++;
+        const totFr=focusFrames+distractedFrames;
+        if(totFr>0){
+          const focusPct=Math.round(focusFrames/totFr*100);
+          const distractPctV=100-focusPct;
+          document.getElementById("focusPct").textContent=arNum(focusPct)+"%";
+          document.getElementById("distractPct").textContent=arNum(distractPctV)+"%";
+          document.getElementById("kpiFocus").textContent=arNum(focusPct)+"%";
+          document.getElementById("kpiDistractPct").textContent=arNum(distractPctV)+"%";
+        }
+        updateRecommendations();
+
+        // Phone usage: detected by persistent downward pitch (head looking down) — much more reliable than EAR-based heuristic
+        const lookingDown=pitch<-15;
+        if(lookingDown) phoneLvl_=Math.min(100,phoneLvl_+1.8);
+        else phoneLvl_=Math.max(0,phoneLvl_-1.2);
 
         // Distraction — sustained head yaw away from road
         if(Math.abs(yaw)>25) distractLvl_=Math.min(100,distractLvl_+2);
@@ -308,6 +504,7 @@ function renderLoop(){
         mEyesV.textContent=closed?"مغمضة":"مفتوحة";mEyes.className="cell "+(closed?"danger":"ok");
         mBlinkV.textContent=arNum(blinkTimes.length);
         mYawV.textContent=arNum(Math.round(yaw))+"°";
+        mPitchV.textContent=arNum(Math.round(pitch))+"°";
         mPhoneV.textContent=phoneLvl_>50?"نعم":"لا";mPhone.className="cell "+(phoneLvl_>50?"danger":phoneLvl_>30?"warn":"ok");
 
         sleepBar.style.width=drowsyLvl+"%";phoneBar.style.width=phoneLvl_+"%";distractBar.style.width=distractLvl_+"%";
@@ -324,10 +521,14 @@ function renderLoop(){
         if(lvl!==lastLvl){
           lastLvl=lvl;
           if(lvl===2){
-            const t=drowsyLvl>phoneLvl_&&drowsyLvl>distractLvl_?"إرهاق":phoneLvl_>distractLvl_?"استخدام جوال":"شرود";
+            // Pick the actually-highest signal as the cause (data-driven, not random)
+            let t,key;
+            if(drowsyLvl>=phoneLvl_&&drowsyLvl>=distractLvl_){t="إرهاق";key="drowsy";}
+            else if(phoneLvl_>=distractLvl_){t="استخدام جوال";key="phone";}
+            else {t="شرود";key="distract";}
             showBanner("warn","⚠ انتبه — رصد "+t);
             addNotif("warn","⚠ تنبيه",t==="استخدام جوال"?"أبعد الجوال وركز على الطريق":t==="شرود"?"ركز أمامك — حركة رأسك كثيرة":"ملامح إرهاق — استراحة قريبة");
-            tripStats[t==="استخدام جوال"?"phone":t==="شرود"?"distract":"drowsy"]++;
+            tripStats[key]++;
           } else if(lvl===3){
             showBanner("danger","🔴 خطر — توقف فورًا");
             phStatus.classList.add("alert");phState.textContent="خطر — توقف 🔴";
@@ -351,33 +552,59 @@ function renderLoop(){
   requestAnimationFrame(renderLoop);
 }
 
-function reset(){drowsyStart=null;drowsyLvl=0;phoneLvl_=0;distractLvl_=0;emergTriggered=false;lastLvl=0;blinkTimes=[];hideBanner();emerg.classList.remove("show");phStatus.classList.remove("alert");phState.textContent="قيادة آمنة ✓";notifList.innerHTML='<div class="ph-notify"><b>🟢 مراقبة نشطة</b>AI يرصد النعاس والجوال والشرود.</div>';sleepBar.style.width="5%";phoneBar.style.width="0%";distractBar.style.width="0%";pip.className="pip live";sleepLvl.textContent="منخفض";phoneLvl.textContent="غير مستخدم";distractLvl.textContent="منتبه";}
+function reset(){drowsyStart=null;drowsyLvl=0;phoneLvl_=0;distractLvl_=0;emergTriggered=false;lastLvl=0;blinkTimes=[];earWindow.length=0;yawWin.length=0;pitchWin.length=0;yawnFrames=0;yawnsPerMin=[];closedFrameCount.count=0;hideBanner();emerg.classList.remove("show");phStatus.classList.remove("alert");phState.textContent="قيادة آمنة ✓";notifList.innerHTML='<div class="ph-notify"><b>🟢 مراقبة نشطة</b>AI يرصد النعاس والجوال والشرود والتثاؤب.</div>';sleepBar.style.width="5%";phoneBar.style.width="0%";distractBar.style.width="0%";pip.className="pip live";sleepLvl.textContent="منخفض";phoneLvl.textContent="غير مستخدم";distractLvl.textContent="منتبه";}
 
-function runScenario(k){scenario=k;reset();if(k==="live")return;
-  let p=0;const iv=setInterval(function(){p++;
-    if(k==="drowsy"){drowsyLvl=Math.min(78,p*4);if(p===8)showBanner("warn","⚠ نعاس");if(p===18){showBanner("danger","🔴 توقف فورًا");phStatus.classList.add("alert");phState.textContent="نعاس شديد 🔴";addNotif("danger","🔴","اهتزاز + صوت");}}
-    else if(k==="phone"){phoneLvl_=Math.min(75,p*5);if(p===6)showBanner("warn","📱 أبعد الجوال");if(p===15){showBanner("danger","🔴 استخدام جوال متكرر");addNotif("danger","🔴 إنذار","تحويل نقاط للمرور");}}
-    else if(k==="distract"){distractLvl_=Math.min(80,p*5);if(p===6)showBanner("warn","🌀 ركز على الطريق");if(p===15)showBanner("danger","🔴 شرود خطير");}
-    else if(k==="emergency"){drowsyLvl=Math.min(100,p*5);if(p===8)showBanner("warn","⚠ نعاس");if(p===16){showBanner("danger","🔴 لا استجابة");addNotif("danger","🚨 مستوى ٣","تجاهل الإنذارات");}if(p===22){emerg.classList.add("show");addNotif("danger","📞 ٩٣٧","مشاركة الموقع والملف الصحي");clearInterval(iv);}}
-    sleepBar.style.width=drowsyLvl+"%";phoneBar.style.width=phoneLvl_+"%";distractBar.style.width=distractLvl_+"%";
-    sleepLvl.textContent=drowsyLvl>60?"مرتفع جدًا":drowsyLvl>30?"مرتفع":"منخفض";
-    phoneLvl.textContent=phoneLvl_>60?"مستخدم!":phoneLvl_>30?"مشكوك":"غير";
-    distractLvl.textContent=distractLvl_>60?"شرود":distractLvl_>30?"ملحوظ":"منتبه";
-    if(Math.max(drowsyLvl,phoneLvl_,distractLvl_)>60){sleepBar.classList.add("danger");phoneBar.classList.add("danger");distractBar.classList.add("danger");pip.className="pip live danger";}else if(Math.max(drowsyLvl,phoneLvl_,distractLvl_)>30){pip.className="pip live warn";}
-    if(p>30)clearInterval(iv);
-  },200);
-}
-
-setInterval(function(){document.getElementById("speed").textContent=arNum(108+Math.floor(Math.random()*6));},1200);
-
-document.querySelectorAll(".scenario button").forEach(b=>b.addEventListener("click",function(){document.querySelectorAll(".scenario button").forEach(x=>x.classList.remove("active"));b.classList.add("active");runScenario(b.dataset.s);}));
+// Live trip duration tracker (only counts when monitoring is active)
+let tripStartTime=null,tripFrames=0;
+function startTripIfNeeded(){if(!tripStartTime)tripStartTime=performance.now();}
+function tripDurationMs(){return tripStartTime?(performance.now()-tripStartTime):0;}
+function fmtDur(ms){const s=Math.floor(ms/1000),mm=String(Math.floor(s/60)).padStart(2,"0"),ss=String(s%60).padStart(2,"0");return arNum(mm+":"+ss);}
+setInterval(function(){
+  if(tripStartTime){
+    const d=fmtDur(tripDurationMs());
+    document.getElementById("phTripDur").textContent=d;
+    document.getElementById("kpiDur").textContent=d;
+  }
+  document.getElementById("kpiDrowsy").textContent=arNum(tripStats.drowsy);
+  document.getElementById("kpiPhone").textContent=arNum(tripStats.phone);
+  document.getElementById("kpiDistract").textContent=arNum(tripStats.distract);
+  document.getElementById("kpiYawn").textContent=arNum(tripStats.yawn||0);
+},500);
 
 document.getElementById("endTripBtn").addEventListener("click",function(){
-  document.getElementById("rDrowsy").textContent=arNum(tripStats.drowsy+2);
-  document.getElementById("rPhone").textContent=arNum(tripStats.phone+3)+" مرات";
-  document.getElementById("rDistract").textContent=arNum(tripStats.distract+5);
-  const score=Math.max(30,100-tripStats.drowsy*5-tripStats.phone*4-tripStats.distract*3-15);
+  if(!tripStartTime){alert("الرحلة لم تبدأ بعد. يجب تفعيل الكاميرا أولًا.");return;}
+  const durMs=tripDurationMs();
+  document.getElementById("rDur").textContent=fmtDur(durMs);
+  document.getElementById("rFrames").textContent=arNum(tripFrames);
+  document.getElementById("rDrowsy").textContent=arNum(tripStats.drowsy);
+  document.getElementById("rPhone").textContent=arNum(tripStats.phone);
+  document.getElementById("rDistract").textContent=arNum(tripStats.distract);
+  document.getElementById("rYawn").textContent=arNum(tripStats.yawn||0);
+  // Compute real safety score from observed events normalized by duration (events per minute)
+  const minutes=Math.max(1,durMs/60000);
+  const drowsyRate=tripStats.drowsy/minutes;
+  const phoneRate=tripStats.phone/minutes;
+  const distractRate=tripStats.distract/minutes;
+  const yawnRate=(tripStats.yawn||0)/minutes;
+  const score=Math.max(0,Math.min(100,Math.round(100-drowsyRate*20-phoneRate*15-distractRate*10-yawnRate*8)));
   document.getElementById("repScore").textContent=arNum(score)+"%";
+  // Color metric severity based on actual rate
+  const m=document.querySelectorAll(".report-metric");
+  m.forEach(x=>x.className="report-metric");
+  if(drowsyRate>0.3)m[2].className="report-metric danger";else if(drowsyRate>0)m[2].className="report-metric warn";
+  if(phoneRate>0.5)m[3].className="report-metric danger";else if(phoneRate>0)m[3].className="report-metric warn";
+  if(distractRate>1)m[4].className="report-metric danger";else if(distractRate>0)m[4].className="report-metric warn";
+  if(yawnRate>0.2)m[5].className="report-metric warn";
+  // Real recommendations based on observed events
+  let advice="<b style=\"color:var(--sky-dark);\">💡 توصيات بناءً على مراقبتك الفعلية:</b><br>";
+  const tips=[];
+  if(tripStats.drowsy>0)tips.push("- رُصدت "+arNum(tripStats.drowsy)+" حالة نعاس — استراحة كل ساعتين موصى بها");
+  if(tripStats.phone>0)tips.push("- رُصدت "+arNum(tripStats.phone)+" حالة استخدام جوال — فعّل وضع «لا تزعج»");
+  if(tripStats.distract>0)tips.push("- رُصد "+arNum(tripStats.distract)+" شرود ذهن — حافظ على نظرك على الطريق");
+  if((tripStats.yawn||0)>0)tips.push("- رُصد "+arNum(tripStats.yawn)+" تثاؤب — مؤشر إرهاق");
+  if(tips.length===0)tips.push("- ممتاز! لم تُرصد أي مخاطر خلال هذه الرحلة");
+  advice+=tips.join("<br>");
+  document.getElementById("repAdvice").innerHTML=advice;
   document.getElementById("report").style.display="block";document.getElementById("report").scrollIntoView({behavior:"smooth"});
 });
 
