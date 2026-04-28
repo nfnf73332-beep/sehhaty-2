@@ -27,10 +27,10 @@
   .layout{display:grid;grid-template-columns:1fr 380px;gap:20px;margin:20px 0 60px;align-items:start;}
   .mirror-frame{background:#0A0826;border-radius:28px;padding:16px;border:6px solid #1a2520;box-shadow:0 40px 80px -30px rgba(0,0,0,.55);}
   .mirror{background:radial-gradient(circle at 50% 40%,#1E3A54 0%,#050B14 85%);border-radius:18px;aspect-ratio:4/5;position:relative;overflow:hidden;}
-  .mirror video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:0;transition:opacity .6s;z-index:0;filter:brightness(.82) saturate(.9);}
-  .mirror video.on{opacity:.78;}
+  .mirror video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:0;transition:opacity .6s;z-index:0;}
+  .mirror video.on{opacity:1;}
   .mirror canvas.overlay{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);z-index:2;pointer-events:none;}
-  .mirror-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 35%,rgba(5,11,20,.72) 100%);z-index:1;pointer-events:none;}
+  .mirror-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(5,11,20,.45) 100%);z-index:1;pointer-events:none;}
   .mirror-time{position:absolute;top:18px;inset-inline-end:22px;color:rgba(255,255,255,.92);font-weight:300;z-index:3;}
   .mirror-time .t{font-size:36px;letter-spacing:2px;}
   .mirror-time .d{font-size:13px;opacity:.75;}
@@ -116,8 +116,18 @@
       <div class="readings">
         <div class="reading"><div class="label">النبض</div><div class="v"><span id="r-hr">--</span><span class="u">ن/د</span></div></div>
         <div class="reading"><div class="label">التنفس</div><div class="v"><span id="r-br">--</span><span class="u">/د</span></div></div>
-        <div class="reading"><div class="label">الإرهاق</div><div class="v"><span id="r-fat">--</span><span class="u">/١٠</span></div></div>
-        <div class="reading"><div class="label">جودة النوم</div><div class="v"><span id="r-sleep">--</span><span class="u">%</span></div></div>
+        <div class="reading"><div class="label">الإرهاق (PERCLOS)</div><div class="v"><span id="r-fat">--</span><span class="u">%</span></div></div>
+        <div class="reading"><div class="label">معدل الرمش</div><div class="v"><span id="r-blink">--</span><span class="u">/د</span></div></div>
+      </div>
+      <!-- Live expression bar: real Blendshape outputs from FaceLandmarker -->
+      <div id="expressionBar" style="position:absolute;top:170px;inset-inline-start:22px;display:flex;flex-direction:column;gap:5px;z-index:3;background:rgba(0,0,0,.42);backdrop-filter:blur(8px);border:1px solid rgba(167,139,250,.3);border-radius:10px;padding:10px 12px;min-width:170px;">
+        <div style="font-size:10px;color:#A78BFA;font-weight:700;letter-spacing:.5px;margin-bottom:4px;">😊 تعابير الوجه (مباشر)</div>
+        <div id="expList" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#fff;">
+          <div style="opacity:.6;">جارٍ التحليل…</div>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:6px;padding-top:6px;font-size:11px;color:#E9D5FF;">
+          الحالة العاطفية: <b id="moodLabel" style="color:#FCD34D;">—</b>
+        </div>
       </div>
     </div></div>
   </div>
@@ -167,6 +177,36 @@ const sigR_LC=[],sigG_LC=[],sigB_LC=[]; // left cheek
 const sigR_RC=[],sigG_RC=[],sigB_RC=[]; // right cheek
 let frameTimes=[],bpm=null,bpmHist=[],earHist=[],greeted=false,lastAdv=0,advIdx=0,calibFrames=0,calibrated=false,lastSNR=0;
 const SIG=360,EARMAX=180,CALIB_NEEDED=180; // ~6-10s calibration depending on FPS
+
+// ===== REAL FATIGUE / BREATHING / EXPRESSION TRACKING =====
+// PERCLOS (% time eyes closed) is the FAA / NHTSA gold-standard fatigue measure
+const closedFrameLog=[]; // {t, closed}
+const blinkEventTimes=[]; // when full blinks happened
+let prevClosedState=false;
+// Yawn detection
+const yawnEvents=[];
+let yawnFrames=0,lastYawnRecorded=0;
+// Breathing — track vertical face position over time, FFT-style oscillation analysis
+const faceYHistory=[];
+let breathingRate=null;
+// Expression history
+let lastExpressions=null,lastMood="—";
+
+// Top-K blendshape categories considered "facial expressions" — 52 are emitted by FaceLandmarker
+const EXPRESSION_LABELS={
+  mouthSmileLeft:"ابتسامة (يسار)",mouthSmileRight:"ابتسامة (يمين)",
+  mouthFrownLeft:"عبوس (يسار)",mouthFrownRight:"عبوس (يمين)",
+  browDownLeft:"حاجب منخفض (يسار)",browDownRight:"حاجب منخفض (يمين)",
+  browInnerUp:"حاجب مرفوع (داخل)",browOuterUpLeft:"حاجب مرفوع (يسار خارج)",browOuterUpRight:"حاجب مرفوع (يمين خارج)",
+  eyeWideLeft:"عين متسعة (يسار)",eyeWideRight:"عين متسعة (يمين)",
+  eyeSquintLeft:"عين مغمضة قليلًا (يسار)",eyeSquintRight:"عين مغمضة قليلًا (يمين)",
+  cheekPuff:"نفخ الخدّين",cheekSquintLeft:"تجعّد خدّ (يسار)",cheekSquintRight:"تجعّد خدّ (يمين)",
+  jawOpen:"فم مفتوح (تثاؤب)",jawForward:"فك متقدم",
+  mouthPucker:"شفاه مزمومة",mouthFunnel:"شفاه مدوّرة",
+  mouthRollLower:"شفة سفلى مطوية",mouthRollUpper:"شفة عليا مطوية",
+  noseSneerLeft:"تجعّد أنف (يسار)",noseSneerRight:"تجعّد أنف (يمين)",
+  mouthDimpleLeft:"غمّازة (يسار)",mouthDimpleRight:"غمّازة (يمين)"
+};
 async function loadModel(){try{const fs=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numFaces:1,outputFaceBlendshapes:true,minFaceDetectionConfidence:0.7,minFacePresenceConfidence:0.7,minTrackingConfidence:0.7});document.getElementById("statusTxt").textContent="✓ تحليل نشط (POS)";return true;}catch(e){return false;}}
 const LE=[33,160,158,133,153,144],RE=[362,385,387,263,373,380];
 function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
@@ -242,7 +282,37 @@ function snr(sig){
   return Math.max(-10,Math.min(30,10*Math.log10((sumSig*sumSig)/(sumNoise*sig.length))));
 }
 function drawWave(b){wctx.clearRect(0,0,wc.width,wc.height);wctx.strokeStyle="#A78BFA";wctx.lineWidth=2;wctx.beginPath();b.forEach((v,i)=>{const x=(i/b.length)*wc.width,y=wc.height/2-v*(wc.height/2-4);if(i===0)wctx.moveTo(x,y);else wctx.lineTo(x,y);});wctx.stroke();}
-function computeScores(){const avgE=earHist.length>20?earHist.slice(-120).reduce((a,b)=>a+b,0)/earHist.slice(-120).length:0.3;const sleep=Math.max(0,Math.min(100,Math.round((avgE-0.18)*400+50)));let heart=50;if(bpm){if(bpm>=60&&bpm<=85)heart=90;else if(bpm>=55&&bpm<=100)heart=72;else heart=Math.max(30,90-Math.abs(bpm-72)*1.5);}let stress=60;if(bpmHist.length>5){const mean=bpmHist.reduce((a,b)=>a+b,0)/bpmHist.length;const v=bpmHist.reduce((a,b)=>a+(b-mean)*(b-mean),0)/bpmHist.length;stress=Math.max(30,Math.min(95,Math.round(100-Math.abs(Math.sqrt(v)-6)*8)));}const vit=Math.round((sleep+heart+stress)/3);return{sleep,heart,stress,vit};}
+function computeScores(){
+  // Sleep quality proxy: inverse of fatigue index (PERCLOS + blink anomaly + yawns)
+  let sleep=70;
+  if(closedFrameLog.length>30){
+    const closedCount=closedFrameLog.filter(f=>f.closed).length;
+    const perclos=closedCount/closedFrameLog.length*100;
+    const blinkRate=blinkEventTimes.length;
+    const blinkAnom=blinkRate<8?15:blinkRate>25?(blinkRate-25)*1.5:0;
+    const yawnPen=Math.min(20,yawnEvents.filter(t=>performance.now()-t<300000).length*7);
+    const fatigue=Math.min(100,perclos*1.5+blinkAnom+yawnPen);
+    sleep=Math.max(0,Math.min(100,Math.round(100-fatigue)));
+  }
+  // Heart score from BPM range
+  let heart=50;
+  if(bpm){
+    if(bpm>=60&&bpm<=85)heart=90;
+    else if(bpm>=55&&bpm<=100)heart=72;
+    else heart=Math.max(30,90-Math.abs(bpm-72)*1.5);
+  }
+  // Stress from HRV (RMSSD) — higher HRV = lower stress
+  let stress=60;
+  if(bpmHist.length>5){
+    let sumSq=0,n=0;
+    for(let i=1;i<bpmHist.length;i++){const d=bpmHist[i]-bpmHist[i-1];sumSq+=d*d;n++;}
+    const rmssd=n?Math.sqrt(sumSq/n):0;
+    // Healthy RMSSD is roughly 20-50ms (over BPM-derived intervals); we map heuristically
+    stress=Math.max(20,Math.min(95,Math.round(100-Math.abs(rmssd*15-50))));
+  }
+  const vit=Math.round((sleep+heart+stress)/3);
+  return {sleep,heart,stress,vit};
+}
 function updSc(id,v){const f=document.getElementById("sc-"+id),l=document.getElementById("sc-"+id+"-val");f.style.width=v+"%";f.classList.remove("warn","bad");if(v<45)f.classList.add("bad");else if(v<65)f.classList.add("warn");l.textContent=arNum(v)+"%";l.className=v<45?"bad":v<65?"warn":"ok";}
 function genAdvice(s){const a=[];if(s.sleep<55)a.push({ico:"😴",title:"يبدو أنك لم تنم جيدًا",msg:"مؤشرات عينيك توحي بنوم غير كافٍ. جرب ٧-٨ ساعات الليلة.",type:"warn"});if(s.stress<55)a.push({ico:"🧘",title:"توترك مرتفع",msg:"تنفس عميق دقيقتين يخفض التوتر.",type:"warn"});if(s.heart<55)a.push({ico:"❤️",title:"النبض خارج الحدود",msg:"قد يكون كافيين أو قلة حركة.",type:"warn"});if(s.vit>75)a.push({ico:"🌟",title:"حالتك ممتازة",msg:"استمر على نمطك.",type:"tip"});if(a.length===0){a.push({ico:"💧",title:"تذكير ترطيب",msg:"اشرب كوب ماء.",type:"tip"});}return a;}
 function showAdv(a){const b=document.getElementById("adviceBubble");document.getElementById("adviceIco").textContent=a.ico;document.getElementById("adviceTitle").textContent=a.title;document.getElementById("adviceMsg").textContent=a.msg;b.className="advice-bubble show "+(a.type||"");if(a.type==="warn")speak(a.title);}
@@ -256,7 +326,7 @@ function meanRGB(imgData){
 // Push to fixed-length ring buffers
 function pushBuf(buf,v,max){buf.push(v);if(buf.length>max)buf.shift();}
 
-function processFrame(lm){
+function processFrame(lm,blendshapes){
   if(!lm)return;
   const w=overlay.width,h=overlay.height;
   // Multi-ROI: forehead (10,151,67,297), left cheek (50,205,123), right cheek (280,425,352)
@@ -362,23 +432,115 @@ function processFrame(lm){
     }
   }
 
-  // Eye Aspect Ratio for fatigue
+  // ========= EYE ANALYSIS =========
   const lE=ear(lm,LE),rE=ear(lm,RE),avgE=(lE+rE)/2;
   earHist.push(avgE);if(earHist.length>EARMAX)earHist.shift();
   const now=performance.now();
-  // Respiration rate is derived from low-frequency component of rPPG signal — only show after enough samples
-  if(bpmHist.length>30){
-    // Estimate from rPPG modulation envelope (typical range 12-20 br/min)
-    let envSum=0,envCount=0;
-    for(let i=10;i<bpmHist.length;i++){envSum+=Math.abs(bpmHist[i]-bpmHist[i-10]);envCount++;}
-    const envMag=envCount?envSum/envCount:0;
-    const br=Math.max(8,Math.min(28,Math.round(12+envMag*1.5)));
-    document.getElementById("r-br").textContent=arNum(br);
+  // Use blendshapes for definitive eye-closure (more robust than EAR alone)
+  let blinkLeft=0,blinkRight=0,jawOpen=0;
+  if(blendshapes){
+    const find=name=>{const c=blendshapes.find(x=>x.categoryName===name);return c?c.score:0;};
+    blinkLeft=find("eyeBlinkLeft");
+    blinkRight=find("eyeBlinkRight");
+    jawOpen=find("jawOpen");
   }
-  // Fatigue from EAR average — only after meaningful sample
-  if(earHist.length>60){
-    const sliceAvg=earHist.slice(-60).reduce((a,b)=>a+b,0)/60;
-    document.getElementById("r-fat").textContent=arNum(Math.max(0,Math.min(10,Math.round(10-sliceAvg*30))));
+  const eyesClosed=((blinkLeft+blinkRight)/2>0.5)||avgE<0.18;
+  // Log closed-eye state for PERCLOS
+  closedFrameLog.push({t:now,closed:eyesClosed});
+  while(closedFrameLog.length&&now-closedFrameLog[0].t>60000)closedFrameLog.shift();
+  // Detect blink event (closed → open transition)
+  if(prevClosedState&&!eyesClosed)blinkEventTimes.push(now);
+  prevClosedState=eyesClosed;
+  while(blinkEventTimes.length&&now-blinkEventTimes[0]>60000)blinkEventTimes.shift();
+
+  // ========= PERCLOS (% time eyes closed in last 60s) — FAA gold standard =========
+  if(closedFrameLog.length>30){
+    const closedCount=closedFrameLog.filter(f=>f.closed).length;
+    const perclos=Math.round(closedCount/closedFrameLog.length*100);
+    // Adjust by blink rate and yawn count for full fatigue index
+    const blinksPerMin=blinkEventTimes.length;
+    // Normal blink rate is 12-20/min; <8 or >25 indicates fatigue
+    const blinkAnomaly=blinksPerMin<8?15:blinksPerMin>25?(blinksPerMin-25)*1.5:0;
+    const yawnPenalty=Math.min(20,yawnEvents.filter(t=>now-t<300000).length*7);
+    const fatigueIdx=Math.max(0,Math.min(100,perclos*1.5+blinkAnomaly+yawnPenalty));
+    document.getElementById("r-fat").textContent=arNum(Math.round(fatigueIdx));
+    document.getElementById("r-blink").textContent=arNum(blinksPerMin);
+  }
+
+  // ========= YAWN DETECTION (jawOpen blendshape sustained ~12 frames) =========
+  if(jawOpen>0.55)yawnFrames++;
+  else{
+    if(yawnFrames>=12&&now-lastYawnRecorded>3000){
+      yawnEvents.push(now);lastYawnRecorded=now;
+    }
+    yawnFrames=0;
+  }
+  while(yawnEvents.length&&now-yawnEvents[0]>600000)yawnEvents.shift();
+
+  // ========= REAL RESPIRATION RATE — face vertical oscillation =========
+  // As person breathes, head/face rises and falls 1-3 mm. We detect the dominant 0.15-0.5 Hz oscillation
+  const noseY=lm[1]?lm[1].y:null; // nose tip
+  if(noseY!==null){
+    faceYHistory.push({t:now,y:noseY});
+    while(faceYHistory.length&&now-faceYHistory[0].t>30000)faceYHistory.shift();
+    if(faceYHistory.length>120){
+      // Detrend
+      const ys=faceYHistory.map(f=>f.y);
+      const mean=ys.reduce((a,b)=>a+b,0)/ys.length;
+      const detrendY=ys.map(y=>y-mean);
+      // Count zero crossings in detrended signal → estimate frequency
+      let crossings=0;
+      for(let i=1;i<detrendY.length;i++){
+        if((detrendY[i-1]<0&&detrendY[i]>=0)||(detrendY[i-1]>0&&detrendY[i]<=0))crossings++;
+      }
+      const durationSec=(faceYHistory[faceYHistory.length-1].t-faceYHistory[0].t)/1000;
+      // Each breath cycle = 2 zero crossings; rate per minute
+      const bpm60=durationSec>0?Math.round((crossings/2)/durationSec*60):0;
+      // Plausibility window: 8-30 br/min; otherwise show "—"
+      if(bpm60>=8&&bpm60<=30){
+        breathingRate=breathingRate?Math.round(breathingRate*0.7+bpm60*0.3):bpm60;
+        document.getElementById("r-br").textContent=arNum(breathingRate);
+      }
+    }
+  }
+
+  // ========= FACIAL EXPRESSION DETECTION (real Blendshapes) =========
+  if(blendshapes){
+    // Find top expressions (excluding eye blinks which are tracked separately)
+    const exclude=["eyeBlinkLeft","eyeBlinkRight","eyeLookInLeft","eyeLookInRight","eyeLookOutLeft","eyeLookOutRight","eyeLookUpLeft","eyeLookUpRight","eyeLookDownLeft","eyeLookDownRight","_neutral","mouthClose","mouthLeft","mouthRight","mouthShrugLower","mouthShrugUpper","mouthStretchLeft","mouthStretchRight","mouthLowerDownLeft","mouthLowerDownRight","mouthUpperUpLeft","mouthUpperUpRight","mouthPressLeft","mouthPressRight","jawLeft","jawRight","tongueOut"];
+    const expressions=blendshapes.filter(c=>!exclude.includes(c.categoryName)&&c.score>0.18&&EXPRESSION_LABELS[c.categoryName])
+      .sort((a,b)=>b.score-a.score).slice(0,4);
+    const expList=document.getElementById("expList");
+    if(expList){
+      if(expressions.length){
+        expList.innerHTML=expressions.map(e=>{
+          const pct=Math.round(e.score*100);
+          const barColor=pct>50?"#10B981":pct>30?"#FCD34D":"#A78BFA";
+          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">'+
+            '<span>'+(EXPRESSION_LABELS[e.categoryName]||e.categoryName)+'</span>'+
+            '<span style="color:'+barColor+';font-weight:700;">'+arNum(pct)+'%</span>'+
+            '</div>';
+        }).join("");
+      } else {
+        expList.innerHTML='<div style="opacity:.6;">وجه محايد</div>';
+      }
+    }
+    // Mood inference from combination of blendshapes
+    const find=name=>{const c=blendshapes.find(x=>x.categoryName===name);return c?c.score:0;};
+    const smile=(find("mouthSmileLeft")+find("mouthSmileRight"))/2;
+    const frown=(find("mouthFrownLeft")+find("mouthFrownRight"))/2;
+    const browDown=(find("browDownLeft")+find("browDownRight"))/2;
+    const browUp=find("browInnerUp");
+    const squint=(find("eyeSquintLeft")+find("eyeSquintRight"))/2;
+    let mood="هادئ";
+    if(smile>0.3)mood="سعيد 😊";
+    else if(frown>0.3&&browDown>0.25)mood="متضايق 😞";
+    else if(browDown>0.4)mood="مُركَّز/غاضب 😠";
+    else if(browUp>0.5&&!smile)mood="مندهش 😮";
+    else if(squint>0.4)mood="مُتعَب/يحاول التركيز 😣";
+    else if(jawOpen>0.5)mood="متثاءب 🥱";
+    document.getElementById("moodLabel").textContent=mood;
+    lastMood=mood;
   }
   // Update session KPIs from real measurements
   if(!window._sessStart)window._sessStart=now;
@@ -396,10 +558,16 @@ function processFrame(lm){
   document.getElementById("sessSnr").textContent=arNum(Math.round(lastSNR))+" dB";
   const sc=computeScores();
   updSc("sleep",sc.sleep);updSc("heart",sc.heart);updSc("stress",sc.stress);updSc("vit",sc.vit);
-  document.getElementById("r-sleep").textContent=arNum(sc.sleep);
+  // r-sleep was removed from main view but kept on side card
+  const rSleepEl=document.getElementById("r-sleep");if(rSleepEl)rSleepEl.textContent=arNum(sc.sleep);
   if(now-lastAdv>8000){const a=genAdvice(sc);showAdv(a[advIdx%a.length]);updCoach(sc);advIdx++;lastAdv=now;}
 }
-function loop(){if(running&&video.readyState>=2&&faceLandmarker){const r=faceLandmarker.detectForVideo(video,performance.now());if(r.faceLandmarks&&r.faceLandmarks.length){processFrame(r.faceLandmarks[0]);if(!greeted){greeted=true;speak(document.getElementById("greet").textContent+". "+document.getElementById("subLine").textContent);}}else{octx.clearRect(0,0,overlay.width,overlay.height);}}requestAnimationFrame(loop);}
+function loop(){if(running&&video.readyState>=2&&faceLandmarker){const r=faceLandmarker.detectForVideo(video,performance.now());if(r.faceLandmarks&&r.faceLandmarks.length){
+  const lm=r.faceLandmarks[0];
+  const bs=(r.faceBlendshapes&&r.faceBlendshapes.length)?r.faceBlendshapes[0].categories:null;
+  processFrame(lm,bs);
+  if(!greeted){greeted=true;speak(document.getElementById("greet").textContent+". "+document.getElementById("subLine").textContent);}
+}else{octx.clearRect(0,0,overlay.width,overlay.height);}}requestAnimationFrame(loop);}
 async function initAI(){if(!FaceLandmarker)return;const ok=await loadModel();if(ok){running=true;loop();}}
 window.addEventListener("sehhaty:cameraReady",initAI);if(window._camReady)initAI();
 </script>

@@ -168,16 +168,41 @@
         <div class="bar"><div class="bar-fill" id="distractBar" style="width:0%"></div></div>
       </div>
       <div class="alert-banner" id="alertBanner"></div>
-      <!-- Syncope/deep-sleep override panel — appears when driver appears unconscious -->
+      <!-- Drowsy progressive alerts: gentle → strong → emergency only after 30s sustained -->
+      <div id="drowsyAlertPanel" style="position:absolute;top:60px;left:50%;transform:translateX(-50%);min-width:300px;max-width:90%;display:none;flex-direction:column;align-items:center;text-align:center;color:#fff;padding:14px 22px;border-radius:14px;z-index:7;backdrop-filter:blur(8px);font-weight:700;font-size:14px;">
+        <span id="drowsyAlertText"></span>
+        <span id="drowsyAlertSub" style="font-size:12px;font-weight:400;opacity:.85;margin-top:4px;"></span>
+      </div>
+      <!-- Final emergency screen — appears ONLY after 30s of continuous closed eyes + still head -->
       <div id="syncopePanel" style="position:absolute;inset:0;background:rgba(120,20,30,.96);display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;z-index:9;animation:shake 0.6s infinite;">
         <div style="font-size:64px;margin-bottom:10px;">🆘</div>
         <h2 style="font-size:26px;margin-bottom:8px;">السائق غير مستجيب — احتمال إغماء</h2>
-        <p style="font-size:14px;opacity:.92;margin-bottom:14px;">عينان مغمضتان <span id="syncopeSec">٠</span> ثانية متواصلة بدون حركة رأس</p>
+        <p style="font-size:14px;opacity:.92;margin-bottom:14px;">عينان مغمضتان <span id="syncopeSec">٣٠</span> ثانية متواصلة بدون حركة رأس</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
           <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">🚑 ٩٣٧ — اتصال آلي خلال <span id="syncopeCountdown">٥</span> ث</div>
           <div style="background:rgba(0,0,0,.3);padding:8px 14px;border-radius:8px;">📍 GPS مُفعّل</div>
         </div>
         <button id="syncopeCancel" style="margin-top:14px;background:#fff;color:#7a141e;border:none;padding:10px 22px;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;">أنا بخير — إلغاء</button>
+      </div>
+
+      <!-- Phone-use monitor (top-right) — escalating notifications, NEVER calls emergency -->
+      <div id="phoneMonitor" style="position:absolute;top:70px;inset-inline-end:14px;background:rgba(20,20,30,.85);backdrop-filter:blur(10px);border:1px solid rgba(167,139,250,.3);border-radius:14px;padding:12px 14px;color:#fff;width:200px;z-index:6;transition:all .3s;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="font-size:22px;">📱</div>
+          <div style="flex:1;">
+            <div style="font-size:11px;opacity:.7;line-height:1.2;">حالة الجوال</div>
+            <div id="phoneMonStatus" style="font-size:13px;font-weight:700;color:#34D399;">غير مستخدم</div>
+          </div>
+        </div>
+        <div style="font-size:10px;opacity:.7;margin-bottom:4px;">مدة الاستخدام المتواصل</div>
+        <div style="background:rgba(255,255,255,.1);height:6px;border-radius:99px;overflow:hidden;margin-bottom:6px;">
+          <div id="phoneMonBar" style="height:100%;width:0%;background:linear-gradient(90deg,#10B981,#FBBF24,#DC2626);transition:width .3s;"></div>
+        </div>
+        <div id="phoneMonTime" style="font-size:11px;font-variant-numeric:tabular-nums;text-align:center;color:#FBBF24;">٠.٠ ث</div>
+      </div>
+      <!-- Pop-up phone notification (transient) -->
+      <div id="phoneNotif" style="position:absolute;top:14px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(220,38,38,.95);color:#fff;padding:10px 22px;border-radius:12px;font-weight:700;font-size:14px;z-index:8;display:none;opacity:0;transition:all .35s;box-shadow:0 16px 36px -10px rgba(220,38,38,.5);">
+        📱 انتبه — أبعد الجوال
       </div>
       <div class="emerg" id="emerg">
         <div class="ico">📞</div>
@@ -316,43 +341,135 @@ function smoothAngle(win,v){win.push(v);if(win.length>4)win.shift();let s=0;for(
 
 // Focus/distraction running counters (updated every frame)
 let focusFrames=0,distractedFrames=0;
-// Syncope detection: closed eyes >2s + head completely still (yaw and pitch variance near 0)
+
+// ============== DROWSY → SYNCOPE PROGRESSION ==============
+// Behavior: build a continuous "eyes closed" timer. Stages:
+//   2-5 sec   → silent indicator (normal blink/yawn)
+//   5-12 sec  → soft warning  "افتح عينيك"
+//   12-25 sec → strong banner "نعاس شديد — توقف"
+//   25-30 sec → final escalation banner "احتمال إغماء"
+//   30+ sec  → ONLY now show emergency syncope panel + auto 937 countdown
 const headHistory=[];
+let closedContinuousMs=0,closedLastMs=0,prevClosedLogged=false;
 let syncopeStart=null,syncopeTriggered=false,syncopeTimerId=null;
-function checkSyncope(closed,yaw,pitch){
-  // Track head pose history (last 60 frames ~= 2s @ 30fps)
+let drowsyStage=0; // 0=clear, 1=silent, 2=warn, 3=strong, 4=critical
+const SYNCOPE_THRESHOLD_SEC=30; // emergency only after this many seconds
+
+function trackHeadStillness(yaw,pitch){
   headHistory.push({y:yaw,p:pitch,t:performance.now()});
   while(headHistory.length>60)headHistory.shift();
   if(headHistory.length<30)return false;
-  // Compute variance of head pose over the window
   let mY=0,mP=0;for(const h of headHistory){mY+=h.y;mP+=h.p;}mY/=headHistory.length;mP/=headHistory.length;
   let vY=0,vP=0;for(const h of headHistory){vY+=(h.y-mY)**2;vP+=(h.p-mP)**2;}vY/=headHistory.length;vP/=headHistory.length;
-  // Stillness threshold (degrees of variance) and eyes-closed condition
-  const stillHead=vY<2.5&&vP<2.5;
-  return closed&&stillHead;
+  return vY<2.5&&vP<2.5;
 }
-function showSyncope(){
+
+function setDrowsyStage(stage,seconds){
+  if(stage===drowsyStage)return;
+  drowsyStage=stage;
+  const panel=document.getElementById("drowsyAlertPanel");
+  const txt=document.getElementById("drowsyAlertText");
+  const sub=document.getElementById("drowsyAlertSub");
+  if(stage===0){panel.style.display="none";return;}
+  panel.style.display="flex";
+  if(stage===1){
+    panel.style.background="rgba(251,191,36,.92)";panel.style.color="#3d2a00";
+    txt.textContent="👁 تنبّه — افتح عينيك";
+    sub.textContent="عينان مغمضتان "+arNum(seconds.toFixed(0))+" ث";
+  } else if(stage===2){
+    panel.style.background="rgba(234,88,12,.95)";panel.style.color="#fff";
+    txt.textContent="⚠ نعاس — انتبه للطريق";
+    sub.textContent="عينان مغمضتان "+arNum(seconds.toFixed(0))+" ث · خذ استراحة قريبًا";
+    try{if("speechSynthesis" in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("انتبه — افتح عينيك");u.lang="ar-SA";u.rate=1.1;window.speechSynthesis.speak(u);}}catch(e){}
+  } else if(stage===3){
+    panel.style.background="rgba(220,38,38,.96)";panel.style.color="#fff";
+    txt.textContent="🔴 نعاس شديد — توقّف فورًا";
+    sub.textContent="عينان مغمضتان "+arNum(seconds.toFixed(0))+" ث · سيتم إصدار إنذار طوارئ خلال "+arNum(Math.max(0,Math.ceil(SYNCOPE_THRESHOLD_SEC-seconds)))+" ث";
+    try{if("speechSynthesis" in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("نعاس شديد — توقف فورًا");u.lang="ar-SA";u.rate=1.15;window.speechSynthesis.speak(u);}}catch(e){}
+    addNotif("danger","🔴 توقف فورًا","نعاس شديد مرصود — اخرج للجانب");
+    tripStats.drowsy++;
+  } else if(stage===4){
+    panel.style.background="rgba(120,20,30,.96)";panel.style.color="#fff";
+    txt.textContent="🆘 احتمال إغماء — تحضير اتصال طوارئ";
+    sub.textContent="عينان مغمضتان "+arNum(seconds.toFixed(0))+" ث متواصلة";
+  }
+}
+
+function showSyncopePanel(){
   if(syncopeTriggered)return;syncopeTriggered=true;
   const panel=document.getElementById("syncopePanel");
+  document.getElementById("drowsyAlertPanel").style.display="none";
   panel.style.display="flex";
+  document.getElementById("syncopeSec").textContent=arNum(SYNCOPE_THRESHOLD_SEC);
   let cd=5;document.getElementById("syncopeCountdown").textContent=arNum(cd);
   syncopeTimerId=setInterval(()=>{
     cd--;document.getElementById("syncopeCountdown").textContent=arNum(cd);
     if(cd<=0){
       clearInterval(syncopeTimerId);
-      addNotif("danger","🚨 ٩٣٧","تم إصدار طلب طوارئ آلي — الإغماء المُكتشف");
-      // Hand off to emergency screen
+      addNotif("danger","🚨 ٩٣٧","تم إصدار بلاغ طوارئ — الإغماء المُكتشف");
       panel.style.display="none";emerg.classList.add("show");
     }
   },1000);
   try{if("speechSynthesis" in window){const u=new SpeechSynthesisUtterance("احتمال إغماء — اتصال طوارئ خلال خمس ثوان");u.lang="ar-SA";u.rate=1.05;window.speechSynthesis.speak(u);}}catch(e){}
 }
-function hideSyncope(){
+function resetDrowsyChain(){
+  closedContinuousMs=0;closedLastMs=0;
+  if(drowsyStage!==0)setDrowsyStage(0,0);
   syncopeTriggered=false;syncopeStart=null;
   document.getElementById("syncopePanel").style.display="none";
   if(syncopeTimerId){clearInterval(syncopeTimerId);syncopeTimerId=null;}
 }
-document.getElementById("syncopeCancel").addEventListener("click",hideSyncope);
+document.getElementById("syncopeCancel").addEventListener("click",resetDrowsyChain);
+
+// ============== PHONE-USE MONITOR (no emergency, only graduated notifications) ==============
+let phoneContinuousMs=0,phoneLastMs=0,phoneNotifLevel=0,phoneNotifTimer=null;
+const PHONE_NOTIF_LEVELS=[
+  {sec:3,msg:"📱 انتبه — أبعد الجوال",bg:"rgba(251,191,36,.95)",color:"#3d2a00"},
+  {sec:8,msg:"📱 ركّز على الطريق — الجوال يشتّت",bg:"rgba(234,88,12,.95)",color:"#fff"},
+  {sec:15,msg:"⚠ استخدام جوال طويل — توقّف للرد بأمان",bg:"rgba(220,38,38,.95)",color:"#fff"}
+];
+function showPhoneToast(level){
+  const cfg=PHONE_NOTIF_LEVELS[level];
+  const t=document.getElementById("phoneNotif");
+  t.style.background=cfg.bg;t.style.color=cfg.color;t.textContent=cfg.msg;
+  t.style.display="block";
+  requestAnimationFrame(()=>{t.style.opacity="1";t.style.transform="translateX(-50%) translateY(0)";});
+  if(phoneNotifTimer)clearTimeout(phoneNotifTimer);
+  phoneNotifTimer=setTimeout(()=>{
+    t.style.opacity="0";t.style.transform="translateX(-50%) translateY(-20px)";
+    setTimeout(()=>{t.style.display="none";},400);
+  },2800);
+  // Audio cue (mild) — only on first level to avoid annoying spam
+  if(level===0){try{if("speechSynthesis" in window){const u=new SpeechSynthesisUtterance("انتبه");u.lang="ar-SA";u.rate=1.1;window.speechSynthesis.speak(u);}}catch(e){}}
+  tripStats.phone++;
+}
+function updatePhoneMonitor(usingPhone){
+  const now=performance.now();
+  if(usingPhone){
+    if(!phoneLastMs)phoneLastMs=now;
+    const dt=Math.min(100,now-phoneLastMs); // cap dt to avoid jumps
+    phoneContinuousMs+=dt;phoneLastMs=now;
+  } else {
+    // Reset gradually: each second of not-phone reduces 1.5s of accumulated time
+    if(phoneContinuousMs>0){phoneContinuousMs=Math.max(0,phoneContinuousMs-(now-(phoneLastMs||now))*1.5);}
+    phoneLastMs=now;
+  }
+  const sec=phoneContinuousMs/1000;
+  const status=document.getElementById("phoneMonStatus");
+  const bar=document.getElementById("phoneMonBar");
+  const time=document.getElementById("phoneMonTime");
+  // Bar fills toward 15s threshold
+  bar.style.width=Math.min(100,sec/15*100)+"%";
+  time.textContent=arNum(sec.toFixed(1))+" ث";
+  if(sec<2){status.textContent="غير مستخدم";status.style.color="#34D399";phoneNotifLevel=0;}
+  else if(sec<8){status.textContent="رصد استخدام";status.style.color="#FBBF24";}
+  else if(sec<15){status.textContent="استخدام طويل";status.style.color="#F87171";}
+  else {status.textContent="ركّز على الطريق!";status.style.color="#FCA5A5";}
+  // Trigger notifications at thresholds (once each)
+  for(let i=PHONE_NOTIF_LEVELS.length-1;i>=0;i--){
+    if(sec>=PHONE_NOTIF_LEVELS[i].sec&&phoneNotifLevel<i+1){phoneNotifLevel=i+1;showPhoneToast(i);break;}
+  }
+}
 
 // Live recommendations engine — updated based on observed event rates
 let lastRecoUpdate=0;
@@ -457,23 +574,29 @@ function renderLoop(){
         yaw=smoothAngle(yawWin,yaw);
         pitch=smoothAngle(pitchWin,pitch);
 
-        // Drowsiness: requires multi-frame closed eyes confirmation
-        if(closed){if(!drowsyStart)drowsyStart=now;drowsyLvl=Math.min(100,(now-drowsyStart)/30);}
-        else{drowsyStart=null;drowsyLvl=Math.max(0,drowsyLvl-2);}
-
-        // ===== SYNCOPE / DEEP UNCONSCIOUSNESS DETECTION =====
-        // Eyes closed continuously for >2s AND head completely still → potential syncope
-        const looksUnconscious=checkSyncope(closed,yaw,pitch);
-        if(looksUnconscious){
-          if(!syncopeStart)syncopeStart=now;
-          const sec=(now-syncopeStart)/1000;
-          if(sec>2.0){
-            document.getElementById("syncopeSec").textContent=arNum(Math.floor(sec));
-            if(!syncopeTriggered)showSyncope();
+        // ===== PROGRESSIVE DROWSINESS → SYNCOPE (30s threshold) =====
+        const headStill=trackHeadStillness(yaw,pitch);
+        if(closed){
+          if(!closedLastMs)closedLastMs=now;
+          const dt=Math.min(100,now-closedLastMs);
+          closedContinuousMs+=dt;closedLastMs=now;
+          const sec=closedContinuousMs/1000;
+          // Stage progression — natural blinking is sub-1s; only react after 2s of held closure
+          if(sec>=SYNCOPE_THRESHOLD_SEC&&headStill){
+            // FINAL: emergency screen + auto 937
+            if(!syncopeTriggered){setDrowsyStage(4,sec);showSyncopePanel();}
           }
+          else if(sec>=25){setDrowsyStage(4,sec);}
+          else if(sec>=12){setDrowsyStage(3,sec);}
+          else if(sec>=5){setDrowsyStage(2,sec);}
+          else if(sec>=2){setDrowsyStage(1,sec);}
+          else {if(drowsyStage!==0)setDrowsyStage(0,0);}
         } else {
-          // Reset on any movement or eye opening
-          if(syncopeStart&&!syncopeTriggered)syncopeStart=null;
+          // Eyes opened — reset chain immediately
+          if(closedContinuousMs>0||drowsyStage!==0){
+            closedContinuousMs=0;closedLastMs=0;
+            if(drowsyStage!==0)setDrowsyStage(0,0);
+          }
         }
 
         // Focus / distraction percentage tracking — frame by frame
@@ -490,14 +613,19 @@ function renderLoop(){
         }
         updateRecommendations();
 
-        // Phone usage: detected by persistent downward pitch (head looking down) — much more reliable than EAR-based heuristic
+        // Phone usage detection: persistent downward pitch (head looking at lap/phone)
         const lookingDown=pitch<-15;
         if(lookingDown) phoneLvl_=Math.min(100,phoneLvl_+1.8);
         else phoneLvl_=Math.max(0,phoneLvl_-1.2);
+        // Drive the dedicated phone monitor (continuous time-based notifications, NEVER emergency)
+        updatePhoneMonitor(lookingDown);
 
-        // Distraction — sustained head yaw away from road
+        // Distraction — sustained head yaw away from road (warning only, never emergency)
         if(Math.abs(yaw)>25) distractLvl_=Math.min(100,distractLvl_+2);
         else distractLvl_=Math.max(0,distractLvl_-1.5);
+
+        // drowsyLvl is derived from new closedContinuousMs (used only to drive the bar UI)
+        drowsyLvl=Math.min(100,(closedContinuousMs/1000)/SYNCOPE_THRESHOLD_SEC*100);
 
         earEl.textContent=avgE.toFixed(2);
         attnEl.textContent=arNum(Math.round(Math.max(0,100-drowsyLvl-phoneLvl_*.3-distractLvl_*.3)))+"%";
@@ -515,28 +643,19 @@ function renderLoop(){
         else if(drowsyLvl>30||phoneLvl_>30||distractLvl_>30){pip.className="pip live warn";}
         else{sleepBar.classList.remove("danger");phoneBar.classList.remove("danger");distractBar.classList.remove("danger");pip.className="pip live";}
 
-        // Alerts
-        const worst=Math.max(drowsyLvl,phoneLvl_,distractLvl_);
-        const lvl=worst>90?4:worst>65?3:worst>35?2:1;
-        if(lvl!==lastLvl){
-          lastLvl=lvl;
-          if(lvl===2){
-            // Pick the actually-highest signal as the cause (data-driven, not random)
-            let t,key;
-            if(drowsyLvl>=phoneLvl_&&drowsyLvl>=distractLvl_){t="إرهاق";key="drowsy";}
-            else if(phoneLvl_>=distractLvl_){t="استخدام جوال";key="phone";}
-            else {t="شرود";key="distract";}
-            showBanner("warn","⚠ انتبه — رصد "+t);
-            addNotif("warn","⚠ تنبيه",t==="استخدام جوال"?"أبعد الجوال وركز على الطريق":t==="شرود"?"ركز أمامك — حركة رأسك كثيرة":"ملامح إرهاق — استراحة قريبة");
-            tripStats[key]++;
-          } else if(lvl===3){
-            showBanner("danger","🔴 خطر — توقف فورًا");
-            phStatus.classList.add("alert");phState.textContent="خطر — توقف 🔴";
-            addNotif("danger","🔴 إنذار","اهتزاز + صوت عالٍ");
-          } else if(lvl===4&&!emergTriggered){
-            emergTriggered=true;emerg.classList.add("show");
-            addNotif("danger","🚨 طوارئ","الاتصال بـ٩٣٧ تلقائيًا");
-          } else if(lvl===1){hideBanner();}
+        // Distraction-only banner (NEVER escalates to emergency)
+        // Phone alerts handled by phoneMonitor widget; drowsy by the progressive drowsy panel.
+        const distLvl=distractLvl_>65?3:distractLvl_>35?2:1;
+        if(distLvl!==lastLvl){
+          lastLvl=distLvl;
+          if(distLvl===2){
+            showBanner("warn","🌀 شرود — أعد نظرك للطريق");
+            addNotif("warn","🌀 شرود","حركة رأسك كثيرة — ركّز أمامك");
+            tripStats.distract++;
+          } else if(distLvl===3){
+            showBanner("warn","🌀 شرود مستمر — ركّز");
+            // No emergency — distraction stops at warning banner
+          } else if(distLvl===1){hideBanner();}
         }
 
         // Draw landmarks (eyes highlighted)
@@ -552,7 +671,30 @@ function renderLoop(){
   requestAnimationFrame(renderLoop);
 }
 
-function reset(){drowsyStart=null;drowsyLvl=0;phoneLvl_=0;distractLvl_=0;emergTriggered=false;lastLvl=0;blinkTimes=[];earWindow.length=0;yawWin.length=0;pitchWin.length=0;yawnFrames=0;yawnsPerMin=[];closedFrameCount.count=0;hideBanner();emerg.classList.remove("show");phStatus.classList.remove("alert");phState.textContent="قيادة آمنة ✓";notifList.innerHTML='<div class="ph-notify"><b>🟢 مراقبة نشطة</b>AI يرصد النعاس والجوال والشرود والتثاؤب.</div>';sleepBar.style.width="5%";phoneBar.style.width="0%";distractBar.style.width="0%";pip.className="pip live";sleepLvl.textContent="منخفض";phoneLvl.textContent="غير مستخدم";distractLvl.textContent="منتبه";}
+function reset(){
+  drowsyLvl=0;phoneLvl_=0;distractLvl_=0;emergTriggered=false;lastLvl=0;
+  blinkTimes=[];earWindow.length=0;yawWin.length=0;pitchWin.length=0;
+  yawnFrames=0;yawnsPerMin=[];closedFrameCount.count=0;
+  // Reset new drowsy/phone state
+  closedContinuousMs=0;closedLastMs=0;drowsyStage=0;
+  syncopeTriggered=false;syncopeStart=null;
+  if(syncopeTimerId){clearInterval(syncopeTimerId);syncopeTimerId=null;}
+  document.getElementById("syncopePanel").style.display="none";
+  document.getElementById("drowsyAlertPanel").style.display="none";
+  phoneContinuousMs=0;phoneLastMs=0;phoneNotifLevel=0;
+  if(phoneNotifTimer){clearTimeout(phoneNotifTimer);phoneNotifTimer=null;}
+  document.getElementById("phoneNotif").style.display="none";
+  document.getElementById("phoneMonStatus").textContent="غير مستخدم";
+  document.getElementById("phoneMonStatus").style.color="#34D399";
+  document.getElementById("phoneMonBar").style.width="0%";
+  document.getElementById("phoneMonTime").textContent="٠.٠ ث";
+  hideBanner();emerg.classList.remove("show");
+  phStatus.classList.remove("alert");phState.textContent="قيادة آمنة ✓";
+  notifList.innerHTML='<div class="ph-notify"><b>🟢 مراقبة نشطة</b>AI يرصد النعاس والجوال والشرود والتثاؤب — الإسعاف يُستدعى فقط عند الإغماء (٣٠ث متواصلة).</div>';
+  sleepBar.style.width="0%";phoneBar.style.width="0%";distractBar.style.width="0%";
+  pip.className="pip live";
+  sleepLvl.textContent="منخفض";phoneLvl.textContent="غير مستخدم";distractLvl.textContent="منتبه";
+}
 
 // Live trip duration tracker (only counts when monitoring is active)
 let tripStartTime=null,tripFrames=0;

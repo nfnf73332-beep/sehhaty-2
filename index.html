@@ -171,6 +171,13 @@
   .card-3 .card-hero{background:linear-gradient(135deg,#312E81,#4F46E5 55%,#A78BFA);}
   .card-4 .card-hero{background:linear-gradient(135deg,#1E1B4B,#4338CA 55%,#818CF8);}
   .card-5 .card-hero{background:linear-gradient(135deg,#0F0C29,#4F46E5 50%,#A78BFA);}
+  .card-6 .card-hero{background:linear-gradient(135deg,#312E81 0%,#7C3AED 55%,#A78BFA 100%);}
+  .card.featured{grid-column:1/-1;background:linear-gradient(135deg,#1F1A4D,#4F46E5);color:#fff;}
+  .card.featured .card-body{color:#fff;}
+  .card.featured h3{color:#fff;}
+  .card.featured p{color:rgba(255,255,255,.85);}
+  .card.featured .chip{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.22);}
+  .card.featured .cta{color:#FCD34D;}
   .card-tag{position:absolute;top:14px;inset-inline-start:14px;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);color:#fff;font-size:11px;padding:5px 12px;border-radius:999px;font-weight:700;z-index:2;border:1px solid rgba(255,255,255,.2);}
   .card-body{padding:24px;flex:1;display:flex;flex-direction:column;position:relative;z-index:2;}
   .card-body h3{font-size:20px;font-weight:800;margin-bottom:8px;color:#0a0a1a;letter-spacing:-.3px;}
@@ -450,63 +457,78 @@
   </div>
 
   <div class="section-title" id="demos">
-    <h2>خمسة ديموهات <span class="hl">تفاعلية حيّة</span></h2>
+    <h2>ستة منتجات <span class="hl">تفاعلية حيّة</span></h2>
     <p>جرّبها الآن — كاميرا حقيقية + نماذج AI تعمل داخل متصفحك بدون خوادم</p>
   </div>
 
+  <!-- ====== Featured: Alzheimer screening (new flagship) ====== -->
+  <a href="demo-alzheimer.html" class="card card-6 featured" style="margin-bottom:18px;">
+    <div class="card-hero"><span class="card-tag" style="background:#FCE7F3;color:#9D174D;">منتج جديد · فحص استباقي</span><div class="card-icon">🧠</div></div>
+    <div class="card-body">
+      <h3>الفحص الاستباقي للزهايمر — ٧ دقائق</h3>
+      <p>٦ اختبارات معتمدة سريريًا (Pattern Separation، Verbal Fluency، Delayed Recall، Trail Making B، Clock Drawing، Sequence Span) → درجة خطر مع توصية إحالة مبكرة. كشف الزهايمر قبل ١٠-١٥ سنة من الأعراض.</p>
+      <div class="chips"><span class="chip">MST</span><span class="chip">RAVLT</span><span class="chip">Trail B</span><span class="chip">Clock Drawing</span></div>
+      <span class="cta">افتح الفحص</span>
+    </div>
+  </a>
+
+  <!-- ====== Daily life products ====== -->
+  <div class="section-title" style="margin-top:30px;">
+    <h2>الحياة اليومية <span class="hl">داخل المنزل</span></h2>
+    <p>منتجات استباقية تتكامل مع روتين الأسرة الصباحي والمسائي</p>
+  </div>
   <div class="grid">
     <a href="demo-mirror.html" class="card card-1">
       <div class="card-hero"><span class="card-tag">داخل المنزل · صباحًا</span><div class="card-icon">🪞</div></div>
       <div class="card-body">
         <h3>المرآة الذكية الاستباقية</h3>
-        <p>تحية زمنية شخصية + قياس نبض تلقائي من لون جبهتك + تحليل النوم والإرهاق + نصائح صوتية من كوتش صحتي.</p>
-        <div class="chips"><span class="chip">rPPG</span><span class="chip">AI صوتي</span><span class="chip">IoT منزلي</span></div>
-        <span class="cta">افتح الديمو</span>
+        <p>قياس نبض rPPG (POS) من ٣ مناطق + تنفس فعلي من حركة الوجه + إرهاق PERCLOS + رصد ٢٦ تعبيرًا حيًّا من Blendshapes.</p>
+        <div class="chips"><span class="chip">rPPG · POS</span><span class="chip">PERCLOS</span><span class="chip">Blendshapes</span></div>
+        <span class="cta">افتح المنتج</span>
       </div>
     </a>
     <a href="demo-trainer.html" class="card card-2">
       <div class="card-hero"><span class="card-tag">داخل المنزل · نشاط</span><div class="card-icon">🏋️</div></div>
       <div class="card-body">
         <h3>مدرب التمارين المنزلية</h3>
-        <p>كشف وضعية البداية (أخضر/أحمر)، عدّ تنازلي ٣-٢-١، تحقّق صارم ٥-شروط لكل تكرار، عدّ دقيق من زوايا المفاصل.</p>
-        <div class="chips"><span class="chip">MediaPipe Pose</span><span class="chip">تحقّق صارم</span><span class="chip">صوت عربي</span></div>
-        <span class="cta">افتح الديمو</span>
+        <p>٥ تمارين: سكوات، بوش أب، بلانك، قفز، رفع يدين. كشف الوضعية الصحيحة + تحقّق صارم لكل تكرار + معايرة شخصية + زوايا 3D.</p>
+        <div class="chips"><span class="chip">PoseLandmarker FULL</span><span class="chip">٥ تمارين</span><span class="chip">3D World Coords</span></div>
+        <span class="cta">افتح المنتج</span>
       </div>
     </a>
     <a href="demo-chef.html" class="card card-3">
       <div class="card-hero"><span class="card-tag">على الطاولة</span><div class="card-icon">🥗</div></div>
       <div class="card-body">
         <h3>الشيف الصحي الذكي</h3>
-        <p>خطة وجبات مخصصة لكل فرد في الأسرة وفق ملفه الصحي، مع ربط مباشر بمحلات البقالة وسلة تسوّق حيّة.</p>
-        <div class="chips"><span class="chip">تخصيص AI</span><span class="chip">جاهز · هنقرستيشن</span><span class="chip">وصفات سعودية</span></div>
-        <span class="cta">افتح الديمو</span>
+        <p>خطة وجبات مخصصة + كاميرا التعرف على الطعام (EfficientDet · ٨٠ صنف) + ربط مباشر بجاهز وهنقرستيشن.</p>
+        <div class="chips"><span class="chip">EfficientDet</span><span class="chip">جاهز · هنقرستيشن</span><span class="chip">تخصيص AI</span></div>
+        <span class="cta">افتح المنتج</span>
       </div>
     </a>
+  </div>
+
+  <!-- ====== Safety & cognitive products ====== -->
+  <div class="section-title" style="margin-top:36px;">
+    <h2>السلامة وصحة <span class="hl">الدماغ</span></h2>
+    <p>حماية على الطريق وتدريب الوظائف المعرفية</p>
+  </div>
+  <div class="grid">
     <a href="demo-dashcam.html" class="card card-4">
       <div class="card-hero"><span class="card-tag">خارج المنزل · السيارة</span><div class="card-icon">🚗</div></div>
       <div class="card-body">
         <h3>داش كام السلامة</h3>
-        <p>رصد فعلي لنعاس السائق + استخدام الجوال + شرود الذهن، مع تقرير كامل لكل رحلة واتصال تلقائي بـ٩٣٧.</p>
-        <div class="chips"><span class="chip">FaceLandmarker</span><span class="chip">تكامل ٩٣٧</span><span class="chip">تقرير رحلة</span></div>
-        <span class="cta">افتح الديمو</span>
+        <p>رصد النعاس + الجوال + الشرود + التثاؤب + الإغماء (عينان مغمضتان وحركة رأس صفر) → اتصال آلي بـ٩٣٧. مؤشرات تركيز/تشتت لحظية.</p>
+        <div class="chips"><span class="chip">كشف الإغماء</span><span class="chip">٩٣٧</span><span class="chip">معايرة شخصية</span></div>
+        <span class="cta">افتح المنتج</span>
       </div>
     </a>
     <a href="demo-focus.html" class="card card-5">
-      <div class="card-hero"><span class="card-tag">جديد · صحة دماغك</span><div class="card-icon">🧠</div></div>
+      <div class="card-hero"><span class="card-tag">صحة دماغك</span><div class="card-icon">🧠</div></div>
       <div class="card-body">
-        <h3>دورة علاج «تعفن الدماغ» — ٨ ألعاب معرفية</h3>
-        <p>جلسة يومية من الألعاب المعرفية المثبتة علميًا: سرعة بديهة، ستروب، ذاكرة، N-Back، Trail Making، Digit Span، Go/No-Go، Visual Search + مراقب انتباه بالكاميرا.</p>
-        <div class="chips"><span class="chip">٨ ألعاب</span><span class="chip">N-Back</span><span class="chip">Trail Making</span><span class="chip">مراقب انتباه</span></div>
-        <span class="cta">افتح التجربة</span>
-      </div>
-    </a>
-    <a href="demo-alzheimer.html" class="card card-5" style="grid-column:1/-1;background:linear-gradient(135deg,#312E81,#7C3AED);color:#fff;">
-      <div class="card-hero"><span class="card-tag" style="background:#FCE7F3;color:#9D174D;">منتج جديد · فحص استباقي</span><div class="card-icon">🧠</div></div>
-      <div class="card-body" style="color:#fff;">
-        <h3 style="color:#fff;">الفحص الاستباقي للزهايمر — ٧ دقائق</h3>
-        <p style="color:rgba(255,255,255,.85);">٦ اختبارات معتمدة سريريًا (Pattern Separation، Verbal Fluency، Delayed Recall، Trail Making B، Clock Drawing، Sequence Span) → درجة خطر مع توصية إحالة مبكرة. كشف الزهايمر قبل ١٠-١٥ سنة من الأعراض.</p>
-        <div class="chips"><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">MST</span><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">RAVLT</span><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">Trail B</span><span class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.25);">Clock Drawing</span></div>
-        <span class="cta" style="color:#FCD34D;">افتح الفحص</span>
+        <h3>دورة علاج «تعفن الدماغ» — ٨ ألعاب</h3>
+        <p>سرعة بديهة، ستروب، ذاكرة، N-Back، Trail Making، Digit Span، Go/No-Go، Visual Search + مراقب انتباه بالكاميرا.</p>
+        <div class="chips"><span class="chip">٨ ألعاب</span><span class="chip">N-Back · Jaeggi</span><span class="chip">مراقب انتباه</span></div>
+        <span class="cta">افتح المنتج</span>
       </div>
     </a>
   </div>
@@ -522,13 +544,13 @@
       <!-- Mirror phone -->
       <a href="demo-mirror.html" class="phone-mock mp-1 tilt-l">
         <div class="phone-screen">
-          <div class="ph-topbar"><div class="ico">🪞</div><h4>المرآة الذكية</h4><p>صباح الخير، نواف ☀️</p></div>
+          <div class="ph-topbar"><div class="ico">🪞</div><h4>المرآة الذكية</h4><p>قياس استباقي يومي</p></div>
           <div class="ph-body">
-            <div class="mp-heart"><div class="bpm">٧٢</div><div class="lbl">ن/د · الآن</div></div>
+            <div class="mp-heart"><div class="bpm">rPPG</div><div class="lbl">نبض من ٣ مناطق</div></div>
             <div class="mp-wave"><svg viewBox="0 0 100 40"><path d="M0 20 L15 20 L20 10 L25 30 L30 20 L50 20 L55 10 L60 30 L65 20 L85 20 L90 10 L95 30 L100 20"/></svg></div>
             <div class="mp-scores">
-              <div class="mp-score"><b>٨٤%</b><span>جودة النوم</span></div>
-              <div class="mp-score"><b>٧٦%</b><span>الترطيب</span></div>
+              <div class="mp-score"><b>PERCLOS</b><span>إرهاق دقيق</span></div>
+              <div class="mp-score"><b>٢٦+</b><span>تعبير حيّ</span></div>
             </div>
           </div>
         </div>
@@ -549,7 +571,7 @@
       <!-- Chef phone -->
       <a href="demo-chef.html" class="phone-mock mp-3">
         <div class="phone-screen">
-          <div class="ph-topbar"><div class="ico">🥗</div><h4>الشيف الصحي</h4><p>خطة اليوم · ١٢٤٠ كالوري</p></div>
+          <div class="ph-topbar"><div class="ico">🥗</div><h4>الشيف الصحي</h4><p>خطة وفق ملفك الصحي</p></div>
           <div class="ph-body">
             <div class="mp-meal"><div class="emoji">🥣</div><div class="info"><h5>شوفان بالتمر</h5><p>٠٦:٠٠</p></div><span class="cal">٣٨٠</span></div>
             <div class="mp-meal"><div class="emoji g">🥗</div><div class="info"><h5>كبسة دجاج بنّي</h5><p>١٣:٠٠</p></div><span class="cal">٥٢٠</span></div>
@@ -565,28 +587,43 @@
           <div class="ph-body">
             <div class="mp-status">✓ قيادة آمنة</div>
             <div class="mp-indic">
-              <div class="row"><span>💤 نعاس</span><b>منخفض</b></div><div class="bar sleep"></div>
-              <div class="row"><span>📱 جوال</span><b>لا</b></div><div class="bar phone"></div>
-              <div class="row"><span>🎯 تركيز</span><b>٩٢%</b></div><div class="bar focus"></div>
+              <div class="row"><span>💤 نعاس</span><b>—</b></div><div class="bar sleep"></div>
+              <div class="row"><span>📱 جوال</span><b>—</b></div><div class="bar phone"></div>
+              <div class="row"><span>🎯 تركيز</span><b>—</b></div><div class="bar focus"></div>
             </div>
             <div class="mp-trip">
-              <div><b>١١٢</b><span>كم</span></div>
-              <div><b>١:٤٢</b><span>المدة</span></div>
+              <div><b>تثاؤب</b><span>كشف</span></div>
+              <div><b>إغماء</b><span>إنذار ٩٣٧</span></div>
             </div>
           </div>
         </div>
       </a>
 
       <!-- Focus phone -->
-      <a href="demo-focus.html" class="phone-mock mp-5 tilt-r">
+      <a href="demo-focus.html" class="phone-mock mp-5">
         <div class="phone-screen">
-          <div class="ph-topbar"><div class="ico">🧠</div><h4>علاج تعفن الدماغ</h4><p>جلسة يومية ٥ دقائق</p></div>
+          <div class="ph-topbar"><div class="ico">🧠</div><h4>علاج تعفن الدماغ</h4><p>٨ ألعاب معرفية</p></div>
           <div class="ph-body">
-            <div class="mp-game"><div class="score">٨٢%</div><div class="lbl">تقدير التركيز اليومي</div></div>
+            <div class="mp-game"><div class="score">AI</div><div class="lbl">مراقب انتباه + ٨ اختبارات</div></div>
             <div class="mp-games-list">
-              <div><span class="ico">⚡</span><div><b>سرعة البديهة</b> · ٣١٠ مث</div></div>
-              <div><span class="ico">🎨</span><div><b>ستروب</b> · ٨٨%</div></div>
-              <div><span class="ico">🧩</span><div><b>ذاكرة Corsi</b> · ل٧</div></div>
+              <div><span class="ico">⚡</span><div><b>سرعة البديهة</b></div></div>
+              <div><span class="ico">🔁</span><div><b>N-Back</b> · Jaeggi</div></div>
+              <div><span class="ico">🔢</span><div><b>Trail Making</b></div></div>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Alzheimer phone -->
+      <a href="demo-alzheimer.html" class="phone-mock tilt-r" style="--mp-bg:linear-gradient(180deg,#312E81,#7C3AED);">
+        <div class="phone-screen">
+          <div class="ph-topbar"><div class="ico">🧠</div><h4>الفحص الاستباقي</h4><p>الزهايمر · ٧ دقائق</p></div>
+          <div class="ph-body">
+            <div class="mp-game"><div class="score">٦</div><div class="lbl">اختبارات سريرية معتمدة</div></div>
+            <div class="mp-games-list">
+              <div><span class="ico">🧩</span><div><b>Pattern Separation</b></div></div>
+              <div><span class="ico">📝</span><div><b>Verbal Fluency</b></div></div>
+              <div><span class="ico">🕰</span><div><b>Clock Drawing</b></div></div>
             </div>
           </div>
         </div>
