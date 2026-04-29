@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script>
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحسين النطق — صحتي 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#4F46E5;--sky-dark:#312E81;--sky-light:#EEF2FF;--sky-accent:#A78BFA;--ink:#0E1E2E;--muted:#5C6F82;--bg:#F8FAFC;--ok:#10B981;--warn:#E9B44C;--danger:#D16B5C;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+body{background:linear-gradient(180deg,#F8FAFC 0%,#FCE7F3 100%);color:var(--ink);min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;padding:14px 0;}
+.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+.brand-mark{width:40px;height:40px;background:#fff;border-radius:12px;display:grid;place-items:center;color:#BE185D;font-weight:800;}
+.back{color:#fff;text-decoration:none;font-size:14px;opacity:.9;}
+.page-head{padding:30px 0 14px;}
+.eyebrow{display:inline-block;background:#FCE7F3;color:#9D174D;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:10px;}
+h1{font-size:30px;font-weight:800;letter-spacing:-.5px;}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:760px;line-height:1.8;}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:20px;margin:14px 0 60px;align-items:start;}
+.stage{background:#fff;border:1px solid #FBCFE8;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px -30px rgba(190,24,93,.2);}
+.stage-head{background:linear-gradient(135deg,#831843,#BE185D);color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;}
+.stage-head .title{font-size:18px;font-weight:700;}
+.progress-pills{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid #FBCFE8;flex-wrap:wrap;}
+.pill{flex:1;min-width:60px;height:6px;background:#FBCFE8;border-radius:99px;}
+.pill.active{background:linear-gradient(90deg,#BE185D,#EC4899);}
+.pill.done{background:#10B981;}
+.body{padding:30px 28px;min-height:380px;}
+.btn{background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border:none;padding:13px 32px;border-radius:12px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;}
+.btn.secondary{background:#fff;color:#BE185D;border:2px solid #FBCFE8;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.test-prompt{text-align:center;padding:6px 0 18px;}
+.test-prompt h3{font-size:20px;color:#831843;margin-bottom:8px;}
+.test-prompt p{font-size:14px;color:var(--muted);max-width:560px;margin:0 auto;line-height:1.8;}
+
+.target-word{font-size:64px;font-weight:800;text-align:center;color:#831843;margin:14px 0;letter-spacing:.05em;}
+.tongue-twister{font-size:28px;font-weight:700;text-align:center;color:#831843;line-height:1.7;padding:18px;background:#FCE7F3;border-radius:16px;margin:14px 0;}
+.passage{font-size:16px;line-height:2;color:var(--ink);background:#FCE7F3;border-radius:14px;padding:18px;margin:14px 0;}
+
+/* Recorder UI */
+.recorder{display:flex;flex-direction:column;align-items:center;gap:12px;margin:18px 0;}
+.mic-btn{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#BE185D,#EC4899);border:none;color:#fff;font-size:42px;cursor:pointer;box-shadow:0 16px 36px -10px rgba(190,24,93,.55);transition:transform .15s;}
+.mic-btn:hover{transform:scale(1.05);}
+.mic-btn.recording{animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 16px 36px -10px rgba(190,24,93,.55);}50%{box-shadow:0 0 0 18px rgba(236,72,153,.18),0 16px 36px -10px rgba(190,24,93,.55);}}
+.mic-status{font-size:13px;color:var(--muted);}
+
+/* Live waveform */
+.wave-canvas{width:100%;max-width:480px;height:90px;background:#FCE7F3;border-radius:12px;margin:0 auto;display:block;}
+
+.transcript{background:#fff;border:1px solid #FBCFE8;border-radius:12px;padding:12px 16px;font-size:14px;color:var(--ink);min-height:60px;margin:10px auto;max-width:560px;line-height:1.8;}
+.transcript.empty{color:var(--muted);text-align:center;}
+.match-result{margin-top:10px;text-align:center;font-size:14px;font-weight:700;}
+.match-result.ok{color:var(--ok);}.match-result.warn{color:var(--warn);}.match-result.bad{color:var(--danger);}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px auto;max-width:560px;}
+.metric-card{background:#FCE7F3;border-radius:12px;padding:14px;text-align:center;}
+.metric-card .k{font-size:11px;color:var(--muted);}
+.metric-card .v{font-size:22px;font-weight:800;color:#831843;margin-top:3px;font-variant-numeric:tabular-nums;}
+
+/* Report */
+.risk-card{background:linear-gradient(135deg,#831843,#BE185D);color:#fff;border-radius:20px;padding:24px;margin-top:6px;}
+.risk-card .score-big{font-size:60px;font-weight:800;text-align:center;line-height:1;color:#FBCFE8;}
+.risk-card .score-label{text-align:center;font-size:18px;font-weight:700;margin-top:10px;}
+.risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px;}
+.risk-item{background:rgba(255,255,255,.1);border-radius:12px;padding:12px;text-align:center;}
+.risk-item .k{font-size:11px;opacity:.75;}.risk-item .v{font-size:16px;font-weight:700;margin-top:3px;color:#FBCFE8;}
+.risk-item .v.ok{color:#34D399;}.risk-item .v.warn{color:#FCD34D;}.risk-item .v.danger{color:#FCA5A5;}
+.risk-meaning{background:#fff;color:var(--ink);border-radius:14px;padding:18px;margin-top:14px;line-height:1.85;font-size:13.5px;}
+.risk-meaning b{color:#831843;}
+
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
+.side-card{background:#fff;border:1px solid #FBCFE8;border-radius:16px;padding:18px;}
+.side-card h3{font-size:14px;color:#831843;margin-bottom:12px;}
+.side-card .row{font-size:13px;line-height:1.85;color:var(--muted);}
+.side-card .row b{color:var(--ink);}
+.tech-card{background:linear-gradient(135deg,#0F0C29,#1E1B4B);color:#E9F3EE;border-radius:16px;padding:18px;}
+.tech-card h3{color:#fff;font-size:14px;margin-bottom:10px;}
+.tech-row{background:rgba(255,255,255,.07);padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.7;margin-bottom:8px;}
+.tech-row b{display:block;color:#FBCFE8;font-size:11px;margin-bottom:2px;}
+@media(max-width:960px){.layout{grid-template-columns:1fr;}.side{position:static;}.target-word{font-size:42px;}.tongue-twister{font-size:20px;}.metrics-grid{grid-template-columns:1fr;}}
+</style>
+<style>
+/* === Universal responsive rules — added 1777382106 === */
+@media(max-width:960px){
+  .container{padding:0 16px!important;}
+  .layout{grid-template-columns:1fr!important;gap:14px!important;}
+  .side{position:static!important;}
+  h1{font-size:24px!important;letter-spacing:-.3px;}
+  .sub{font-size:14px!important;}
+  .page-head{padding:20px 0 10px!important;}
+  .stage-head{padding:14px 18px!important;}
+  .body{padding:20px 18px!important;}
+  .test-prompt h3{font-size:17px!important;}
+  .test-prompt p{font-size:13.5px!important;}
+  .btn{padding:11px 24px!important;font-size:14px!important;}
+}
+@media(max-width:520px){
+  .container{padding:0 12px!important;}
+  h1{font-size:20px!important;}
+  .topbar{padding:10px 0!important;}
+  .brand-mark{width:34px!important;height:34px!important;}
+  .brand div[style]{font-size:12px!important;}
+  .stage-head .title{font-size:15px!important;}
+  .stage-head .sub{font-size:11px!important;}
+  .progress-pills{padding:10px 16px!important;}
+  .body{padding:16px 14px!important;}
+  .test-prompt h3{font-size:15px!important;}
+  .test-prompt p{font-size:12.5px!important;line-height:1.7!important;}
+  .btn{padding:10px 18px!important;font-size:13px!important;}
+  .risk-card{padding:18px!important;border-radius:16px!important;}
+  .risk-card .score-big{font-size:44px!important;}
+  .risk-grid{grid-template-columns:1fr 1fr!important;gap:8px!important;}
+  .risk-item{padding:10px!important;}
+  .risk-item .v{font-size:14px!important;}
+  .risk-meaning{padding:14px!important;font-size:12.5px!important;}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="container topbar-inner">
+  <div class="brand"><div class="brand-mark">ص</div><div style="font-size:14px;">صحتي 2.0 — تحسين النطق</div></div>
+  <a href="index.html" class="back">→ العودة</a>
+</div></div>
+<div class="container page-head">
+  <span class="eyebrow">علاج نطق · ٧ دقائق</span>
+  <h1>🗣 برنامج تحسين النطق التفاعلي</h1>
+  <p class="sub">٥ تمارين معتمدة في علاج النطق: استدامة الصوت (تحليل jitter)، نطق كلمات هدف (ASR)، الجمل المتداخلة (سرعة ودقة)، قراءة فقرة (WPM)، مدى نغمة الصوت. يعمل عبر ميكروفون الجهاز محليًا.</p>
+</div>
+<div class="container layout">
+  <div>
+    <div class="stage">
+      <div class="stage-head"><div><div class="title" id="phaseTitle">جلسة التدريب</div></div></div>
+      <div class="progress-pills" id="pills">
+        <div class="pill" data-step="0"></div><div class="pill" data-step="1"></div>
+        <div class="pill" data-step="2"></div><div class="pill" data-step="3"></div>
+        <div class="pill" data-step="4"></div><div class="pill" data-step="5"></div>
+        <div class="pill" data-step="6"></div>
+      </div>
+      <div class="body" id="body"></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="side-card">
+      <h3>🗣 ماذا يقيس البرنامج؟</h3>
+      <div class="row">١. <b>استدامة الصوت</b> (Maximum Phonation Time + Jitter) · ٢. <b>دقة المخارج</b> (Articulation عبر Web Speech API) · ٣. <b>سرعة الكلام</b> (Diadochokinesis) · ٤. <b>سرعة القراءة</b> (Words/Min) · ٥. <b>مدى النغمة الصوتية</b> (F0 range).</div>
+    </div>
+    <div class="side-card" style="background:linear-gradient(135deg,#FFF8E6,#FEF3C7);border-color:#F7D774;">
+      <h3 style="color:#8A5A00;">⚠ ملاحظة</h3>
+      <div class="row" style="color:#6B4C00;">برنامج تدريبي وفرز رقمي. لا يحلّ محل تقييم <b>أخصائي علاج تخاطب</b>. مفيد للأطفال أكبر من ٤ سنوات والبالغين بعد السكتة الدماغية أو لتحسين الإلقاء.</div>
+    </div>
+    <div class="tech-card">
+      <h3>🔬 المصادر العلمية</h3>
+      <div class="tech-row"><b>MPT (Maximum Phonation Time)</b>Speyer et al. (2010) Folia Phoniatrica — معيار قوة الصوت</div>
+      <div class="tech-row"><b>Jitter / Shimmer</b>Teixeira et al. (2013) Procedia Tech — مؤشر اضطرابات الصوت</div>
+      <div class="tech-row"><b>DDK (Diadochokinesis)</b>Fletcher (1972) JSHR — معيار سرعة العضلات الكلامية</div>
+      <div class="tech-row"><b>WPM (سرعة القراءة)</b>Hasbrouck & Tindal (2017) — معايير القراءة الجهرية بحسب العمر</div>
+      <div class="tech-row"><b>F0 Range</b>Awan & Mueller (1996) Journal of Voice — مدى الذبذبة الصوتية</div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const $=id=>document.getElementById(id);
+const body=$("body"),phaseTitle=$("phaseTitle");
+const phases=[
+  {key:"welcome",title:"المرحلة ١ — التحضير"},
+  {key:"sustain",title:"المرحلة ٢ — استدامة حرف 'آ' (MPT)"},
+  {key:"pronounce",title:"المرحلة ٣ — نطق كلمات هدف"},
+  {key:"twister",title:"المرحلة ٤ — جمل متداخلة (DDK)"},
+  {key:"reading",title:"المرحلة ٥ — قراءة فقرة"},
+  {key:"pitch",title:"المرحلة ٦ — مدى نغمة الصوت"},
+  {key:"report",title:"النتيجة"}
+];
+let currentPhase=0;
+const session={
+  micGranted:false,
+  mptSeconds:0,mptJitter:0,
+  pronounceCorrect:0,pronounceTotal:0,pronounceWords:[],
+  ddkSyllables:0,ddkSeconds:0,
+  readingWPM:0,readingAccuracy:0,
+  pitchMin:0,pitchMax:0,pitchRange:0
+};
+
+function setPhase(i){currentPhase=i;
+  document.querySelectorAll(".pill").forEach((p,k)=>{p.classList.remove("active","done");if(k<i)p.classList.add("done");else if(k===i)p.classList.add("active");});
+  phaseTitle.textContent=phases[i].title;body.innerHTML="";
+  ({welcome:renderWelcome,sustain:renderSustain,pronounce:renderPronounce,twister:renderTwister,reading:renderReading,pitch:renderPitch,report:renderReport})[phases[i].key]();
+}
+window.nextPhase=()=>setPhase(currentPhase+1);
+
+// ========= Audio infra =========
+let audioCtx=null,analyser=null,microphone=null,sourceStream=null;
+async function initMic(){
+  if(audioCtx&&sourceStream)return true;
+  try{
+    sourceStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    microphone=audioCtx.createMediaStreamSource(sourceStream);
+    analyser=audioCtx.createAnalyser();analyser.fftSize=4096;
+    microphone.connect(analyser);
+    session.micGranted=true;return true;
+  }catch(e){alert("⚠ تعذّر الوصول للميكروفون: "+e.message);return false;}
+}
+function getRMS(){
+  const buf=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(buf);
+  let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i]*buf[i];
+  return Math.sqrt(sum/buf.length);
+}
+// Autocorrelation pitch detection
+function getPitch(){
+  const buf=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(buf);
+  const SIZE=buf.length;let rms=0;
+  for(let i=0;i<SIZE;i++)rms+=buf[i]*buf[i];rms=Math.sqrt(rms/SIZE);
+  if(rms<0.01)return -1;
+  let r1=0,r2=SIZE-1,thresh=0.2;
+  for(let i=0;i<SIZE/2;i++)if(Math.abs(buf[i])<thresh){r1=i;break;}
+  for(let i=1;i<SIZE/2;i++)if(Math.abs(buf[SIZE-i])<thresh){r2=SIZE-i;break;}
+  const slice=buf.slice(r1,r2);
+  const c=new Array(slice.length).fill(0);
+  for(let i=0;i<slice.length;i++)for(let j=0;j<slice.length-i;j++)c[i]+=slice[j]*slice[j+i];
+  let d=0;while(d<c.length-1&&c[d]>c[d+1])d++;
+  let maxval=-1,maxpos=-1;
+  for(let i=d;i<c.length;i++){if(c[i]>maxval){maxval=c[i];maxpos=i;}}
+  if(maxpos<=0)return -1;
+  return audioCtx.sampleRate/maxpos;
+}
+
+// ========= Visualization =========
+function drawWave(canvas){
+  const ctx=canvas.getContext("2d");
+  const buf=new Uint8Array(analyser.fftSize);
+  function frame(){
+    if(!canvas.isConnected)return;
+    analyser.getByteTimeDomainData(buf);
+    ctx.fillStyle="#FCE7F3";ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.lineWidth=2;ctx.strokeStyle="#BE185D";ctx.beginPath();
+    const slice=canvas.width/buf.length;let x=0;
+    for(let i=0;i<buf.length;i++){const v=buf[i]/128.0,y=v*canvas.height/2;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);x+=slice;}
+    ctx.stroke();
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// ========= 1. WELCOME =========
+function renderWelcome(){
+  body.innerHTML=`<div class="test-prompt"><h3>مرحبًا بك في برنامج تحسين النطق</h3><p>سيستخدم هذا البرنامج <b>ميكروفون جهازك</b> لتحليل صوتك محليًا. كل البيانات تُعالج في المتصفح فقط ولا تُرسل لأي خادم. الوقت المتوقع ٧ دقائق.</p></div>
+    <div style="display:flex;justify-content:center;margin-top:20px;"><button class="btn" id="goStart">🎤 ابدأ — السماح بالميكروفون</button></div>`;
+  $("goStart").addEventListener("click",async()=>{
+    const ok=await initMic();
+    if(ok)setPhase(1);
+  });
+}
+
+// ========= 2. SUSTAINED 'AAA' (MPT + Jitter) =========
+function renderSustain(){
+  body.innerHTML=`<div class="test-prompt"><h3>خذ نفسًا عميقًا، ثم انطق "آآآآ" بأطول مدّة ممكنة بنبرة ثابتة</h3><p>سنقيس <b>وقت الإطالة (MPT)</b> و<b>ثبات النبرة (Jitter)</b>. خذ نفسك أولًا، ثم اضغط الميكروفون.</p></div>
+    <div class="recorder">
+      <button id="micBtn" class="mic-btn">🎤</button>
+      <div class="mic-status" id="micStat">اضغط للبدء</div>
+      <canvas id="wave" class="wave-canvas" width="480" height="90"></canvas>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="k">المدة المستمرة</div><div class="v" id="mptTime">٠.٠ ث</div></div>
+      <div class="metric-card"><div class="k">ثبات النبرة (jitter)</div><div class="v" id="mptJit">—</div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px;"><button class="btn secondary" onclick="nextPhase()" id="mptNext" disabled>التالي ▶</button></div>`;
+  drawWave($("wave"));
+  let recording=false,startMs=0,pitches=[];
+  const btn=$("micBtn"),stat=$("micStat"),timeEl=$("mptTime"),jitEl=$("mptJit"),nextBtn=$("mptNext");
+  btn.addEventListener("click",()=>{
+    if(!recording){
+      recording=true;startMs=performance.now();pitches=[];btn.classList.add("recording");stat.textContent="🔴 يسجّل... استمر بإطالة الصوت";
+      const it=setInterval(()=>{
+        if(!recording){clearInterval(it);return;}
+        const sec=(performance.now()-startMs)/1000;
+        timeEl.textContent=arNum(sec.toFixed(1))+" ث";
+        const rms=getRMS();
+        if(rms>0.02){const f=getPitch();if(f>50&&f<500)pitches.push(f);}
+        else if(sec>2){
+          // Sound stopped — auto end
+          recording=false;btn.classList.remove("recording");
+          finish();
+        }
+      },80);
+    } else {recording=false;btn.classList.remove("recording");finish();}
+    function finish(){
+      const sec=(performance.now()-startMs)/1000;
+      session.mptSeconds=Math.max(0,sec-0.5);
+      // Jitter as coefficient of variation of consecutive pitch differences
+      if(pitches.length>10){
+        const diffs=[];for(let i=1;i<pitches.length;i++)diffs.push(Math.abs(pitches[i]-pitches[i-1]));
+        const meanDiff=diffs.reduce((a,b)=>a+b,0)/diffs.length;
+        const meanP=pitches.reduce((a,b)=>a+b,0)/pitches.length;
+        session.mptJitter=meanP?meanDiff/meanP*100:0;
+        jitEl.textContent=arNum(session.mptJitter.toFixed(2))+"%";
+      } else jitEl.textContent="—";
+      stat.textContent="✓ تم — اضغط التالي";
+      nextBtn.disabled=false;
+    }
+  });
+}
+
+// ========= 3. PRONUNCIATION =========
+function renderPronounce(){
+  const targets=["زرافة","سيارة","شمس","مدرسة","قمر","كرسي","ورد","مفتاح","تفاحة","شجرة"];
+  let idx=0;session.pronounceWords=[];
+  function showWord(){
+    if(idx>=5){nextPhase();return;}
+    const word=targets[Math.floor(Math.random()*targets.length)];
+    body.innerHTML=`<div class="test-prompt"><h3>الكلمة ${arNum(idx+1)} من ٥ — انطق الكلمة بوضوح</h3><p>اضغط الميكروفون، انطق الكلمة، ثم انتظر التحقق التلقائي.</p></div>
+      <div class="target-word">${word}</div>
+      <div class="recorder">
+        <button id="micBtn" class="mic-btn">🎤</button>
+        <div class="mic-status" id="micStat">اضغط ثم انطق</div>
+      </div>
+      <div class="transcript empty" id="transcript">سيظهر ما تم رصده هنا...</div>
+      <div class="match-result" id="matchRes"></div>
+      <div style="text-align:center;margin-top:14px;"><button class="btn secondary" id="skipBtn">تخطي</button></div>`;
+    $("skipBtn").addEventListener("click",()=>{idx++;showWord();});
+    let recog=null;const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){$("matchRes").textContent="⚠ متصفحك لا يدعم Web Speech API. جرب Chrome.";$("matchRes").className="match-result warn";return;}
+    $("micBtn").addEventListener("click",()=>{
+      if(recog){recog.stop();return;}
+      recog=new SR();recog.lang="ar-SA";recog.interimResults=false;recog.maxAlternatives=3;
+      $("micBtn").classList.add("recording");$("micStat").textContent="🔴 يسجّل... قل الكلمة";
+      recog.onresult=(e)=>{
+        const transcript=e.results[0][0].transcript.trim();
+        $("transcript").textContent=transcript;$("transcript").className="transcript";
+        session.pronounceTotal++;
+        const norm=s=>s.replace(/[\sً-ْ]/g,"");
+        const ok=norm(transcript)===norm(word)||transcript.includes(word);
+        if(ok){$("matchRes").textContent="✓ نطق صحيح";$("matchRes").className="match-result ok";session.pronounceCorrect++;}
+        else{$("matchRes").textContent="✗ كرّر المحاولة — رُصد: "+transcript;$("matchRes").className="match-result warn";}
+        session.pronounceWords.push({target:word,heard:transcript,correct:ok});
+        $("micBtn").classList.remove("recording");$("micStat").textContent="انتهى";
+        setTimeout(()=>{idx++;showWord();},1500);
+      };
+      recog.onerror=(e)=>{$("matchRes").textContent="⚠ "+e.error;$("matchRes").className="match-result bad";$("micBtn").classList.remove("recording");};
+      recog.onend=()=>{recog=null;};
+      recog.start();
+    });
+  }
+  showWord();
+}
+
+// ========= 4. TONGUE TWISTER (DDK) =========
+function renderTwister(){
+  body.innerHTML=`<div class="test-prompt"><h3>كرّر "بَ-تَ-كَ" بأسرع ما يمكن لمدّة ١٠ ثوانٍ</h3><p>اختبار <b>التتابع الحركي للنطق (DDK)</b> — يقيس سرعة وتنسيق عضلات اللسان والشفتين.</p></div>
+    <div class="tongue-twister" id="twisterText">بَ — تَ — كَ</div>
+    <div class="recorder">
+      <button id="micBtn" class="mic-btn">🎤</button>
+      <div class="mic-status" id="micStat">اضغط لبدء العدّ التنازلي</div>
+      <canvas id="wave" class="wave-canvas" width="480" height="90"></canvas>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="k">المقاطع المرصودة</div><div class="v" id="ddkSyl">٠</div></div>
+      <div class="metric-card"><div class="k">معدل المقاطع/ث</div><div class="v" id="ddkRate">٠</div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px;"><button class="btn" onclick="nextPhase()" id="ddkNext" disabled>التالي ▶</button></div>`;
+  drawWave($("wave"));
+  let started=false;
+  $("micBtn").addEventListener("click",()=>{
+    if(started)return;started=true;
+    $("micBtn").classList.add("recording");$("micStat").textContent="🔴 ابدأ! بَ-تَ-كَ بأسرع ما يمكن!";
+    let syllables=0,prevAbove=false,startMs=performance.now();
+    const it=setInterval(()=>{
+      const sec=(performance.now()-startMs)/1000;
+      if(sec>=10){clearInterval(it);finish();return;}
+      const rms=getRMS();
+      const above=rms>0.03;
+      // Each rising edge counts as a syllable onset (rough)
+      if(above&&!prevAbove)syllables++;
+      prevAbove=above;
+      $("ddkSyl").textContent=arNum(syllables);
+      $("ddkRate").textContent=arNum((syllables/Math.max(0.5,sec)).toFixed(1));
+    },50);
+    function finish(){
+      session.ddkSyllables=syllables;session.ddkSeconds=10;
+      $("micStat").textContent="✓ تم";$("micBtn").classList.remove("recording");
+      $("ddkNext").disabled=false;
+    }
+  });
+}
+
+// ========= 5. READING (WPM) =========
+function renderReading(){
+  const passage="في صباح يوم جميل، خرج الطفل أحمد إلى الحديقة ليلعب مع أصدقائه. كانت الشمس مشرقة والطيور تغرّد فوق الأشجار. شعر أحمد بالسعادة وهو يجري بين الزهور الملوّنة.";
+  const wordCount=passage.split(/\s+/).filter(Boolean).length;
+  body.innerHTML=`<div class="test-prompt"><h3>اقرأ الفقرة بصوت واضح وسرعة طبيعية</h3><p>سنقيس <b>سرعة القراءة (WPM)</b> و<b>الدقة</b>. المعيار للبالغين: ١٥٠-٢٠٠ كلمة/د.</p></div>
+    <div class="passage" id="passage">${passage}</div>
+    <div class="recorder">
+      <button id="micBtn" class="mic-btn">🎤</button>
+      <div class="mic-status" id="micStat">اضغط ثم اقرأ بصوت عال</div>
+    </div>
+    <div class="transcript empty" id="transcript">سيظهر ما رصدته هنا...</div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="k">سرعة القراءة</div><div class="v" id="rWPM">٠ ك/د</div></div>
+      <div class="metric-card"><div class="k">دقة القراءة</div><div class="v" id="rAcc">٠%</div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px;"><button class="btn" onclick="nextPhase()" id="rNext" disabled>التالي ▶</button></div>`;
+  let recog=null;const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$("transcript").textContent="⚠ متصفحك لا يدعم Web Speech API.";$("rNext").disabled=false;return;}
+  $("micBtn").addEventListener("click",()=>{
+    if(recog){recog.stop();return;}
+    recog=new SR();recog.lang="ar-SA";recog.interimResults=true;
+    $("micBtn").classList.add("recording");$("micStat").textContent="🔴 يسجّل... ابدأ القراءة";
+    let startMs=performance.now(),finalTranscript="";
+    recog.onresult=(e)=>{
+      let interim="";
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal)finalTranscript+=" "+e.results[i][0].transcript;
+        else interim+=e.results[i][0].transcript;
+      }
+      $("transcript").textContent=(finalTranscript+interim).trim();
+      $("transcript").className="transcript";
+    };
+    recog.onend=()=>{
+      const elapsed=(performance.now()-startMs)/1000;
+      const wordsRead=finalTranscript.split(/\s+/).filter(Boolean).length;
+      const wpm=Math.round(wordsRead/elapsed*60);
+      session.readingWPM=wpm;
+      // Accuracy: longest common word run vs original
+      const orig=passage.split(/\s+/).filter(Boolean);
+      const heard=finalTranscript.split(/\s+/).filter(Boolean);
+      let matches=0;orig.forEach(w=>{if(heard.some(h=>h.includes(w)||w.includes(h)))matches++;});
+      session.readingAccuracy=Math.round(matches/orig.length*100);
+      $("rWPM").textContent=arNum(wpm)+" ك/د";
+      $("rAcc").textContent=arNum(session.readingAccuracy)+"%";
+      $("micBtn").classList.remove("recording");$("micStat").textContent="✓ انتهى";
+      $("rNext").disabled=false;recog=null;
+    };
+    recog.start();
+  });
+}
+
+// ========= 6. PITCH RANGE =========
+function renderPitch(){
+  body.innerHTML=`<div class="test-prompt"><h3>اقرأ "آ" بأخفض صوت ممكن، ثم بأعلى صوت ممكن</h3><p>سنقيس <b>مدى نغمة صوتك (F0 range)</b>. كلما زاد المدى دلّ على مرونة الحبال الصوتية.</p></div>
+    <div class="recorder">
+      <button id="micBtn" class="mic-btn">🎤</button>
+      <div class="mic-status" id="micStat">اضغط للبدء</div>
+      <canvas id="wave" class="wave-canvas" width="480" height="90"></canvas>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="k">أخفض نغمة</div><div class="v" id="pMin">— Hz</div></div>
+      <div class="metric-card"><div class="k">أعلى نغمة</div><div class="v" id="pMax">— Hz</div></div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="k">المدى</div><div class="v" id="pRange">— Hz</div></div>
+      <div class="metric-card"><div class="k">المدى بنصف-تونات</div><div class="v" id="pSemi">— st</div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px;"><button class="btn" onclick="nextPhase()" id="pNext" disabled>التالي ▶</button></div>`;
+  drawWave($("wave"));
+  let recording=false,minF=Infinity,maxF=-Infinity,startMs=0;
+  $("micBtn").addEventListener("click",()=>{
+    if(recording){
+      recording=false;$("micBtn").classList.remove("recording");
+      session.pitchMin=minF===Infinity?0:minF;session.pitchMax=maxF===-Infinity?0:maxF;
+      session.pitchRange=session.pitchMax-session.pitchMin;
+      const semitones=session.pitchMin>0?12*Math.log2(session.pitchMax/session.pitchMin):0;
+      $("pSemi").textContent=arNum(semitones.toFixed(1))+" st";
+      $("micStat").textContent="✓ انتهى";$("pNext").disabled=false;return;
+    }
+    recording=true;startMs=performance.now();$("micBtn").classList.add("recording");
+    $("micStat").textContent="🔴 ابدأ بأخفض صوت ثم اصعد تدريجيًا للأعلى";
+    const it=setInterval(()=>{
+      if(!recording){clearInterval(it);return;}
+      const sec=(performance.now()-startMs)/1000;
+      if(sec>15){recording=false;$("micBtn").click();}
+      const rms=getRMS();
+      if(rms>0.02){const f=getPitch();if(f>60&&f<500){if(f<minF)minF=f;if(f>maxF)maxF=f;
+        $("pMin").textContent=arNum(Math.round(minF))+" Hz";
+        $("pMax").textContent=arNum(Math.round(maxF))+" Hz";
+        $("pRange").textContent=arNum(Math.round(maxF-minF))+" Hz";
+      }}
+    },80);
+  });
+}
+
+// ========= REPORT =========
+function renderReport(){
+  // Norms (adult): MPT 15-25s; Jitter <1.04% normal; Reading WPM 150-200; DDK rate 5-7 syl/s; Pitch range >12 semitones
+  const sub={};
+  sub.mpt=session.mptSeconds>=15?100:session.mptSeconds>=10?70:session.mptSeconds>=5?50:30;
+  sub.jit=session.mptJitter<1.5?100:session.mptJitter<3?70:session.mptJitter<5?50:30;
+  sub.pron=session.pronounceTotal?Math.round(session.pronounceCorrect/session.pronounceTotal*100):0;
+  const ddkRate=session.ddkSeconds?session.ddkSyllables/session.ddkSeconds:0;
+  sub.ddk=ddkRate>=5?100:ddkRate>=3.5?70:ddkRate>=2?50:30;
+  sub.read=session.readingWPM>=140?Math.min(100,Math.round(session.readingWPM/2)):session.readingWPM>=80?60:30;
+  const semitones=session.pitchMin>0?12*Math.log2(session.pitchMax/session.pitchMin):0;
+  sub.pitch=semitones>=12?100:semitones>=8?70:semitones>=4?50:30;
+  const composite=Math.round(Object.values(sub).reduce((a,b)=>a+b,0)/Object.keys(sub).length);
+  let band,color,advice;
+  if(composite>=80){band="ممتاز";color="#34D399";advice="نطقك ضمن النطاق الطبيعي. واصل التمرين اليومي وقراءة كتاب لمدة ١٥ دقيقة بصوت عالٍ.";}
+  else if(composite>=60){band="جيد — تحسين ممكن";color="#FCD34D";advice="بعض المؤشرات أقل من المتوقع. التمارين الأسبوعية ٣ مرات (٢٠ دقيقة) تُحسّن النتيجة بنسبة ٢٥-٣٠% خلال شهرين (Wenke et al. 2010).";}
+  else {band="يحتاج تقييمًا متخصصًا";color="#FCA5A5";advice="عدة مؤشرات منخفضة. ننصح بمراجعة <b>أخصائي علاج تخاطب</b> لتقييم كامل (Frenchay Dysarthria Assessment) ووضع خطة علاجية مخصّصة.";}
+  body.innerHTML=`<div class="test-prompt"><h3>📋 تقرير تقييم النطق</h3></div>
+    <div class="risk-card">
+      <div class="score-big" style="color:${color};">${arNum(composite)}</div>
+      <div class="score-label">درجة الكفاءة الكلامية</div>
+      <div style="text-align:center;font-size:14px;opacity:.9;margin-top:6px;">الحالة: <b style="color:${color};">${band}</b></div>
+      <div class="risk-grid">
+        <div class="risk-item"><div class="k">استدامة الصوت (MPT)</div><div class="v ${sub.mpt>=70?'ok':sub.mpt>=50?'warn':'danger'}">${arNum(session.mptSeconds.toFixed(1))} ث</div></div>
+        <div class="risk-item"><div class="k">ثبات النبرة</div><div class="v ${sub.jit>=70?'ok':sub.jit>=50?'warn':'danger'}">${arNum(session.mptJitter.toFixed(2))}%</div></div>
+        <div class="risk-item"><div class="k">دقة المخارج</div><div class="v ${sub.pron>=70?'ok':sub.pron>=50?'warn':'danger'}">${arNum(sub.pron)}%</div></div>
+        <div class="risk-item"><div class="k">سرعة المقاطع (DDK)</div><div class="v ${sub.ddk>=70?'ok':sub.ddk>=50?'warn':'danger'}">${arNum(ddkRate.toFixed(1))}/ث</div></div>
+        <div class="risk-item"><div class="k">سرعة القراءة</div><div class="v ${sub.read>=70?'ok':sub.read>=50?'warn':'danger'}">${arNum(session.readingWPM)} ك/د</div></div>
+        <div class="risk-item"><div class="k">مدى النغمة</div><div class="v ${sub.pitch>=70?'ok':sub.pitch>=50?'warn':'danger'}">${arNum(semitones.toFixed(1))} st</div></div>
+      </div>
+    </div>
+    <div class="risk-meaning"><b>التفسير:</b> ${advice}<br><br><b>تنبيه:</b> هذا تقييم رقمي مبني على أدوات بحثية (MPT، Jitter، DDK، WPM). يفيد كأداة فرز، لكن أي تشخيص نهائي يتطلب فحصًا سريريًا.</div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn" onclick="if(window.SehhatyHostApi&&window.SehhatyHostApi.bookAppointment)window.SehhatyHostApi.bookAppointment({specialty:'speech_pathology',score:${composite}});else alert('سيتم تحويلك لقسم حجز أخصائي تخاطب.\\nمرجع: SP-'+Date.now().toString().slice(-6));">🗣 احجز أخصائي تخاطب</button>
+      <button class="btn secondary" onclick="location.reload()">🔄 إعادة الجلسة</button>
+    </div>`;
+}
+
+setPhase(0);
+</script>
+</body>
+</html>

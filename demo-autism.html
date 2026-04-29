@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<script>
+(function(){try{var K="sehhaty:analytics:v1";var a=JSON.parse(localStorage.getItem(K))||{pages:{},visits:[]};var p=location.pathname.split("/").pop()||"index.html";a.pages[p]=(a.pages[p]||0)+1;a.visits.push({page:p,t:new Date().toISOString(),ref:document.referrer||"direct"});if(a.visits.length>500)a.visits=a.visits.slice(-500);localStorage.setItem(K,JSON.stringify(a));}catch(e){}})();
+</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الفحص الاستباقي للتوحد — صحتي 2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#4F46E5;--sky-dark:#312E81;--sky-light:#EEF2FF;--sky-accent:#A78BFA;--ink:#0E1E2E;--muted:#5C6F82;--bg:#F8FAFC;--ok:#10B981;--warn:#E9B44C;--danger:#D16B5C;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;}
+body{background:linear-gradient(180deg,#F8FAFC 0%,#DBEAFE 100%);color:var(--ink);min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#1E40AF,#3B82F6);color:#fff;padding:14px 0;}
+.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;}
+.brand-mark{width:40px;height:40px;background:#fff;border-radius:12px;display:grid;place-items:center;color:#1E40AF;font-weight:800;}
+.back{color:#fff;text-decoration:none;font-size:14px;opacity:.9;}
+.page-head{padding:30px 0 14px;}
+.eyebrow{display:inline-block;background:#DBEAFE;color:#1E40AF;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:10px;}
+h1{font-size:30px;font-weight:800;letter-spacing:-.5px;}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:760px;line-height:1.8;}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:20px;margin:14px 0 60px;align-items:start;}
+.stage{background:#fff;border:1px solid #DBEAFE;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px -30px rgba(30,64,175,.2);}
+.stage-head{background:linear-gradient(135deg,#1E3A8A,#3B82F6);color:#fff;padding:20px 24px;}
+.stage-head .title{font-size:18px;font-weight:700;}
+.body{padding:30px 28px;min-height:380px;}
+.btn{background:linear-gradient(135deg,#1E40AF,#3B82F6);color:#fff;border:none;padding:13px 32px;border-radius:12px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;}
+.btn.secondary{background:#fff;color:#1E40AF;border:2px solid #DBEAFE;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.test-prompt{text-align:center;padding:6px 0 18px;}
+.test-prompt h3{font-size:20px;color:#1E3A8A;margin-bottom:8px;}
+.test-prompt p{font-size:14px;color:var(--muted);max-width:560px;margin:0 auto;line-height:1.8;}
+
+.age-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;margin:14px auto;}
+.age-card{background:#fff;border:2px solid #DBEAFE;border-radius:16px;padding:22px;text-align:center;cursor:pointer;transition:all .2s;}
+.age-card:hover{border-color:#3B82F6;transform:translateY(-3px);}
+.age-card .ico{font-size:42px;margin-bottom:8px;}
+.age-card h4{color:#1E3A8A;margin-bottom:4px;}
+.age-card p{font-size:12.5px;color:var(--muted);}
+.age-card.selected{border-color:#3B82F6;background:#DBEAFE;}
+
+.q-card{background:#fff;border:1px solid #DBEAFE;border-radius:16px;padding:22px;margin:10px 0;}
+.q-num{display:inline-block;background:#1E40AF;color:#fff;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:700;}
+.q-text{font-size:17px;line-height:1.85;margin-top:10px;color:var(--ink);}
+.q-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.q-options button{padding:12px;background:#F1F5F9;border:2px solid transparent;border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;color:var(--ink);font-weight:600;}
+.q-options button:hover{border-color:#3B82F6;background:#fff;}
+.q-options button.selected{border-color:#3B82F6;background:#DBEAFE;color:#1E3A8A;}
+
+.progress-track{height:6px;background:#DBEAFE;border-radius:99px;overflow:hidden;margin:14px auto;max-width:560px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1E40AF,#3B82F6);transition:width .3s;}
+
+.q-meta{font-size:12px;color:var(--muted);text-align:center;margin-bottom:6px;}
+
+.risk-card{background:linear-gradient(135deg,#1E3A8A,#3B82F6);color:#fff;border-radius:20px;padding:24px;margin-top:6px;}
+.risk-card .score-big{font-size:60px;font-weight:800;text-align:center;line-height:1;color:#FCD34D;}
+.risk-card .score-label{text-align:center;font-size:18px;font-weight:700;margin-top:10px;}
+.risk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px;}
+.risk-item{background:rgba(255,255,255,.1);border-radius:12px;padding:12px;text-align:center;}
+.risk-item .k{font-size:11px;opacity:.75;}.risk-item .v{font-size:16px;font-weight:700;margin-top:3px;color:#FCD34D;}
+.risk-item .v.ok{color:#34D399;}.risk-item .v.warn{color:#FCD34D;}.risk-item .v.danger{color:#FCA5A5;}
+.risk-meaning{background:#fff;color:var(--ink);border-radius:14px;padding:18px;margin-top:14px;line-height:1.85;font-size:13.5px;}
+.risk-meaning b{color:#1E3A8A;}
+
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
+.side-card{background:#fff;border:1px solid #DBEAFE;border-radius:16px;padding:18px;}
+.side-card h3{font-size:14px;color:#1E3A8A;margin-bottom:12px;}
+.side-card .row{font-size:13px;line-height:1.85;color:var(--muted);}
+.tech-card{background:linear-gradient(135deg,#0F0C29,#1E1B4B);color:#E9F3EE;border-radius:16px;padding:18px;}
+.tech-card h3{color:#fff;font-size:14px;margin-bottom:10px;}
+.tech-row{background:rgba(255,255,255,.07);padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.7;margin-bottom:8px;}
+.tech-row b{display:block;color:#93C5FD;font-size:11px;margin-bottom:2px;}
+@media(max-width:960px){.layout{grid-template-columns:1fr;}.side{position:static;}.age-cards{grid-template-columns:1fr;}.q-options{grid-template-columns:1fr;}}
+</style>
+<style>
+/* === Universal responsive rules — added 1777382106 === */
+@media(max-width:960px){
+  .container{padding:0 16px!important;}
+  .layout{grid-template-columns:1fr!important;gap:14px!important;}
+  .side{position:static!important;}
+  h1{font-size:24px!important;letter-spacing:-.3px;}
+  .sub{font-size:14px!important;}
+  .page-head{padding:20px 0 10px!important;}
+  .stage-head{padding:14px 18px!important;}
+  .body{padding:20px 18px!important;}
+  .test-prompt h3{font-size:17px!important;}
+  .test-prompt p{font-size:13.5px!important;}
+  .btn{padding:11px 24px!important;font-size:14px!important;}
+}
+@media(max-width:520px){
+  .container{padding:0 12px!important;}
+  h1{font-size:20px!important;}
+  .topbar{padding:10px 0!important;}
+  .brand-mark{width:34px!important;height:34px!important;}
+  .brand div[style]{font-size:12px!important;}
+  .stage-head .title{font-size:15px!important;}
+  .stage-head .sub{font-size:11px!important;}
+  .progress-pills{padding:10px 16px!important;}
+  .body{padding:16px 14px!important;}
+  .test-prompt h3{font-size:15px!important;}
+  .test-prompt p{font-size:12.5px!important;line-height:1.7!important;}
+  .btn{padding:10px 18px!important;font-size:13px!important;}
+  .risk-card{padding:18px!important;border-radius:16px!important;}
+  .risk-card .score-big{font-size:44px!important;}
+  .risk-grid{grid-template-columns:1fr 1fr!important;gap:8px!important;}
+  .risk-item{padding:10px!important;}
+  .risk-item .v{font-size:14px!important;}
+  .risk-meaning{padding:14px!important;font-size:12.5px!important;}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="container topbar-inner">
+  <div class="brand"><div class="brand-mark">ص</div><div style="font-size:14px;">صحتي 2.0 — الفحص الاستباقي للتوحد</div></div>
+  <a href="index.html" class="back">→ العودة</a>
+</div></div>
+<div class="container page-head">
+  <span class="eyebrow">فحص فرز · معتمد دوليًا</span>
+  <h1>🧒 الفحص الاستباقي لاضطراب طيف التوحد</h1>
+  <p class="sub">أدوات فحص فرز معتمدة سريريًا: <b>M-CHAT-R/F</b> للأطفال (١٦-٣٠ شهرًا) · <b>AQ-10</b> للمراهقين والبالغين. النتيجة المرتفعة لا تعني تشخيصًا، لكنها توصي بإحالة لتقييم متخصص.</p>
+</div>
+<div class="container layout">
+  <div>
+    <div class="stage">
+      <div class="stage-head"><div class="title" id="phaseTitle">اختر الفئة العمرية</div></div>
+      <div class="body" id="body"></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="side-card">
+      <h3>🧒 لماذا الكشف المبكر؟</h3>
+      <div class="row">التدخل المبكر <b>قبل سن ٣ سنوات</b> يحسّن النتائج اللغوية والاجتماعية بنسبة <b>٤٠-٧٠%</b> (Dawson et al. 2010 — تجربة Early Start Denver Model).</div>
+    </div>
+    <div class="side-card" style="background:linear-gradient(135deg,#FFF8E6,#FEF3C7);border-color:#F7D774;">
+      <h3 style="color:#8A5A00;">⚠ تنبيه طبي</h3>
+      <div class="row" style="color:#6B4C00;">M-CHAT-R/F و AQ-10 أدوات <b>فرز</b> فقط. التشخيص النهائي يستلزم تقييم متعدد التخصصات (طبيب أطفال، أخصائي نفسي، تخاطب) عبر ADOS-2 وتقييم تطوّري.</div>
+    </div>
+    <div class="tech-card">
+      <h3>🔬 المصادر العلمية</h3>
+      <div class="tech-row"><b>M-CHAT-R/F</b>Robins et al. (2014) Pediatrics 133(1):37-45 — حساسية 85%، خصوصية 99%</div>
+      <div class="tech-row"><b>AQ-10</b>Allison, Auyeung, Baron-Cohen (2012) JAACAP — أداة سريعة بـ١٠ بنود، حساسية 88%</div>
+      <div class="tech-row"><b>الترجمة العربية</b>Seif Eldin et al. (2008) International Review of Psychiatry — تحقق نفسي من النسخة العربية</div>
+      <div class="tech-row"><b>ESDM (تدخل مبكر)</b>Dawson et al. (2010) Pediatrics — رفع IQ بـ١٧ نقطة بعد سنتين تدخل</div>
+      <div class="tech-row"><b>التشخيص النهائي</b>ADOS-2 (Lord et al. 2012) + DSM-5</div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const arNum=n=>String(n).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const $=id=>document.getElementById(id);
+const body=$("body"),phaseTitle=$("phaseTitle");
+
+// ============== M-CHAT-R/F (validated, 20 items) ==============
+// Risk scoring: items marked with critical=true increase weight. 0-2 = low, 3-7 = medium, 8+ = high
+// Reverse scoring: item answer "no" indicates risk (default), but #2, #5, #12 are reversed (yes = risk)
+const MCHAT=[
+  {q:"إذا أشرت إلى شيء بعيد في الغرفة، هل ينظر طفلك إليه؟",reverseRisk:false,critical:false},
+  {q:"هل تساءلت يومًا أن طفلك قد يكون أصمّ؟",reverseRisk:true,critical:false},
+  {q:"هل يلعب طفلك ألعاب الخيال أو التظاهر؟ (مثل التظاهر بشرب فنجان فارغ)",reverseRisk:false,critical:false},
+  {q:"هل يحب طفلك التسلق على الأشياء؟",reverseRisk:false,critical:false},
+  {q:"هل يقوم طفلك بحركات غير اعتيادية بأصابعه قرب عينيه؟",reverseRisk:true,critical:false},
+  {q:"هل يشير طفلك بسبابته لطلب شيء أو الاستعانة بمساعدة؟",reverseRisk:false,critical:true},
+  {q:"هل يشير طفلك بسبابته لإطلاعك على شيء يثير اهتمامه؟",reverseRisk:false,critical:true},
+  {q:"هل يهتم طفلك بالأطفال الآخرين؟",reverseRisk:false,critical:true},
+  {q:"هل يُحضر طفلك أشياء ليُريك إياها؟ (يقربها من وجهك مثلًا)",reverseRisk:false,critical:true},
+  {q:"هل يستجيب طفلك عند مناداته باسمه؟",reverseRisk:false,critical:true},
+  {q:"عندما تبتسم لطفلك، هل يبتسم في وجهك؟",reverseRisk:false,critical:false},
+  {q:"هل يزعج طفلك الضجيج اليومي العادي؟ (مثل المكنسة الكهربائية)",reverseRisk:true,critical:false},
+  {q:"هل يمشي طفلك؟",reverseRisk:false,critical:false},
+  {q:"هل ينظر طفلك في عينيك عندما تتحدث معه أو تلعب معه؟",reverseRisk:false,critical:true},
+  {q:"هل يقلّد طفلك حركاتك؟ (مثل التلويح، التصفيق)",reverseRisk:false,critical:true},
+  {q:"إذا التفتّ لتنظر لشيء، هل ينظر طفلك حولك ليرى ما تنظر إليه؟",reverseRisk:false,critical:true},
+  {q:"هل يحاول طفلك جذب انتباهك؟",reverseRisk:false,critical:false},
+  {q:"هل يفهم طفلك ما تطلبه منه؟",reverseRisk:false,critical:false},
+  {q:"إذا حدث شيء جديد، هل ينظر طفلك في وجهك ليرى رد فعلك؟",reverseRisk:false,critical:true},
+  {q:"هل يستمتع طفلك بالأنشطة الحركية؟ (مثل التأرجح، الرقص)",reverseRisk:false,critical:false}
+];
+
+// ============== AQ-10 (validated short form) ==============
+const AQ10=[
+  {q:"أُلاحظ غالبًا الأصوات الصغيرة بينما لا يلاحظها الآخرون",direction:"agree"},
+  {q:"أركّز عادةً على الصورة كاملة أكثر من التفاصيل الصغيرة",direction:"disagree"},
+  {q:"أجد صعوبة في متابعة عدة محادثات في وقت واحد",direction:"agree"},
+  {q:"أستطيع التبديل بسرعة بين أنشطة مختلفة",direction:"disagree"},
+  {q:"أجد صعوبة في «قراءة ما بين السطور» في الحوار",direction:"agree"},
+  {q:"أعرف بسهولة إن كان شخص يستمع إليّ بملل",direction:"disagree"},
+  {q:"عندما أقرأ قصة أصعب فهم نوايا الشخصيات",direction:"agree"},
+  {q:"أحب جمع المعلومات حول الفئات (مثل أنواع السيارات أو القطارات)",direction:"agree"},
+  {q:"أعرف بسهولة ما يشعر به الشخص من تعابير وجهه",direction:"disagree"},
+  {q:"أجد صعوبة في معرفة نوايا الآخرين",direction:"agree"}
+];
+
+let mode=null,answers=[],idx=0;
+
+function setPhase(name){
+  phaseTitle.textContent=name;body.innerHTML="";
+}
+
+function renderWelcome(){
+  setPhase("اختر الفئة العمرية للفحص");
+  body.innerHTML=`<div class="test-prompt"><p>هذه الأداة لا تُصدر تشخيصًا. الإجابة من <b>أحد الوالدين أو مقدّم الرعاية</b> للطفل، أو ذاتيًا للبالغ.</p></div>
+    <div class="age-cards">
+      <div class="age-card" data-mode="mchat"><div class="ico">👶</div><h4>طفل ١٦-٣٠ شهرًا</h4><p>أداة <b>M-CHAT-R/F</b><br>٢٠ سؤال للوالدين<br>المدة: ٤ دقائق</p></div>
+      <div class="age-card" data-mode="aq10"><div class="ico">🧑</div><h4>مراهق / بالغ</h4><p>أداة <b>AQ-10</b><br>١٠ أسئلة ذاتية<br>المدة: ٣ دقائق</p></div>
+    </div>`;
+  document.querySelectorAll(".age-card").forEach(c=>c.addEventListener("click",()=>{
+    mode=c.dataset.mode;answers=[];idx=0;
+    if(mode==="mchat")startMCHAT();else startAQ10();
+  }));
+}
+
+function startMCHAT(){renderQuestion();}
+function startAQ10(){renderQuestion();}
+
+function renderQuestion(){
+  const list=mode==="mchat"?MCHAT:AQ10;
+  const total=list.length;
+  if(idx>=total){renderReport();return;}
+  const q=list[idx];
+  setPhase(mode==="mchat"?"M-CHAT-R/F للأطفال":"AQ-10 للبالغين");
+  let opts;
+  if(mode==="mchat"){opts=[{l:"نعم",v:1},{l:"لا",v:0}];}
+  else{opts=[{l:"أوافق بشدة",v:3},{l:"أوافق",v:2},{l:"لا أوافق",v:1},{l:"لا أوافق بشدة",v:0}];}
+  body.innerHTML=`
+    <div class="q-meta">السؤال ${arNum(idx+1)} من ${arNum(total)}</div>
+    <div class="progress-track"><div class="progress-fill" style="width:${(idx)/total*100}%"></div></div>
+    <div class="q-card">
+      <span class="q-num">${arNum(idx+1)}</span>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options" id="qOpts" style="grid-template-columns:repeat(${opts.length},1fr);">
+        ${opts.map((o,k)=>`<button data-v="${o.v}">${o.l}</button>`).join("")}
+      </div>
+    </div>`;
+  document.querySelectorAll("#qOpts button").forEach(b=>b.addEventListener("click",()=>{
+    answers.push({idx,value:parseInt(b.dataset.v,10),q});
+    idx++;renderQuestion();
+  }));
+}
+
+function renderReport(){
+  let score=0,critFails=0,criticalQuestions=0;
+  if(mode==="mchat"){
+    // Each item: scored 1 if answer indicates risk
+    for(const a of answers){
+      const isRisk=a.q.reverseRisk?(a.value===1):(a.value===0);
+      if(isRisk){score++;if(a.q.critical)critFails++;}
+      if(a.q.critical)criticalQuestions++;
+    }
+  } else {
+    // AQ-10: each item scored 1 if "agree/strongly agree" matches "agree" direction OR
+    // "disagree/strongly disagree" matches "disagree" direction
+    for(const a of answers){
+      if(a.q.direction==="agree"&&a.value>=2)score++;
+      else if(a.q.direction==="disagree"&&a.value<=1)score++;
+    }
+  }
+
+  let band,color,advice,maxScore;
+  if(mode==="mchat"){
+    maxScore=20;
+    if(score<=2){band="منخفض";color="#34D399";advice="نتيجة ضمن الطبيعي. واصل المتابعة الدورية مع طبيب الأطفال في الفحوص الروتينية. أعد التقييم خلال ٦ أشهر إن لاحظت تغيرًا.";}
+    else if(score<=7){band="متوسط — متابعة";color="#FCD34D";advice="درجة متوسطة الخطر. ننصح بـ<b>إعادة الفحص بعد شهرين</b> + استشارة طبيب الأطفال لإجراء <b>M-CHAT-R/F Follow-Up</b> الكامل أو إحالة لمختص نمو الطفل عند استمرار العلامات.";}
+    else {band="مرتفع — إحالة فورية";color="#FCA5A5";advice="درجة مرتفعة تستوجب إحالة <b>عاجلة</b> لتقييم متعدد التخصصات (طبيب أطفال نمو + أخصائي نفسي + أخصائي تخاطب) عبر <b>ADOS-2</b>. التدخل المبكر قبل سن ٣ سنوات يصنع فارقًا حاسمًا.";}
+  } else {
+    maxScore=10;
+    if(score<6){band="غير مرجّح";color="#34D399";advice="نتيجتك تحت العتبة (${score} من ٦). الأرجح أنك لا تظهر سمات طيف التوحد كافية لاستدعاء تقييم متخصص. لكن إن كنت تعاني صعوبات اجتماعية ملموسة، استشر مختصًا.";}
+    else {band="فوق العتبة — تقييم موصى به";color="#FCA5A5";advice="نتيجتك ${score} من ١٠ (العتبة ٦). هذا لا يعني تشخيصًا — لكن يستوجب <b>تقييمًا تشخيصيًا مفصّلًا</b> من أخصائي نفسي مدرّب على ADOS-2 وADI-R لتأكيد أو نفي السمات.";}
+  }
+
+  body.innerHTML=`<div class="test-prompt"><h3>📋 نتيجة الفحص</h3></div>
+    <div class="risk-card">
+      <div class="score-big" style="color:${color};">${arNum(score)}<span style="font-size:24px;opacity:.7;">/${arNum(maxScore)}</span></div>
+      <div class="score-label">${mode==="mchat"?"الدرجة الإجمالية لـ M-CHAT-R/F":"الدرجة الإجمالية لـ AQ-10"}</div>
+      <div style="text-align:center;font-size:14px;opacity:.9;margin-top:6px;">المستوى: <b style="color:${color};">${band}</b></div>
+      <div class="risk-grid">
+        <div class="risk-item"><div class="k">عدد الأسئلة</div><div class="v ok">${arNum(answers.length)}</div></div>
+        <div class="risk-item"><div class="k">الدرجة</div><div class="v ${band.includes("منخفض")||band.includes("غير")?"ok":band.includes("متوسط")?"warn":"danger"}">${arNum(score)}</div></div>
+        ${mode==="mchat"?`<div class="risk-item"><div class="k">بنود حرجة</div><div class="v ${critFails<=1?"ok":critFails<=3?"warn":"danger"}">${arNum(critFails)}/${arNum(criticalQuestions)}</div></div>`:""}
+        <div class="risk-item"><div class="k">الأداة</div><div class="v ok">${mode==="mchat"?"M-CHAT-R/F":"AQ-10"}</div></div>
+      </div>
+    </div>
+    <div class="risk-meaning">
+      <b>التفسير:</b> ${advice}<br><br>
+      <b>تنبيه طبي:</b> هذه أدوات <b>فرز فقط</b> ولا تشخّص. الفحص الإيجابي يعني <u>ضرورة تقييم متخصص</u>، لا أكثر.
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn" onclick="if(window.SehhatyHostApi&&window.SehhatyHostApi.bookAppointment)window.SehhatyHostApi.bookAppointment({specialty:'developmental_pediatrics',score:${score}});else alert('سيتم تحويلك لقسم حجز عيادة نمو الطفل / الطب النفسي.\\nمرجع: AUT-'+Date.now().toString().slice(-6));">👨‍⚕️ احجز عيادة متخصصة</button>
+      <button class="btn secondary" onclick="location.reload()">🔄 إعادة الفحص</button>
+    </div>`;
+}
+
+renderWelcome();
+</script>
+</body>
+</html>
