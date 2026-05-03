@@ -51,7 +51,9 @@
 
   /* HERO */
   .hero{position:relative;padding:50px 0 60px;overflow:visible;}
-  .hero-inner{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;}
+  .hero-inner{display:grid;grid-template-columns:1fr;gap:48px;align-items:center;text-align:center;justify-items:center;}
+  .hero-content{max-width:820px;}
+  .hero-content .hero-cta{justify-content:center;}
 
   .hero-content{position:relative;z-index:3;}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(79,70,229,.08),rgba(79,70,229,.08));color:var(--royal-3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:22px;border:1px solid rgba(79,70,229,.15);}
@@ -69,79 +71,6 @@
   .btn-secondary{background:rgba(255,255,255,.7);backdrop-filter:blur(10px);color:var(--royal-2);padding:16px 28px;border-radius:16px;font-weight:600;text-decoration:none;border:1px solid rgba(79,70,229,.2);transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
   .btn-secondary:hover{background:#fff;border-color:var(--purple);}
 
-  /* ---- Hero visual: Royal stage around family image ---- */
-  .hero-visual{position:relative;height:640px;z-index:3;display:flex;align-items:center;justify-content:center;}
-
-  .family-stage{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;
-    background:
-      radial-gradient(ellipse 60% 40% at 50% 70%,rgba(79,70,229,.35) 0%,transparent 65%),
-      linear-gradient(135deg,#0A0826 0%,#0F0C29 30%,#1E1B4B 60%,#312E81 100%);
-    box-shadow:
-      0 60px 100px -30px rgba(30,27,75,.55),
-      0 0 0 1px rgba(255,255,255,.08),
-      0 0 140px -20px rgba(79,70,229,.35),
-      inset 0 0 120px rgba(167,139,250,.08);}
-
-  /* Inner glow pulsing */
-  .family-stage::before{content:"";position:absolute;inset:0;background:
-    radial-gradient(ellipse 70% 50% at 50% 50%,rgba(167,139,250,.25) 0%,transparent 60%);
-    z-index:1;animation:breathe 6s ease-in-out infinite;}
-  @keyframes breathe{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
-
-  /* Animated heart light trails SVG */
-  .light-trails{position:absolute;inset:0;z-index:2;pointer-events:none;}
-  .light-trails path{fill:none;stroke-linecap:round;animation:trailFlow 8s ease-in-out infinite;}
-  .light-trails .t1{stroke:rgba(167,139,250,.55);stroke-width:3;filter:drop-shadow(0 0 12px rgba(167,139,250,.7));}
-  .light-trails .t2{stroke:rgba(167,139,250,.5);stroke-width:2.5;filter:drop-shadow(0 0 10px rgba(167,139,250,.7));animation-delay:-2s;}
-  .light-trails .t3{stroke:rgba(192,132,252,.4);stroke-width:2;filter:drop-shadow(0 0 8px rgba(192,132,252,.6));animation-delay:-4s;}
-  .light-trails .t4{stroke:rgba(251,191,36,.35);stroke-width:1.8;filter:drop-shadow(0 0 6px rgba(251,191,36,.5));animation-delay:-6s;}
-  @keyframes trailFlow{
-    0%,100%{opacity:.4;stroke-dashoffset:0;}
-    50%{opacity:1;stroke-dashoffset:40;}
-  }
-
-  /* Family image */
-  .family-img-wrap{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-  .family-real-img{width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;transition:opacity .9s ease;}
-  .family-real-img.loaded{opacity:1;}
-
-  /* Loading state */
-  .img-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:5;text-align:center;padding:20px;gap:14px;transition:opacity .6s;}
-  .img-loading.hide{opacity:0;pointer-events:none;}
-  .img-loading .spin{width:50px;height:50px;border:3px solid rgba(255,255,255,.15);border-top-color:#A78BFA;border-radius:50%;animation:spinA 1s linear infinite;}
-  .img-loading .txt{font-size:14px;font-weight:600;opacity:.95;}
-  .img-loading .sub{font-size:11px;opacity:.65;max-width:260px;line-height:1.7;}
-  @keyframes spinA{to{transform:rotate(360deg);}}
-
-  /* SVG fallback wrap */
-  .family-svg{position:absolute;inset:0;width:100%;height:100%;z-index:3;display:none;}
-  .family-svg.show{display:block;}
-
-  /* Top scrim / bottom glow */
-  .scrim-top{position:absolute;top:0;left:0;right:0;height:100px;background:linear-gradient(180deg,rgba(10,10,46,.5) 0%,transparent 100%);z-index:4;pointer-events:none;}
-  .scrim-bottom{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(0deg,rgba(10,10,46,.6) 0%,transparent 100%);z-index:4;pointer-events:none;}
-
-  /* Star dots */
-  .starlight{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
-  .starlight .star{position:absolute;background:rgba(255,255,255,.7);border-radius:50%;animation:twinkle 3s ease-in-out infinite;}
-  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
-
-  /* Floating premium cards */
-  .floating-card{position:absolute;background:rgba(255,255,255,.92);backdrop-filter:blur(20px) saturate(1.8);-webkit-backdrop-filter:blur(20px) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:18px;padding:12px 16px;box-shadow:0 20px 50px -20px rgba(30,27,75,.35),inset 0 0 0 1px rgba(255,255,255,.5);z-index:6;animation:float 5s ease-in-out infinite;}
-  .floating-card .ico{font-size:22px;}
-  .floating-card .t{font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:500;}
-  .floating-card .v{font-weight:800;color:var(--royal-2);font-size:15px;display:flex;align-items:center;gap:6px;}
-  .floating-card .pulsedot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 1.2s infinite;}
-  .fc-1{top:6%;inset-inline-start:-5%;animation-delay:0s;}
-  .fc-2{top:32%;inset-inline-end:-8%;animation-delay:1.2s;}
-  .fc-3{bottom:32%;inset-inline-start:-7%;animation-delay:2.4s;}
-  .fc-4{bottom:14%;inset-inline-end:-5%;animation-delay:3.6s;}
-  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
-
-  /* Photo controls */
-  .photo-controls{position:absolute;bottom:18px;inset-inline-start:18px;inset-inline-end:18px;display:flex;justify-content:center;gap:8px;z-index:7;}
-  .photo-btn{background:rgba(255,255,255,.9);backdrop-filter:blur(10px);color:var(--royal-2);border:1px solid rgba(255,255,255,.5);padding:10px 16px;border-radius:999px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 10px 25px -10px rgba(30,27,75,.35);}
-  .photo-btn:hover{background:#fff;transform:translateY(-1px);}
 
   /* ---- Stats ---- */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:60px 0 40px;position:relative;z-index:3;}
@@ -304,8 +233,7 @@
 
   @media(max-width:1050px){
     h1{font-size:42px;}
-    .hero-inner{grid-template-columns:1fr;gap:40px;}
-    .hero-visual{height:540px;}
+    .hero-inner{gap:40px;}
     .stats{grid-template-columns:repeat(2,1fr);}
     .grid{grid-template-columns:1fr;}
     .pillar-grid{grid-template-columns:repeat(2,1fr);}
@@ -321,7 +249,6 @@
     .brand .subtitle{font-size:10px;}
     h1{font-size:30px;letter-spacing:-.4px;}
     .hero-text p{font-size:14.5px;}
-    .hero-visual{height:380px;}
     .stats{grid-template-columns:1fr;gap:10px;}
     .stat-num{font-size:30px;}
     .pillars{padding:22px;margin:30px 0;border-radius:18px;}
@@ -392,99 +319,6 @@
         <a href="#demos" class="btn-primary">جرّب الديموهات الحيّة</a>
         <a href="register.html" class="btn-secondary">📝 سجّل للتجربة</a>
       </div>
-    </div>
-
-    <!-- ROYAL HERO VISUAL -->
-    <div class="hero-visual">
-      <div class="family-stage" id="familyStage">
-
-        <!-- Twinkling stars -->
-        <div class="starlight" id="starlight"></div>
-
-        <!-- Heart light trails SVG -->
-        <svg class="light-trails" viewBox="0 0 500 640" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <!-- Heart-like ribbon paths flowing around the family -->
-          <path class="t1" d="M 80 280 C 120 180, 200 140, 250 200 C 300 140, 380 180, 420 280 C 440 360, 340 420, 250 500 C 160 420, 60 360, 80 280 Z" stroke-dasharray="8 6"/>
-          <path class="t2" d="M 120 320 C 160 240, 220 210, 250 260 C 280 210, 340 240, 380 320 C 400 380, 320 420, 250 470 C 180 420, 100 380, 120 320 Z" stroke-dasharray="5 10"/>
-          <path class="t3" d="M 60 340 C 100 250, 180 200, 250 250 Q 320 200, 440 340" stroke-dasharray="10 14"/>
-          <path class="t4" d="M 100 450 Q 250 390, 400 450" stroke-dasharray="4 8"/>
-        </svg>
-
-        <!-- Loading indicator (shown while AI image generates) -->
-        <div class="img-loading" id="imgLoading">
-          <div class="spin"></div>
-          <div class="txt">جارٍ توليد صورة العائلة السعودية</div>
-          <div class="sub">صورة واقعية بالذكاء الاصطناعي · قد تستغرق ١٠-٢٠ ثانية</div>
-        </div>
-
-        <!-- Real family photo (AI generated or uploaded) -->
-        <div class="family-img-wrap">
-          <img class="family-real-img" id="familyRealImg" alt="العائلة السعودية">
-
-          <!-- SVG fallback (only shown if everything fails) -->
-          <svg class="family-svg" id="familySvg" viewBox="0 0 500 640" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="shemagh" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
-                <rect width="14" height="14" fill="#ffffff"/>
-                <path d="M0 7 L14 7 M7 0 L7 14" stroke="#c91d2f" stroke-width="1.6"/>
-                <circle cx="7" cy="7" r="1.2" fill="#c91d2f"/>
-              </pattern>
-              <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C4A0"/><stop offset="1" stop-color="#D4A574"/></linearGradient>
-              <linearGradient id="thobe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ECF3F8"/></linearGradient>
-              <linearGradient id="abaya" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a2e"/><stop offset="1" stop-color="#0a0a1a"/></linearGradient>
-              <linearGradient id="girlDress" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A78BFA"/><stop offset="1" stop-color="#4F46E5"/></linearGradient>
-            </defs>
-            <!-- Simplified fallback family -->
-            <g transform="translate(120,380)">
-              <path d="M-28 30 Q-34 100 -40 180 L40 180 Q34 100 28 30 Q28 20 0 18 Q-28 20 -28 30 Z" fill="url(#girlDress)"/>
-              <ellipse cx="0" cy="-5" rx="22" ry="26" fill="url(#skin)"/>
-              <path d="M-26 -20 Q-34 -8 -30 15 L30 15 Q34 -8 26 -20 Q26 -36 0 -38 Q-26 -36 -26 -20 Z" fill="#FBD9E4"/>
-              <circle cx="-6" cy="-8" r="2" fill="#1a1a2e"/><circle cx="6" cy="-8" r="2" fill="#1a1a2e"/>
-            </g>
-            <g transform="translate(210,340)">
-              <path d="M-42 40 Q-58 150 -70 235 L70 235 Q58 150 42 40 Q42 25 0 22 Q-42 25 -42 40 Z" fill="url(#abaya)"/>
-              <ellipse cx="0" cy="-8" rx="26" ry="32" fill="url(#skin)"/>
-              <path d="M-30 -15 Q-40 10 -40 42 L-28 42 L-24 22 Q-30 0 -24 -14 Q-24 -38 0 -40 Q24 -38 24 -14 Q30 0 28 22 L40 42 Q40 10 30 -15 Q30 -45 0 -48 Q-30 -45 -30 -15 Z" fill="url(#abaya)"/>
-              <circle cx="-7" cy="-8" r="2.5" fill="#1a1a2e"/><circle cx="7" cy="-8" r="2.5" fill="#1a1a2e"/>
-            </g>
-            <g transform="translate(310,320)">
-              <path d="M-48 45 Q-55 170 -65 260 L65 260 Q55 170 48 45 Q48 30 0 28 Q-48 30 -48 45 Z" fill="url(#thobe)"/>
-              <ellipse cx="0" cy="-2" rx="30" ry="36" fill="url(#skin)"/>
-              <path d="M-34 -10 Q-48 25 -44 55 L-28 55 Q-24 25 -24 -10 Z" fill="url(#shemagh)"/>
-              <path d="M34 -10 Q48 25 44 55 L28 55 Q24 25 24 -10 Z" fill="url(#shemagh)"/>
-              <path d="M-34 -10 Q-38 -40 0 -44 Q38 -40 34 -10 L34 8 Q32 18 24 14 Q20 10 0 8 Q-20 10 -24 14 Q-32 18 -34 8 Z" fill="url(#shemagh)"/>
-              <ellipse cx="0" cy="-30" rx="36" ry="5" fill="#0a0a0a"/><ellipse cx="0" cy="-25" rx="37" ry="5" fill="#141414"/>
-              <circle cx="-10" cy="-3" r="2.5" fill="#1a1a2e"/><circle cx="10" cy="-3" r="2.5" fill="#1a1a2e"/>
-            </g>
-            <g transform="translate(410,400)">
-              <path d="M-30 30 Q-36 105 -44 180 L44 180 Q36 105 30 30 Q30 18 0 16 Q-30 18 -30 30 Z" fill="url(#thobe)"/>
-              <ellipse cx="0" cy="-5" rx="22" ry="27" fill="url(#skin)"/>
-              <path d="M-22 -10 Q-30 5 -28 30 L28 30 Q30 5 22 -10 Q22 -34 0 -36 Q-22 -34 -22 -10 Z" fill="url(#thobe)"/>
-              <ellipse cx="0" cy="-25" rx="24" ry="3" fill="#0a0a0a"/>
-              <circle cx="-6" cy="-5" r="2" fill="#1a1a2e"/><circle cx="6" cy="-5" r="2" fill="#1a1a2e"/>
-            </g>
-          </svg>
-        </div>
-
-        <!-- Scrims for depth -->
-        <div class="scrim-top"></div>
-        <div class="scrim-bottom"></div>
-
-        <!-- Upload control -->
-        <div class="photo-controls">
-          <button class="photo-btn" id="uploadPhotoBtn">📁 ارفع صورة (تُحفظ تلقائيًا)</button>
-          <button class="photo-btn" id="resetPhotoBtn" style="display:none;">🔄 إعادة تعيين</button>
-          <input type="file" id="photoUpload" accept="image/*" style="display:none;">
-        </div>
-
-      </div>
-
-      <!-- Premium floating cards -->
-      <div class="floating-card fc-1"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">❤️</span><div><div class="t">النبض</div><div class="v"><span class="pulsedot"></span>٧٢ ن/د</div></div></div></div>
-      <div class="floating-card fc-2"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">💤</span><div><div class="t">جودة النوم</div><div class="v">٨٤%</div></div></div></div>
-      <div class="floating-card fc-3"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">🏋️</span><div><div class="t">تمارين اليوم</div><div class="v">١٢ / ٢٠</div></div></div></div>
-      <div class="floating-card fc-4"><div style="display:flex;align-items:center;gap:10px;"><span class="ico">🧠</span><div><div class="t">تركيز دماغي</div><div class="v">٨٨%</div></div></div></div>
-
     </div>
 
   </div>
@@ -781,22 +615,6 @@
     requestAnimationFrame(step);
   });
 
-  // Starlight dots in hero
-  (function(){
-    var s=document.getElementById("starlight");
-    if(!s)return;
-    for(var i=0;i<28;i++){
-      var d=document.createElement("div");
-      d.className="star";
-      var size=1+Math.random()*3;
-      d.style.width=d.style.height=size+"px";
-      d.style.top=Math.random()*100+"%";
-      d.style.left=Math.random()*100+"%";
-      d.style.animationDelay=(Math.random()*3)+"s";
-      d.style.animationDuration=(2+Math.random()*3)+"s";
-      s.appendChild(d);
-    }
-  })();
 
   // Sparkline
   (function(){
@@ -862,98 +680,6 @@
     tick();
   })();
 
-  // Family image: use uploaded image (persisted in localStorage) or family.jpg, NO AI generation
-  (function(){
-    var uploadBtn=document.getElementById("uploadPhotoBtn");
-    var uploadInput=document.getElementById("photoUpload");
-    var realImg=document.getElementById("familyRealImg");
-    var svg=document.getElementById("familySvg");
-    var loading=document.getElementById("imgLoading");
-    var STORAGE_KEY="sehhaty:familyImg:v1";
-
-    function showImage(src){
-      realImg.src=src;
-      realImg.onload=function(){
-        realImg.classList.add("loaded");
-        loading.classList.add("hide");
-        svg.classList.remove("show");
-      };
-      realImg.onerror=function(){
-        loading.classList.add("hide");
-        svg.classList.add("show");
-      };
-    }
-
-    function showSvgFallback(){
-      loading.classList.add("hide");
-      svg.classList.add("show");
-      realImg.classList.remove("loaded");
-    }
-
-    // 1) Check localStorage for previously uploaded image (persistent)
-    var saved=null;
-    try{saved=localStorage.getItem(STORAGE_KEY);}catch(e){}
-    if(saved){
-      showImage(saved);
-    } else {
-      // 2) Try family.jpg next to index.html (if user committed it to repo)
-      var probe=new Image();
-      var done=false;
-      probe.onload=function(){if(done)return;done=true;showImage("family.jpg");};
-      probe.onerror=function(){if(done)return;done=true;showSvgFallback();};
-      probe.src="family.jpg";
-      setTimeout(function(){if(!done){done=true;showSvgFallback();}},3000);
-    }
-
-    // Show reset button if we already have a saved image
-    var resetBtn=document.getElementById("resetPhotoBtn");
-    function updateResetBtn(){
-      try{
-        resetBtn.style.display=localStorage.getItem(STORAGE_KEY)?"inline-flex":"none";
-      }catch(e){}
-    }
-    updateResetBtn();
-
-    // Upload replaces & persists permanently in browser (localStorage)
-    uploadBtn.addEventListener("click",function(){uploadInput.click();});
-    uploadInput.addEventListener("change",function(e){
-      var file=e.target.files&&e.target.files[0];
-      if(!file)return;
-      var r=new FileReader();
-      r.onload=function(ev){
-        var dataUrl=ev.target.result;
-        try{
-          localStorage.setItem(STORAGE_KEY,dataUrl);
-          uploadBtn.innerHTML="✓ تم حفظ الصورة تلقائيًا";
-          setTimeout(function(){uploadBtn.innerHTML="📁 استبدل بصورة أخرى";},2200);
-        }catch(err){
-          console.warn("LocalStorage save failed (quota exceeded):",err);
-          uploadBtn.innerHTML="⚠ الصورة كبيرة جدًا";
-          setTimeout(function(){uploadBtn.innerHTML="📁 استبدل بصورة أخرى";},2500);
-        }
-        showImage(dataUrl);
-        loading.classList.add("hide");
-        svg.classList.remove("show");
-        updateResetBtn();
-      };
-      r.readAsDataURL(file);
-    });
-
-    resetBtn.addEventListener("click",function(){
-      if(!confirm("هل تريد حذف الصورة المحفوظة؟"))return;
-      try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
-      realImg.classList.remove("loaded");
-      realImg.src="";
-      // Try family.jpg again, else show SVG
-      var probe=new Image();
-      var done=false;
-      probe.onload=function(){if(done)return;done=true;showImage("family.jpg");};
-      probe.onerror=function(){if(done)return;done=true;showSvgFallback();};
-      probe.src="family.jpg";
-      setTimeout(function(){if(!done){done=true;showSvgFallback();}},2000);
-      updateResetBtn();
-    });
-  })();
 </script>
 
 </body>
